@@ -40,6 +40,9 @@ public class EmployeeFunction extends BaseFunction{
                 System.out.println("You already have duty on " + day + " at section " + section + ". Cannot request another duty.");
                 return;
             }
+		}catch (Exception e) {
+            e.printStackTrace();
+		}
 		
 		try (FileWriter writer = new FileWriter("Duty_Request.txt", true)) {
 			writer.write(userid + "\n" + day + "\n" + section);
