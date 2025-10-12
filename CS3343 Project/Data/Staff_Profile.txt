@@ -1,0 +1,3 @@
+# Staff Profile Data File
+# Format: StaffID|Name|Role|Department|Salary
+# Example: 101|Alice Wong|Cashier|Sales|3000.0

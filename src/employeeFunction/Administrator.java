@@ -1,25 +1,94 @@
 package employeeFunction;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public class Administrator extends BaseUser {
-    private Map<Integer, StaffProfile> staffDatabase;
+    private static final String STAFF_PROFILE_FILE = "CS3343 Project/Data/Staff_Profile.txt";
 
     public Administrator(int userId, String username, String password) {
         super(userId, username, password);
-        this.staffDatabase = new HashMap<>();
+        initializeStaffFile();
+    }
+
+    // Initialize staff profile file if it doesn't exist
+    private void initializeStaffFile() {
+        File file = new File(STAFF_PROFILE_FILE);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                System.out.println("Staff profile file created: " + STAFF_PROFILE_FILE);
+            } catch (IOException e) {
+                System.out.println("Error creating staff profile file: " + e.getMessage());
+            }
+        }
+    }
+
+    // Load staff profiles from file
+    private List<StaffProfile> loadStaffProfiles() {
+        List<StaffProfile> profiles = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    String[] parts = line.split("\\|");
+                    if (parts.length == 5) {
+                        int staffId = Integer.parseInt(parts[0].trim());
+                        String name = parts[1].trim();
+                        String role = parts[2].trim();
+                        String department = parts[3].trim();
+                        double salary = Double.parseDouble(parts[4].trim());
+                        profiles.add(new StaffProfile(staffId, name, role, department, salary));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading staff profiles: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing staff data: " + e.getMessage());
+        }
+        return profiles;
+    }
+
+    // Save staff profiles to file
+    private void saveStaffProfiles(List<StaffProfile> profiles) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(STAFF_PROFILE_FILE))) {
+            for (StaffProfile profile : profiles) {
+                writer.println(profile.getStaffId() + "|" + profile.getName() + "|" + 
+                             profile.getRole() + "|" + profile.getDepartment() + "|" + profile.getSalary());
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving staff profiles: " + e.getMessage());
+        }
+    }
+
+    // Get user info by staff ID
+    public StaffProfile getUserInfo(int staffId) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        for (StaffProfile profile : profiles) {
+            if (profile.getStaffId() == staffId) {
+                return profile;
+            }
+        }
+        return null;
     }
 
     // Add staff profile with validation
     public boolean addStaffProfile(int staffId, String staffName, String role, String department, double salary) {
-        if (staffDatabase.containsKey(staffId)) {
-            System.out.println("Error: Staff ID " + staffId + " already exists!");
-            return false;
+        List<StaffProfile> profiles = loadStaffProfiles();
+        
+        // Check if staff ID already exists
+        for (StaffProfile profile : profiles) {
+            if (profile.getStaffId() == staffId) {
+                System.out.println("Error: Staff ID " + staffId + " already exists!");
+                return false;
+            }
         }
 
         StaffProfile newStaff = new StaffProfile(staffId, staffName, role, department, salary);
-        staffDatabase.put(staffId, newStaff);
+        profiles.add(newStaff);
+        saveStaffProfiles(profiles);
+        
         System.out.println("✓ Staff profile added successfully:");
         System.out.println("  ID: " + staffId + ", Name: " + staffName + ", Role: " + role);
         System.out.println("  Department: " + department + ", Salary: $" + salary);
@@ -28,30 +97,40 @@ public class Administrator extends BaseUser {
 
     // Edit staff profile with specific field updates
     public boolean editStaffProfile(int staffId, String field, String newValue) {
-        if (!staffDatabase.containsKey(staffId)) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        StaffProfile targetStaff = null;
+        
+        // Find the staff to edit
+        for (StaffProfile profile : profiles) {
+            if (profile.getStaffId() == staffId) {
+                targetStaff = profile;
+                break;
+            }
+        }
+        
+        if (targetStaff == null) {
             System.out.println("Error: Staff ID " + staffId + " not found!");
             return false;
         }
 
-        StaffProfile staff = staffDatabase.get(staffId);
         boolean updated = false;
 
         switch (field.toLowerCase()) {
             case "name":
-                staff.setName(newValue);
+                targetStaff.setName(newValue);
                 updated = true;
                 break;
             case "role":
-                staff.setRole(newValue);
+                targetStaff.setRole(newValue);
                 updated = true;
                 break;
             case "department":
-                staff.setDepartment(newValue);
+                targetStaff.setDepartment(newValue);
                 updated = true;
                 break;
             case "salary":
                 try {
-                    staff.setSalary(Double.parseDouble(newValue));
+                    targetStaff.setSalary(Double.parseDouble(newValue));
                     updated = true;
                 } catch (NumberFormatException e) {
                     System.out.println("Error: Invalid salary format!");
@@ -64,6 +143,7 @@ public class Administrator extends BaseUser {
         }
 
         if (updated) {
+            saveStaffProfiles(profiles);
             System.out.println("✓ Staff profile " + staffId + " updated successfully.");
             System.out.println("  " + field + " changed to: " + newValue);
         }
@@ -72,12 +152,12 @@ public class Administrator extends BaseUser {
 
     // View staff profile with detailed information
     public void viewStaffProfile(int staffId) {
-        if (!staffDatabase.containsKey(staffId)) {
+        StaffProfile staff = getUserInfo(staffId);
+        if (staff == null) {
             System.out.println("Error: Staff ID " + staffId + " not found!");
             return;
         }
 
-        StaffProfile staff = staffDatabase.get(staffId);
         System.out.println("==================== STAFF PROFILE ====================");
         System.out.println("Staff ID: " + staff.getStaffId());
         System.out.println("Name: " + staff.getName());
@@ -89,7 +169,8 @@ public class Administrator extends BaseUser {
 
     // View all staff profiles
     public void viewAllStaffProfiles() {
-        if (staffDatabase.isEmpty()) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        if (profiles.isEmpty()) {
             System.out.println("No staff profiles found.");
             return;
         }
@@ -98,7 +179,7 @@ public class Administrator extends BaseUser {
         System.out.printf("%-8s %-20s %-15s %-15s %-10s%n", "ID", "Name", "Role", "Department", "Salary");
         System.out.println("----------------------------------------------------------------");
 
-        for (StaffProfile staff : staffDatabase.values()) {
+        for (StaffProfile staff : profiles) {
             System.out.printf("%-8d %-20s %-15s %-15s $%-9.2f%n",
                     staff.getStaffId(), staff.getName(), staff.getRole(),
                     staff.getDepartment(), staff.getSalary());
@@ -108,25 +189,63 @@ public class Administrator extends BaseUser {
 
     // Delete staff profile with confirmation
     public boolean deleteStaffProfile(int staffId) {
-        if (!staffDatabase.containsKey(staffId)) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        StaffProfile toRemove = null;
+        
+        // Find the staff to remove
+        for (StaffProfile profile : profiles) {
+            if (profile.getStaffId() == staffId) {
+                toRemove = profile;
+                break;
+            }
+        }
+        
+        if (toRemove == null) {
             System.out.println("Error: Staff ID " + staffId + " not found!");
             return false;
         }
 
-        StaffProfile removedStaff = staffDatabase.remove(staffId);
+        profiles.remove(toRemove);
+        saveStaffProfiles(profiles);
         System.out.println("✓ Staff profile deleted successfully:");
-        System.out.println("  Removed: " + removedStaff.getName() + " (ID: " + staffId + ")");
+        System.out.println("  Removed: " + toRemove.getName() + " (ID: " + staffId + ")");
         return true;
     }
 
     // Helper method to check if staff exists
     public boolean staffExists(int staffId) {
-        return staffDatabase.containsKey(staffId);
+        return getUserInfo(staffId) != null;
     }
 
     // Get staff count
     public int getStaffCount() {
-        return staffDatabase.size();
+        return loadStaffProfiles().size();
+    }
+
+    // Search staff by name (partial match)
+    public List<StaffProfile> searchStaffByName(String searchName) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        List<StaffProfile> results = new ArrayList<>();
+        
+        for (StaffProfile profile : profiles) {
+            if (profile.getName().toLowerCase().contains(searchName.toLowerCase())) {
+                results.add(profile);
+            }
+        }
+        return results;
+    }
+
+    // Get staff by department
+    public List<StaffProfile> getStaffByDepartment(String department) {
+        List<StaffProfile> profiles = loadStaffProfiles();
+        List<StaffProfile> results = new ArrayList<>();
+        
+        for (StaffProfile profile : profiles) {
+            if (profile.getDepartment().equalsIgnoreCase(department)) {
+                results.add(profile);
+            }
+        }
+        return results;
     }
 
     // Inner class for Staff Profile data structure
