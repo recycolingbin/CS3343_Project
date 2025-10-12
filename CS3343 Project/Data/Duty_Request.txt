@@ -1,0 +1,6 @@
+# Duty Request Data File  
+# Format: EmployeeID|Date|Session|
+101|2025-10-15|MORNING|
+102|2025-10-18|AFTERNOON|
+104|2025-10-22|NIGHT|
+103|2025-10-25|MORNING|
