@@ -54,8 +54,8 @@ public class Administrator extends BaseUser {
     private void saveStaffProfiles(List<StaffProfile> profiles) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(STAFF_PROFILE_FILE))) {
             for (StaffProfile profile : profiles) {
-                writer.println(profile.getStaffId() + "|" + profile.getName() + "|" + 
-                             profile.getRole() + "|" + profile.getDepartment() + "|" + profile.getSalary());
+                writer.println(profile.getStaffId() + "|" + profile.getName() + "|" +
+                        profile.getRole() + "|" + profile.getDepartment() + "|" + profile.getSalary());
             }
         } catch (IOException e) {
             System.out.println("Error saving staff profiles: " + e.getMessage());
@@ -76,7 +76,7 @@ public class Administrator extends BaseUser {
     // Add staff profile with validation
     public boolean addStaffProfile(int staffId, String staffName, String role, String department, double salary) {
         List<StaffProfile> profiles = loadStaffProfiles();
-        
+
         // Check if staff ID already exists
         for (StaffProfile profile : profiles) {
             if (profile.getStaffId() == staffId) {
@@ -88,7 +88,7 @@ public class Administrator extends BaseUser {
         StaffProfile newStaff = new StaffProfile(staffId, staffName, role, department, salary);
         profiles.add(newStaff);
         saveStaffProfiles(profiles);
-        
+
         System.out.println("✓ Staff profile added successfully:");
         System.out.println("  ID: " + staffId + ", Name: " + staffName + ", Role: " + role);
         System.out.println("  Department: " + department + ", Salary: $" + salary);
@@ -99,7 +99,7 @@ public class Administrator extends BaseUser {
     public boolean editStaffProfile(int staffId, String field, String newValue) {
         List<StaffProfile> profiles = loadStaffProfiles();
         StaffProfile targetStaff = null;
-        
+
         // Find the staff to edit
         for (StaffProfile profile : profiles) {
             if (profile.getStaffId() == staffId) {
@@ -107,7 +107,7 @@ public class Administrator extends BaseUser {
                 break;
             }
         }
-        
+
         if (targetStaff == null) {
             System.out.println("Error: Staff ID " + staffId + " not found!");
             return false;
@@ -191,7 +191,7 @@ public class Administrator extends BaseUser {
     public boolean deleteStaffProfile(int staffId) {
         List<StaffProfile> profiles = loadStaffProfiles();
         StaffProfile toRemove = null;
-        
+
         // Find the staff to remove
         for (StaffProfile profile : profiles) {
             if (profile.getStaffId() == staffId) {
@@ -199,7 +199,7 @@ public class Administrator extends BaseUser {
                 break;
             }
         }
-        
+
         if (toRemove == null) {
             System.out.println("Error: Staff ID " + staffId + " not found!");
             return false;
@@ -226,7 +226,7 @@ public class Administrator extends BaseUser {
     public List<StaffProfile> searchStaffByName(String searchName) {
         List<StaffProfile> profiles = loadStaffProfiles();
         List<StaffProfile> results = new ArrayList<>();
-        
+
         for (StaffProfile profile : profiles) {
             if (profile.getName().toLowerCase().contains(searchName.toLowerCase())) {
                 results.add(profile);
@@ -239,7 +239,7 @@ public class Administrator extends BaseUser {
     public List<StaffProfile> getStaffByDepartment(String department) {
         List<StaffProfile> profiles = loadStaffProfiles();
         List<StaffProfile> results = new ArrayList<>();
-        
+
         for (StaffProfile profile : profiles) {
             if (profile.getDepartment().equalsIgnoreCase(department)) {
                 results.add(profile);
