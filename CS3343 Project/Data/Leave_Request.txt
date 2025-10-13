@@ -1,5 +1,0 @@
-# Leave Request Data File
-# Format: RequestID|EmployeeID|StartDate|EndDate|Reason|Status|RequestDate
-1001|101|2025-10-20|2025-10-22|Family vacation|PENDING|2025-10-12
-1002|102|2025-10-25|2025-10-25|Medical appointment|PENDING|2025-10-12
-1003|103|2025-11-01|2025-11-03|Personal leave|APPROVED|2025-10-10
