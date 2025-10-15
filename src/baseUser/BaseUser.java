@@ -1,4 +1,4 @@
-package employeeFunction;
+package baseUser;
 
 public class BaseUser {
     protected int userId;
