@@ -1,9 +1,7 @@
-package administrator;
+package employeeFunction;
 
 import java.io.*;
 import java.util.*;
-
-import baseUser.BaseUser;
 
 public class Administrator extends BaseUser {
     private static final String STAFF_PROFILE_FILE = "CS3343 Project/Data/Staff_Profile.txt";

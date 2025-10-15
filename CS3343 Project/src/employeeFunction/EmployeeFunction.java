@@ -3,14 +3,9 @@ package employeeFunction;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Year;
 import java.util.Scanner;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-import baseUser.BaseUser;
-
-public class EmployeeFunction extends BaseUser {
+public class EmployeeFunction extends BaseFunction {
 	private EmployeeFunction instance;
 
 	public EmployeeFunction getInstance() {
@@ -19,26 +14,13 @@ public class EmployeeFunction extends BaseUser {
 		}
 		return instance;
 	}
-	
-	public int getfilelinesnum(String filename) {
-		int lines = 0;
-		try (Scanner scanner = new Scanner(new File(filename))) {
-			while (scanner.hasNextLine()) {
-				scanner.nextLine();
-				lines++;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return lines;
-	}
 
 	public void Request_duty(String userid) {
 		System.out.println("Please enter the day you want to request a duty:");
 		Scanner scanner = new Scanner(System.in);
 		String day = scanner.nextLine();
 
-		System.out.println("1. Morning\n2. Afternoon\n3. Night\nPlease enter the section you want to request on " + day + ":");
+		System.out.println("Please enter the section you want to request on " + day + ":");
 		String section = scanner.nextLine();
 
 		File shift = new File("Shift.txt");
@@ -46,9 +28,9 @@ public class EmployeeFunction extends BaseUser {
 			boolean found = false;
 			while (fileScanner.hasNextLine()) {
 				String line = fileScanner.nextLine();
-				String[] info = line.split("\\|");
-				if (info[0].equals(userid)) {
-					if (info[1].equals(day)) {
+				if (line.equals(userid)) {
+					line = fileScanner.nextLine();
+					if (line.equals(day)) {
 						found = true;
 						break;
 					}
@@ -64,7 +46,7 @@ public class EmployeeFunction extends BaseUser {
 		}
 
 		try (FileWriter writer = new FileWriter("Duty_Request.txt", true)) {
-			writer.write(userid + "|" + day + "|" + section);
+			writer.write(userid + "\n" + day + "\n" + section);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -73,27 +55,26 @@ public class EmployeeFunction extends BaseUser {
 	}
 
 	public void Request_leave(String userid) {
-		System.out.println("Please enter the day you want to request a leave (You can only request the day you have duty on)\nPlease enter the start date (The format should be MM-DD):");
+		System.out.println(
+				"Please enter the day you want to request a leave (You can only request the day you have duty on):");
 		Scanner scanner = new Scanner(System.in);
-		String sday = Year.now().getValue() + "-" + scanner.nextLine();
-		System.out.println("Please enter the end date");
-		String eday = Year.now().getValue() + "-" + scanner.nextLine();
+		String day = scanner.nextLine();
 
 		File shift = new File("Shift.txt");
 		try (Scanner fileScanner = new Scanner(shift)) {
 			boolean found = false;
 			while (fileScanner.hasNextLine()) {
 				String line = fileScanner.nextLine();
-				String[] info = line.split("\\|");
-				if (info[0].equals(userid)) {
-					if (info[1].compareTo(sday) >= 0 && info[1].compareTo(eday) <= 0) {
+				if (line.equals(userid)) {
+					line = fileScanner.nextLine();
+					if (line.equals(day)) {
 						found = true;
 						break;
 					}
 				}
 			}
 			if (!found) {
-				System.out.println("You do not have a duty during " + sday + " to " + eday + ". Cannot request leave.");
+				System.out.println("You do not have a duty on " + day + ". Cannot request leave.");
 				return;
 			}
 
@@ -101,12 +82,11 @@ public class EmployeeFunction extends BaseUser {
 			e.printStackTrace();
 		}
 
-		System.out.println("Please enter the reason for taking leave:");
-		String reason = scanner.nextLine();
+		System.out.println("Please enter the section you want to request on " + day + ":");
+		String section = scanner.nextLine();
 
 		try (FileWriter writer = new FileWriter("Leave_Request.txt", true)) {
-			int lines = getfilelinesnum("Leave_Request.txt") + 1000;
-			writer.write(lines + "|" + userid + "|" + sday + "|" + eday + "|" + reason + "\n");
+			writer.write(userid + "\n" + day + "\n" + section);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -116,8 +96,9 @@ public class EmployeeFunction extends BaseUser {
 
 	public void Login_page(String userid) {
 		while (true) {
-			super.viewFunction();
-			System.out.println("Please input the action you want to do: \n 1.Request Duty \n 2.Request Leave \n 3. Logout");
+			super.View_Shift();
+			System.out.println(
+					"Please input the action you want to do: \n 1.Request Duty \n 2.Request Leave \n 3. Logout");
 			Scanner scanner = new Scanner(System.in);
 			int action = scanner.nextInt();
 			switch (action) {
