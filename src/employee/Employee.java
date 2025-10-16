@@ -1,132 +1,43 @@
 package employee;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
+public class Employee {
+    private int employeeId;
+    private String name;
+    private String role; // e.g., "Manager", "Staff"
+    private String employeeType; // e.g., "FullTime" or "PartTime"
 
-import baseUser.BaseUser;
+    public Employee(int employeeId, String name, String role) {
+        this.employeeId = employeeId;
+        this.name = name;
+        this.role = role;
+        this.employeeType = "FullTime";
+    }
 
-public class Employee extends BaseUser{
-	
-	public Employee(int userId, String username, String password) {
-		super(userId, username, password);
+    public int getEmployeeId() {
+        return employeeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getRole() {
+        return role;
+    }
+    
+	public String getEmployeeType() {
+		return employeeType;
 	}
 
-	private Employee instance;
-	
-	public Employee getInstance() {
-		if (instance == null) {
-			instance = new Employee(super.userId, super.username, super.password);
-		}
-		return instance;
-	}
-	
-	public void Request_duty(int userid) {
-		System.out.println("Please enter the day you want to request a duty:");
-		Scanner scanner = new Scanner(System.in);
-		String day = scanner.nextLine();
-		
-		System.out.println("Please enter the section you want to request on " + day + ":");
-		String section = scanner.nextLine();
-		
-		File shift = new File("Shift.txt");
-		try (Scanner fileScanner = new Scanner(shift)) {
-            boolean found = false;
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                if (line.equals(Integer.toString(userid))) {
-                    line = fileScanner.nextLine();
-                    if (line.equals(day)) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (found) {
-                System.out.println("You already have duty on " + day + " at section " + section + ". Cannot request another duty.");
-                return;
-            }
-		}catch (Exception e) {
-            e.printStackTrace();
-		}
-		
-		try (FileWriter writer = new FileWriter("Duty_Request.txt", true)) {
-			writer.write(userid + "\n" + day + "\n" + section);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		scanner.close();
-	}
-	
-	public void Request_leave(int userid) {
-		System.out.println("Please enter the day you want to request a leave (You can only request the day you have duty on):");
-		Scanner scanner = new Scanner(System.in);
-		String day = scanner.nextLine();
-		
-		File shift = new File("Shift.txt");
-		try (Scanner fileScanner = new Scanner(shift)) {
-			boolean found = false;
-			while (fileScanner.hasNextLine()) {
-				String line = fileScanner.nextLine();
-				if (line.equals(Integer.toString(userid))) {
-					line = fileScanner.nextLine();
-					if (line.equals(day)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				System.out.println("You do not have a duty on " + day + ". Cannot request leave.");
-				return;
-			}
-			
-		}catch (Exception e) {
-            e.printStackTrace();
-        }
-		
-		System.out.println("Please enter the section you want to request on " + day + ":");
-		String section = scanner.nextLine();
-		
-		try (FileWriter writer = new FileWriter("Leave_Request.txt", true)) {
-			writer.write(userid + "\n" + day + "\n" + section);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-		scanner.close();
-	}
-	
-	public void Login_page(int userid, String password) {
-		while (true) {
-			super.viewFunction();
-			System.out.println("Please input the action you want to do: \n 1.Request Duty \n 2.Request Leave \n 3. Logout");
-			Scanner scanner = new Scanner(System.in);
-			int action = scanner.nextInt();
-			switch (action) {
-			case 1:
-				Request_duty(userid);
-				break;
-			case 2:
-				Request_leave(userid);
-				break;
-			case 3:
-				System.out.println("Are you sure you want to logout? (Y/N)");
-				String confirm = scanner.next();
-				if (confirm.equalsIgnoreCase("Y")) {
-					System.out.println("Logging out...");
-					scanner.close();
-					return;
-				} else {
-					break;
-				}
-			default:
-                System.out.println("Invlalid action.");
-            }
-			scanner.close();
-		}
-		
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+	public void setEmployeeType(String employeeType) {
+		this.employeeType = employeeType;
 	}
 }
