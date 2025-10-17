@@ -12,7 +12,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("=============== Welcome to the Employee Management System ===============");
+            System.out.println("=============== Welcome to the Roster Management System ===============");
             System.out.println("1. Login: Employee");
             System.out.println("2. Login: Administrator");
             System.out.println("3. Exit");
@@ -29,11 +29,11 @@ public class Main {
                     System.out.print("Enter Password: ");
                     String Password = scanner.nextLine();
 
-                    // not sure if here will work cuz baseUser doesnt return userID
+                    //its string in employeeFunction but int in baseUser?
                     Employee employee = new Employee(1001, Username, Password);
-                    if (baseUser.login(Username, Password)) {
+                    if (BaseUser.login(employee, Username, Password)) {
                         System.out.println("Employee login successful.");
-                        employee.Login_page(employee.userId);
+                        employeeFunction.Login_page(Integer.toString(employee.getUserId()));
                     } else {
                         System.out.println("Invalid. Please try again :(");
                     }
@@ -46,7 +46,6 @@ public class Main {
                     System.out.print("Enter Password: ");
                     String AdminPassword = scanner.nextLine();
 
-                    // Simulating administrator data
                     Administrator admin = new Administrator(2001, AdminUsername, AdminPassword);
                     if (admin.login(AdminUsername, AdminPassword)) {
                         System.out.println("Administrator login successful.");
@@ -85,7 +84,7 @@ public class Main {
             System.out.print("Please select a category (1-4): ");
 
             int adminChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine(); 
 
             switch (adminChoice) {
                 case 1:
@@ -95,15 +94,20 @@ public class Main {
 
                 case 2:
                     // Request Management Sub-Menu
-                    requestManagementMenu(admin, scanner);
+                    dutyRequestMenu(admin, scanner);
                     break;
 
                 case 3:
+                    // Request Management Sub-Menu
+                    leaveRequestMenu(admin, scanner);
+                    break;
+
+                case 4:
                     // Shift Management Sub-Menu
                     shiftManagementMenu(admin, scanner);
                     break;
 
-                case 4:
+                case 5:
                     // Logout
                     System.out.println("Logging out...");
                     adminRunning = false;
@@ -135,7 +139,7 @@ public class Main {
             System.out.print("Please select an option (1-8): ");
 
             int staffChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine(); 
 
             switch (staffChoice) {
                 case 1:
@@ -220,66 +224,14 @@ public class Main {
     }
 
 //================================================================================================================
-//========Admin sub menu: request management======================================================================
-//================================================================================================================
-
-    private static void requestManagementMenu(Administrator admin, Scanner scanner) {
-        boolean requestManagementRunning = true;
-
-        while (requestManagementRunning) {
-            System.out.println("\n=============== Request Management Menu ===============");
-            System.out.println("1. Duty Management");
-            System.out.println("2. Leave Request Management");
-            System.out.println("3. Reject Leave Request");
-            System.out.println("4. Back to Main Menu");
-            System.out.print("Please select an option (1-4): ");
-
-            int requestChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (requestChoice) {
-                case 1:
-                    // View pending leave requests
-                    admin.viewPendingRequests();
-                    break;
-
-                case 2:
-                    // Approve leave request
-                    System.out.print("Enter Request ID to Approve: ");
-                    int approveRequestId = scanner.nextInt();
-                    admin.approveRequest(approveRequestId);
-                    break;
-
-                case 3:
-                    // Reject leave request
-                    System.out.print("Enter Request ID to Reject: ");
-                    int rejectRequestId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter Reason for Rejection: ");
-                    String rejectionReason = scanner.nextLine();
-                    admin.rejectRequest(rejectRequestId, rejectionReason);
-                    break;
-
-                case 4:
-                    // Back to main menu
-                    requestManagementRunning = false;
-                    break;
-
-                default:
-                    System.out.println("Invalid choice. Please try again :(");
-            }
-        }
-    }
-
-//================================================================================================================
 //====================Request management sub menu: Duty request===================================================
 //================================================================================================================
 
-    private static void DutyRequestMenu(Administrator admin, Scanner scanner) {
+    private static void dutyRequestMenu(Administrator admin, Scanner scanner) {
         boolean dutyManagementRunning = true;
 
         while (requestManagementRunning) {
-            System.out.println("\n=============== Request Management Menu ===============");
+            System.out.println("\n=============== Duty Request Management Menu ===============");
             System.out.println("1. View All Duty Requests");
             System.out.println("2. Approve Duty Request");
             System.out.println("3. Remove Duty Request");
@@ -287,7 +239,7 @@ public class Main {
             System.out.print("Please select an option (1-4): ");
 
             int requestChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine();
 
             switch (requestChoice) {
                 case 1:
@@ -334,11 +286,11 @@ public class Main {
 //====================Request management sub menu: Leave request===================================================
 //================================================================================================================
 
-    private static void LeaveRequestMenu(Administrator admin, Scanner scanner) {
+    private static void leaveRequestMenu(Administrator admin, Scanner scanner) {
         boolean LeaveManagementRunning = true;
 
         while (requestManagementRunning) {
-            System.out.println("\n=============== Request Management Menu ===============");
+            System.out.println("\n=============== Leave Request Management Menu ===============");
             System.out.println("1. View Pending Leave Requests");
             System.out.println("2. Approve Leave Request");
             System.out.println("3. Reject Leave Request");
@@ -346,7 +298,7 @@ public class Main {
             System.out.print("Please select an option (1-4): ");
 
             int requestChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine(); 
 
             switch (requestChoice) {
                 case 1:
@@ -397,10 +349,10 @@ public class Main {
             System.out.println("4. Edit Shift Schedule");
             System.out.println("5. Delete/Cancel Shift Schedule");
             System.out.println("6. Back to Main Menu");
-            System.out.print("Please select an option (1-2): ");
+            System.out.print("Please select an option (1-6): ");
 
             int shiftChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            scanner.nextLine(); 
 
             switch (shiftChoice) {
                 case 1:
