@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import staffProfile.StaffProfile;
+
+
 public abstract class BaseFunction {
     protected int userId;
     protected String username;
@@ -260,25 +263,4 @@ public abstract class BaseFunction {
         public String getNotes() { return notes; }
     }
 
-    protected static class StaffProfile {
-        private int staffId;
-        private String name;
-        private String role;
-        private String department;
-        private double salary;
-
-        public StaffProfile(int staffId, String name, String role, String department, double salary) {
-            this.staffId = staffId;
-            this.name = name;
-            this.role = role;
-            this.department = department;
-            this.salary = salary;
-        }
-
-        public int getStaffId() { return staffId; }
-        public String getName() { return name; }
-        public String getRole() { return role; }
-        public String getDepartment() { return department; }
-        public double getSalary() { return salary; }
-    }
 }

@@ -5,10 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Year;
 import java.util.Scanner;
+
+import baseFunction.BaseUser;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import baseUser.BaseUser;
 
 public class EmployeeFunction extends BaseUser {
 	private EmployeeFunction instance;

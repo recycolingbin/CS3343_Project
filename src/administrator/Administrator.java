@@ -3,9 +3,9 @@ package administrator;
 import java.io.*;
 import java.util.*;
 
-import baseUser.BaseUser;
+import baseFunction.BaseFunction;;
 
-public class Administrator extends BaseUser {
+public class Administrator extends BaseFunction {
     private static final String STAFF_PROFILE_FILE = "CS3343 Project/Data/Staff_Profile.txt";
     private static final String LEAVE_REQUEST_FILE = "CS3343 Project/Data/Leave_Request.txt";
     private static final String DUTY_REQUEST_FILE = "CS3343 Project/Data/Duty_Request.txt";

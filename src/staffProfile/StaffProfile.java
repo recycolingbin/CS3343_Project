@@ -1,20 +1,22 @@
-package employee;
+package staffProfile;
 
-public class Employee {
-    private int employeeId;
+public class StaffProfile {
+    private int staffId;
     private String name;
     private String role; // e.g., "Manager", "Staff"
     private String employeeType; // e.g., "FullTime" or "PartTime"
+    private double salary;
 
-    public Employee(int employeeId, String name, String role) {
-        this.employeeId = employeeId;
-        this.name = name;
-        this.role = role;
-        this.employeeType = "FullTime";
+    public StaffProfile(int staffId, String name, String role, String employeeType, double salary) {
+            this.staffId = staffId;
+            this.name = name;
+            this.role = role;
+            this.employeeType = employeeType;
+            this.salary = salary;
     }
 
     public int getEmployeeId() {
-        return employeeId;
+        return staffId;
     }
 
     public String getName() {
@@ -29,6 +31,10 @@ public class Employee {
 		return employeeType;
 	}
 
+    public double getSalary() {
+        return salary;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -40,4 +46,9 @@ public class Employee {
 	public void setEmployeeType(String employeeType) {
 		this.employeeType = employeeType;
 	}
+
+    public void setSalary(double salary) {
+        this.salary = salary;
+    }
+
 }

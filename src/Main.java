@@ -1,11 +1,9 @@
-package main;
-
 import java.util.Scanner;
 
 import administrator.Administrator;
-import baseUser.BaseUser;
-import employee.Employee;
+import baseFunction.BaseFunction;
 import employeeFunction.EmployeeFunction;
+import staffProfile.StaffProfile;
 
 public class Main {
     public static void main(String[] args) {
