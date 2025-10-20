@@ -7,7 +7,6 @@ import baseFunction.BaseFunction;
 public class EmployeeFunction extends BaseFunction {
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
-    private static final String SHIFT_FILE = "Data/Shift.txt";
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
 
     public EmployeeFunction() {
@@ -52,7 +51,9 @@ public class EmployeeFunction extends BaseFunction {
 
                 switch (action) {
                     case 1:
-                        viewShiftSchedule();
+                        // Use inherited viewShiftSchedule from BaseFunction for today's date
+                        String todayDate = java.time.LocalDate.now().toString();
+                        viewShiftSchedule(todayDate);
                         break;
                     case 2:
                         requestDuty(userid);
@@ -139,33 +140,6 @@ public class EmployeeFunction extends BaseFunction {
             }
         } catch (Exception e) {
             System.err.println("Error processing leave request: " + e.getMessage());
-        }
-    }
-
-    private void viewShiftSchedule() {
-        System.out.println("\n=============== Shift Schedule ===============");
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            boolean hasShifts = false;
-            System.out.printf("%-10s %-10s %-12s %-15s %-20s%n", "Shift ID", "Staff ID", "Date", "Session", "Notes");
-            System.out.println("================================================================");
-            
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 8) {
-                        System.out.printf("%-10s %-10s %-12s %-15s %-20s%n", 
-                                        parts[0], parts[1], parts[2], parts[3], 
-                                        parts[7].length() > 20 ? parts[7].substring(0, 17) + "..." : parts[7]);
-                        hasShifts = true;
-                    }
-                }
-            }
-            if (!hasShifts) {
-                System.out.println("No shifts scheduled.");
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading shift schedule: " + e.getMessage());
         }
     }
     

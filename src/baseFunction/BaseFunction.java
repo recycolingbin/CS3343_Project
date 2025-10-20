@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import staffProfile.StaffProfile;
 
@@ -232,6 +233,82 @@ public abstract class BaseFunction {
         }
     }
 
+    // ================== DATE VALIDATION ==================
+    
+    public boolean isValidDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return false;
+        }
+        
+        try {
+            String[] parts = dateString.split("-");
+            if (parts.length != 3) {
+                return false;
+            }
+            
+            int year = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day = Integer.parseInt(parts[2]);
+            
+            // Basic validation
+            if (year < 2020 || year > 2030) {
+                return false;
+            }
+            if (month < 1 || month > 12) {
+                return false;
+            }
+            if (day < 1 || day > 31) {
+                return false;
+            }
+            
+            // Days in month validation
+            int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+            
+            // Check for leap year
+            if (month == 2 && isLeapYear(year)) {
+                daysInMonth[1] = 29;
+            }
+            
+            if (day > daysInMonth[month - 1]) {
+                return false;
+            }
+            
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
+    private boolean isLeapYear(int year) {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    }
+    
+    public String getValidDateInput(Scanner scanner, String prompt) {
+        String date;
+        int attempts = 0;
+        final int MAX_ATTEMPTS = 10; // Prevent infinite loops
+        
+        while (attempts < MAX_ATTEMPTS) {
+            System.out.print(prompt);
+            if (!scanner.hasNextLine()) {
+                System.out.println("Input stream ended. Returning to menu.");
+                return null;
+            }
+            
+            date = scanner.nextLine().trim();
+            if (isValidDate(date)) {
+                return date;
+            } else {
+                System.out.println("Invalid date format! Please enter date in YYYY-MM-DD format (e.g., 2025-10-25)");
+                attempts++;
+            }
+        }
+        
+        System.out.println("Too many invalid attempts. Returning to menu.");
+        return null;
+    }
+
+    // ================== SHIFT CLASS ==================
     protected static class Shift {
         private int shiftId;
         private int employeeId;
