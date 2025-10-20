@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.time.Year;
 import java.util.Scanner;
 
-import baseFunction.BaseUser;
+import baseFunction.BaseFunction;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class EmployeeFunction extends BaseUser {
+public class EmployeeFunction extends BaseFunction {
 	private EmployeeFunction instance;
-
+	
 	public EmployeeFunction getInstance() {
 		if (instance == null) {
 			instance = new EmployeeFunction();
@@ -115,9 +115,10 @@ public class EmployeeFunction extends BaseUser {
 		scanner.close();
 	}
 
-	public void Login_page(String userid) {
+	public void Login_page(String userid, String name, String pw) {
+		BaseFunction base = new BaseFunction(useid, name, pw);
 		while (true) {
-			super.viewFunction();
+			base.viewFunction();
 			System.out.println("Please input the action you want to do: \n 1.Request Duty \n 2.Request Leave \n 3. Logout");
 			Scanner scanner = new Scanner(System.in);
 			int action = scanner.nextInt();
@@ -141,4 +142,5 @@ public class EmployeeFunction extends BaseUser {
 		}
 
 	}
+
 }
