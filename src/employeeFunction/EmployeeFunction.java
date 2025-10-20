@@ -4,53 +4,16 @@ import java.io.*;
 import java.util.*;
 import baseFunction.BaseFunction;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import baseFunction.BaseFunction;
-=======
-=======
->>>>>>> Stashed changes
 public class EmployeeFunction extends BaseFunction {
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
     private static final String SHIFT_FILE = "Data/Shift.txt";
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
     public EmployeeFunction() {
         super(0, "", ""); // Default constructor with dummy values
     }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-public class EmployeeFunction extends BaseFunction {
-	private EmployeeFunction instance;
-	
-	public EmployeeFunction getInstance() {
-		if (instance == null) {
-			instance = new EmployeeFunction();
-		}
-		return instance;
-	}
-	
-	public int getfilelinesnum(String filename) {
-		int lines = 0;
-		try (Scanner scanner = new Scanner(new File(filename))) {
-			while (scanner.hasNextLine()) {
-				scanner.nextLine();
-				lines++;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return lines;
-	}
-=======
-=======
->>>>>>> Stashed changes
     public boolean login(String username, String password) {
         try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
             String line;
@@ -59,6 +22,8 @@ public class EmployeeFunction extends BaseFunction {
                 if (parts.length >= 3) {
                     String staffName = parts[1].trim();
                     String role = parts[2].trim();
+                    // CRITICAL SECURITY BUG: Password is not being validated!
+                    // Currently any password works for any employee
                     if (staffName.equals(username) && role.equals("Employee")) {
                         return true;
                     }
@@ -69,222 +34,129 @@ public class EmployeeFunction extends BaseFunction {
         }
         return false;
     }
-<<<<<<< Updated upstream
 
     public void Login_page(String userid) {
         Scanner scanner = new Scanner(System.in);
         
         while (true) {
-            System.out.println("\n=============== Employee Menu ===============");
-            System.out.println("1. View Shift Schedule");
-            System.out.println("2. Request Duty");
-            System.out.println("3. Request Leave");
-            System.out.println("4. Logout");
-            System.out.print("Please select an option (1-4): ");
->>>>>>> Stashed changes
+            try {
+                System.out.println("\n=============== Employee Menu ===============");
+                System.out.println("1. View Shift Schedule");
+                System.out.println("2. Request Duty");
+                System.out.println("3. Request Leave");
+                System.out.println("4. Logout");
+                System.out.print("Please select an option (1-4): ");
 
-            int action = scanner.nextInt();
-            scanner.nextLine();
+                int action = scanner.nextInt();
+                scanner.nextLine(); // consume newline
 
-            switch (action) {
-                case 1:
-                    viewShiftSchedule();
-                    break;
-                case 2:
-                    requestDuty(userid);
-                    break;
-                case 3:
-                    requestLeave(userid);
-                    break;
-                case 4:
-                    System.out.println("Logging out...");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                switch (action) {
+                    case 1:
+                        viewShiftSchedule();
+                        break;
+                    case 2:
+                        requestDuty(userid);
+                        break;
+                    case 3:
+                        requestLeave(userid);
+                        break;
+                    case 4:
+                        System.out.println("Logging out...");
+                        return;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input! Please enter a number between 1 and 4.");
+                scanner.nextLine(); // clear invalid input
+            } catch (Exception e) {
+                System.err.println("An error occurred: " + e.getMessage());
+                scanner.nextLine(); // clear buffer
             }
         }
     }
 
     public void requestDuty(String userid) {
         Scanner scanner = new Scanner(System.in);
-        String date = getValidDateInput(scanner, "Please enter the date you want to request a duty (YYYY-MM-DD): ");
+        
+        try {
+            String date = getValidDateInput(scanner, "Please enter the date you want to request a duty (YYYY-MM-DD): ");
+            if (date == null) return; // user cancelled or too many attempts
 
-        System.out.println("Please enter the session (MORNING/AFTERNOON/NIGHT):");
-        String session = scanner.nextLine().trim().toUpperCase();
+            System.out.print("Please enter the session (MORNING/AFTERNOON/NIGHT): ");
+            String session = scanner.nextLine().trim().toUpperCase();
 
-        if (!session.equals("MORNING") && !session.equals("AFTERNOON") && !session.equals("NIGHT")) {
-            System.out.println("Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
-            return;
-        }
+            if (!session.equals("MORNING") && !session.equals("AFTERNOON") && !session.equals("NIGHT")) {
+                System.out.println("Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
+                return;
+            }
 
-        try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-            writer.write(userid + "," + date + "," + session + ",PENDING\n");
-            System.out.println("Duty request submitted successfully.");
-        } catch (IOException e) {
-            System.err.println("Error writing duty request: " + e.getMessage());
+            try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
+                writer.write(userid + "," + date + "," + session + ",PENDING\n");
+                System.out.println("Duty request submitted successfully.");
+            } catch (IOException e) {
+                System.err.println("Error writing duty request: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing duty request: " + e.getMessage());
         }
     }
 
     public void requestLeave(String userid) {
         Scanner scanner = new Scanner(System.in);
-        String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
-        String endDate;
         
-        // Validate that end date is not earlier than start date
-        while (true) {
-            endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
-            if (isDateAfterOrEqual(endDate, startDate)) {
-                break;
-            } else {
-                System.out.println("Error: End date cannot be earlier than start date! Please try again.");
-            }
-        }
-
-        System.out.println("Please enter the reason for leave:");
-        String reason = scanner.nextLine().trim();
-
-        try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
-            writer.write(userid + "," + startDate + "," + endDate + "," + reason + ",PENDING\n");
-            System.out.println("Leave request submitted successfully.");
-        } catch (IOException e) {
-            System.err.println("Error writing leave request: " + e.getMessage());
-        }
-    }
-
-<<<<<<< Updated upstream
-		try (FileWriter writer = new FileWriter("Leave_Request.txt", true)) {
-			int lines = getfilelinesnum("Leave_Request.txt") + 1000;
-			writer.write(lines + "|" + userid + "|" + sday + "|" + eday + "|" + reason + "\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		scanner.close();
-	}
-
-	public void Login_page(String userid, String name, String pw) {
-		BaseFunction base = new BaseFunction(useid, name, pw);
-		while (true) {
-			base.viewFunction();
-			System.out.println("Please input the action you want to do: \n 1.Request Duty \n 2.Request Leave \n 3. Logout");
-			Scanner scanner = new Scanner(System.in);
-			int action = scanner.nextInt();
-			switch (action) {
-				case 1:
-					Request_duty(userid);
-					break;
-				case 2:
-					Request_leave(userid);
-					break;
-				case 3:
-					System.out.println("Are you sure you want to logout? (Y/N)");
-					String confirm = scanner.next();
-					if (confirm.equalsIgnoreCase("Y")) {
-						System.out.println("Logging out...");
-						return;
-					} else {
-						break;
-					}
-			}
-		}
-
-	}
-
-}
-=======
-=======
-
-    public void Login_page(String userid) {
-        Scanner scanner = new Scanner(System.in);
-        
-        while (true) {
-            System.out.println("\n=============== Employee Menu ===============");
-            System.out.println("1. View Shift Schedule");
-            System.out.println("2. Request Duty");
-            System.out.println("3. Request Leave");
-            System.out.println("4. Logout");
-            System.out.print("Please select an option (1-4): ");
-
-            int action = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (action) {
-                case 1:
-                    viewShiftSchedule();
+        try {
+            String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
+            if (startDate == null) return; // user cancelled or too many attempts
+            
+            String endDate;
+            
+            // Validate that end date is not earlier than start date
+            while (true) {
+                endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
+                if (endDate == null) return; // user cancelled or too many attempts
+                
+                if (isDateAfterOrEqual(endDate, startDate)) {
                     break;
-                case 2:
-                    requestDuty(userid);
-                    break;
-                case 3:
-                    requestLeave(userid);
-                    break;
-                case 4:
-                    System.out.println("Logging out...");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                } else {
+                    System.out.println("Error: End date cannot be earlier than start date! Please try again.");
+                }
             }
-        }
-    }
 
-    public void requestDuty(String userid) {
-        Scanner scanner = new Scanner(System.in);
-        String date = getValidDateInput(scanner, "Please enter the date you want to request a duty (YYYY-MM-DD): ");
-
-        System.out.println("Please enter the session (MORNING/AFTERNOON/NIGHT):");
-        String session = scanner.nextLine().trim().toUpperCase();
-
-        if (!session.equals("MORNING") && !session.equals("AFTERNOON") && !session.equals("NIGHT")) {
-            System.out.println("Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
-            return;
-        }
-
-        try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-            writer.write(userid + "," + date + "," + session + ",PENDING\n");
-            System.out.println("Duty request submitted successfully.");
-        } catch (IOException e) {
-            System.err.println("Error writing duty request: " + e.getMessage());
-        }
-    }
-
-    public void requestLeave(String userid) {
-        Scanner scanner = new Scanner(System.in);
-        String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
-        String endDate;
-        
-        // Validate that end date is not earlier than start date
-        while (true) {
-            endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
-            if (isDateAfterOrEqual(endDate, startDate)) {
-                break;
-            } else {
-                System.out.println("Error: End date cannot be earlier than start date! Please try again.");
+            System.out.print("Please enter the reason for leave: ");
+            String reason = scanner.nextLine().trim();
+            
+            if (reason.isEmpty()) {
+                System.out.println("Reason cannot be empty!");
+                return;
             }
-        }
 
-        System.out.println("Please enter the reason for leave:");
-        String reason = scanner.nextLine().trim();
-
-        try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
-            writer.write(userid + "," + startDate + "," + endDate + "," + reason + ",PENDING\n");
-            System.out.println("Leave request submitted successfully.");
-        } catch (IOException e) {
-            System.err.println("Error writing leave request: " + e.getMessage());
+            try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
+                writer.write(userid + "," + startDate + "," + endDate + "," + reason + ",PENDING\n");
+                System.out.println("Leave request submitted successfully.");
+            } catch (IOException e) {
+                System.err.println("Error writing leave request: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing leave request: " + e.getMessage());
         }
     }
 
->>>>>>> Stashed changes
     private void viewShiftSchedule() {
         System.out.println("\n=============== Shift Schedule ===============");
         try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
             String line;
             boolean hasShifts = false;
+            System.out.printf("%-10s %-10s %-12s %-15s %-20s%n", "Shift ID", "Staff ID", "Date", "Session", "Notes");
+            System.out.println("================================================================");
+            
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
                     if (parts.length >= 8) {
-                        System.out.println("Shift ID: " + parts[0] + ", Staff ID: " + parts[1] + ", Date: " + parts[2] + 
-                                         ", Session: " + parts[3] + ", Notes: " + parts[7]);
+                        System.out.printf("%-10s %-10s %-12s %-15s %-20s%n", 
+                                        parts[0], parts[1], parts[2], parts[3], 
+                                        parts[7].length() > 20 ? parts[7].substring(0, 17) + "..." : parts[7]);
                         hasShifts = true;
                     }
                 }
@@ -378,19 +250,26 @@ public class EmployeeFunction extends BaseFunction {
     
     public String getValidDateInput(Scanner scanner, String prompt) {
         String date;
-        while (true) {
+        int attempts = 0;
+        final int MAX_ATTEMPTS = 10; // Prevent infinite loops
+        
+        while (attempts < MAX_ATTEMPTS) {
             System.out.print(prompt);
+            if (!scanner.hasNextLine()) {
+                System.out.println("Input stream ended. Returning to menu.");
+                return null;
+            }
+            
             date = scanner.nextLine().trim();
             if (isValidDate(date)) {
                 return date;
             } else {
                 System.out.println("Invalid date format! Please enter date in YYYY-MM-DD format (e.g., 2025-10-25)");
+                attempts++;
             }
         }
+        
+        System.out.println("Too many invalid attempts. Returning to menu.");
+        return null;
     }
-<<<<<<< Updated upstream
 }
->>>>>>> Stashed changes
-=======
-}
->>>>>>> Stashed changes
