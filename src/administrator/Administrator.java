@@ -10,7 +10,6 @@ public class Administrator extends BaseFunction {
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
-<<<<<<< Updated upstream
     // SHIFT_FILE is inherited from BaseFunction
     
     // ID generation constants
@@ -19,9 +18,6 @@ public class Administrator extends BaseFunction {
     
     // Request status constants
     private static final String STATUS_PENDING = "PENDING";
-=======
-    private static final String SHIFT_FILE = "Data/Shift.txt";
->>>>>>> Stashed changes
 
     public Administrator(int userId, String username, String password) {
         super(userId, username, password);
@@ -316,11 +312,7 @@ public class Administrator extends BaseFunction {
     }
     
     private int generateRequestId() {
-<<<<<<< Updated upstream
         int maxId = INITIAL_REQUEST_ID;
-=======
-        int maxId = 2000;
->>>>>>> Stashed changes
         try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -500,11 +492,7 @@ public class Administrator extends BaseFunction {
     }
 
     private int generateShiftId(List<Shift> shifts) {
-<<<<<<< Updated upstream
         int maxId = INITIAL_SHIFT_ID;
-=======
-        int maxId = 3000;
->>>>>>> Stashed changes
         for (Shift shift : shifts) {
             if (shift.getShiftId() > maxId) {
                 maxId = shift.getShiftId();
@@ -867,7 +855,6 @@ public class Administrator extends BaseFunction {
     
     public void viewPendingDutyRequestsWithCaseNumbers() {
         System.out.println("\n=============== Pending Duty Requests ===============");
-<<<<<<< Updated upstream
         List<String> pendingRequests = getPendingDutyRequests();
         
         if (pendingRequests.isEmpty()) {
@@ -879,8 +866,6 @@ public class Administrator extends BaseFunction {
     }
     
     private List<String> getPendingDutyRequests() {
-=======
->>>>>>> Stashed changes
         List<String> pendingRequests = new ArrayList<>();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
@@ -890,11 +875,7 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-<<<<<<< Updated upstream
                     if (parts.length >= MIN_REQUEST_FIELDS && parts[3].trim().equals(STATUS_PENDING)) {
-=======
-                    if (parts.length >= 4 && parts[3].trim().equals("PENDING")) {
->>>>>>> Stashed changes
                         System.out.println("Case #" + caseNumber + " - Employee ID: " + parts[0] + 
                                          ", Date: " + parts[1] + ", Session: " + parts[2] + 
                                          ", Status: " + parts[3]);
@@ -903,7 +884,6 @@ public class Administrator extends BaseFunction {
                     }
                 }
             }
-<<<<<<< Updated upstream
         } catch (IOException e) {
             System.err.println("Error reading duty requests: " + e.getMessage());
         }
@@ -922,15 +902,6 @@ public class Administrator extends BaseFunction {
                 caseNumber++;
             }
         }
-=======
-            
-            if (pendingRequests.isEmpty()) {
-                System.out.println("No pending duty requests found.");
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading duty requests: " + e.getMessage());
-        }
->>>>>>> Stashed changes
     }
     
     public void approveDutyRequestByCaseNumber(int caseNumber) {
@@ -938,7 +909,6 @@ public class Administrator extends BaseFunction {
         List<String> pendingRequests = new ArrayList<>();
         
         // Read all lines and identify pending requests
-<<<<<<< Updated upstream
         if (!loadDutyRequestData(allLines, pendingRequests)) {
             return;
         }
@@ -965,24 +935,17 @@ public class Administrator extends BaseFunction {
     }
     
     private boolean loadDutyRequestData(List<String> allLines, List<String> pendingRequests) {
-=======
->>>>>>> Stashed changes
         try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 allLines.add(line);
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-<<<<<<< Updated upstream
                     if (parts.length >= MIN_REQUEST_FIELDS && parts[3].trim().equals(STATUS_PENDING)) {
-=======
-                    if (parts.length >= 4 && parts[3].trim().equals("PENDING")) {
->>>>>>> Stashed changes
                         pendingRequests.add(line);
                     }
                 }
             }
-<<<<<<< Updated upstream
             return true;
         } catch (IOException e) {
             System.err.println("Error reading duty requests: " + e.getMessage());
@@ -1010,52 +973,13 @@ public class Administrator extends BaseFunction {
     private void saveDutyRequests(List<String> lines) {
         try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE)) {
             for (String line : lines) {
-=======
-        } catch (IOException e) {
-            System.err.println("Error reading duty requests: " + e.getMessage());
-            return;
-        }
-        
-        // Check if case number is valid
-        if (caseNumber < 1 || caseNumber > pendingRequests.size()) {
-            System.out.println("Invalid case number! Please enter a number between 1 and " + pendingRequests.size());
-            return;
-        }
-        
-        // Get the specific request to approve
-        String requestToApprove = pendingRequests.get(caseNumber - 1);
-        String[] parts = requestToApprove.split(",");
-        
-        // Remove the request from all lines (don't keep approved requests)
-        allLines.removeIf(line -> line.equals(requestToApprove));
-        
-        // Add to shift schedule
-        try (FileWriter shiftWriter = new FileWriter(SHIFT_FILE, true)) {
-            shiftWriter.write(parts[0] + "," + parts[1] + "," + parts[2] + ",Approved duty request\n");
-        } catch (IOException e) {
-            System.err.println("Error writing to shift file: " + e.getMessage());
-        }
-        
-        // Write back to file
-        try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE)) {
-            for (String line : allLines) {
->>>>>>> Stashed changes
                 if (!line.trim().isEmpty()) {
                     writer.write(line + "\n");
                 }
             }
         } catch (IOException e) {
             System.err.println("Error updating duty requests: " + e.getMessage());
-<<<<<<< Updated upstream
         }
-=======
-            return;
-        }
-        
-        System.out.println("Duty request approved and assigned to shift successfully!");
-        System.out.println("Employee ID: " + parts[0] + ", Date: " + parts[1] + 
-                          ", Session: " + parts[2]);
->>>>>>> Stashed changes
     }
     
     public void rejectDutyRequestByCaseNumber(int caseNumber) {
@@ -1063,7 +987,6 @@ public class Administrator extends BaseFunction {
         List<String> pendingRequests = new ArrayList<>();
         
         // Read all lines and identify pending requests
-<<<<<<< Updated upstream
         if (!loadDutyRequestData(allLines, pendingRequests)) {
             return;
         }
@@ -1082,48 +1005,6 @@ public class Administrator extends BaseFunction {
         
         // Save updated requests
         saveDutyRequests(allLines);
-=======
-        try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                allLines.add(line);
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 4 && parts[3].trim().equals("PENDING")) {
-                        pendingRequests.add(line);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading duty requests: " + e.getMessage());
-            return;
-        }
-        
-        // Check if case number is valid
-        if (caseNumber < 1 || caseNumber > pendingRequests.size()) {
-            System.out.println("Invalid case number! Please enter a number between 1 and " + pendingRequests.size());
-            return;
-        }
-        
-        // Get the specific request to reject and remove it
-        String requestToReject = pendingRequests.get(caseNumber - 1);
-        String[] parts = requestToReject.split(",");
-        
-        // Remove the request from all lines (don't keep rejected requests)
-        allLines.removeIf(line -> line.equals(requestToReject));
-        
-        // Write back to file
-        try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE)) {
-            for (String line : allLines) {
-                if (!line.trim().isEmpty()) {
-                    writer.write(line + "\n");
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error updating duty requests: " + e.getMessage());
-            return;
-        }
->>>>>>> Stashed changes
         
         System.out.println("Duty request rejected and removed successfully!");
         System.out.println("Employee ID: " + parts[0] + ", Date: " + parts[1] + 
@@ -1267,7 +1148,6 @@ public class Administrator extends BaseFunction {
     
     // ================== SHIFT MANAGEMENT ==================
     
-<<<<<<< Updated upstream
     // View all shift schedules without date filter - uses base function
     public void viewAllShiftSchedules() {
         List<Shift> shifts = loadShifts();
@@ -1289,127 +1169,6 @@ public class Administrator extends BaseFunction {
                             shift.getSession(), truncatedNotes);
         }
         System.out.println("================================================================");
-=======
-    // View all shift schedules without date filter
-    public void viewAllShiftSchedules() {
-        System.out.println("\n=============== All Shift Schedules ===============");
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            boolean hasShifts = false;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 8) {
-                        System.out.println("Shift ID: " + parts[0] + ", Staff ID: " + parts[1] + ", Date: " + parts[2] + 
-                                         ", Session: " + parts[3] + ", Notes: " + parts[7]);
-                        hasShifts = true;
-                    }
-                }
-            }
-            if (!hasShifts) {
-                System.out.println("No shifts scheduled.");
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading shift schedule: " + e.getMessage());
-        }
-        System.out.println("==================================================");
-    }
-    
-    public void viewShiftsBySession(String session, String date) {
-        // Convert session to uppercase for consistent comparison
-        String upperSession = session.toUpperCase();
-        
-        System.out.println("\n=============== Shifts for Session: " + upperSession + 
-                         (date != null ? " on " + date : " (All Dates)") + " ===============");
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            boolean hasShifts = false;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 8) {
-                        String shiftSession = parts[3].trim();
-                        String shiftDate = parts[2].trim();
-                        
-                        if (shiftSession.equals(upperSession) && (date == null || shiftDate.equals(date))) {
-                            System.out.println("Shift ID: " + parts[0] + ", Staff ID: " + parts[1] + ", Date: " + parts[2] + 
-                                             ", Session: " + parts[3] + ", Notes: " + parts[7]);
-                            hasShifts = true;
-                        }
-                    }
-                }
-            }
-            if (!hasShifts) {
-                System.out.println("No shifts found for session " + upperSession + 
-                                 (date != null ? " on " + date : ""));
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading shift schedule: " + e.getMessage());
-        }
-    }
-    
-    // ================== DATE VALIDATION ==================
-    
-    public boolean isValidDate(String dateString) {
-        if (dateString == null || dateString.trim().isEmpty()) {
-            return false;
-        }
-        
-        try {
-            String[] parts = dateString.split("-");
-            if (parts.length != 3) {
-                return false;
-            }
-            
-            int year = Integer.parseInt(parts[0]);
-            int month = Integer.parseInt(parts[1]);
-            int day = Integer.parseInt(parts[2]);
-            
-            // Basic validation
-            if (year < 2020 || year > 2030) {
-                return false;
-            }
-            if (month < 1 || month > 12) {
-                return false;
-            }
-            if (day < 1 || day > 31) {
-                return false;
-            }
-            
-            // Days in month validation
-            int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-            
-            // Check for leap year
-            if (month == 2 && isLeapYear(year)) {
-                daysInMonth[1] = 29;
-            }
-            
-            if (day > daysInMonth[month - 1]) {
-                return false;
-            }
-            
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-    
-    private boolean isLeapYear(int year) {
-        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-    }
-    
-    public String getValidDateInput(Scanner scanner, String prompt) {
-        String date;
-        while (true) {
-            System.out.print(prompt);
-            date = scanner.nextLine().trim();
-            if (isValidDate(date)) {
-                return date;
-            } else {
-                System.out.println("Invalid date format! Please enter date in YYYY-MM-DD format (e.g., 2025-10-25)");
-            }
-        }
->>>>>>> Stashed changes
     }
     
     // ================== IMPROVED LEAVE REQUEST MANAGEMENT ==================
