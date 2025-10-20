@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 import administrator.Administrator;
@@ -7,6 +10,9 @@ import staffProfile.StaffProfile;
 
 public class Main {
     public static void main(String[] args) {
+        // Initialize data directories and files
+        initializeDataFiles();
+        
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -16,10 +22,11 @@ public class Main {
             System.out.println("3. Exit");
             System.out.print("Please select an option(1-3): ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (choice) {
+                switch (choice) {
                 case 1:
                     // Employee login
                     System.out.print("Enter Employee Username: ");
@@ -27,11 +34,11 @@ public class Main {
                     System.out.print("Enter Password: ");
                     String Password = scanner.nextLine();
 
-                    //its string in employeeFunction but int in baseUser?
-                    Employee employee = new Employee(1001, Username, Password);
-                    if (BaseUser.login(employee, Username, Password)) {
+                    // Create employee function and handle login
+                    EmployeeFunction employeeFunction = new EmployeeFunction();
+                    if (employeeFunction.login(Username, Password)) {
                         System.out.println("Employee login successful.");
-                        employeeFunction.Login_page(Integer.toString(employee.getUserId()));
+                        employeeFunction.Login_page("1001");
                     } else {
                         System.out.println("Invalid. Please try again :(");
                     }
@@ -56,14 +63,54 @@ public class Main {
                 case 3:
                     // Exit the program
                     System.out.println("See you next time :)");
-                    break;
+                    scanner.close();
+                    return;
 
                 default:
                     System.out.println("Invalid choice. Please try again :(");
             }
+        } catch (Exception e) {
+            System.out.println("Invalid input! Please enter a number between 1-3.");
+            scanner.nextLine(); // Clear invalid input
+        }
+        }
+    }
+
+    private static void initializeDataFiles() {
+        // Create Data directory if it doesn't exist
+        File dataDir = new File("Data");
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+            System.out.println("Created Data directory.");
         }
 
-        scanner.close();
+        // Create data files if they don't exist
+        String[] files = {
+            "Data/Staff_Profile.txt",
+            "Data/Duty_Request.txt", 
+            "Data/Leave_Request.txt",
+            "Data/Shift.txt"
+        };
+
+        for (String fileName : files) {
+            File file = new File(fileName);
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                    System.out.println("Created " + fileName);
+                    
+                    // Add sample data for Staff_Profile.txt if it's newly created
+                    if (fileName.equals("Data/Staff_Profile.txt")) {
+                        try (FileWriter writer = new FileWriter(file)) {
+                            writer.write("1001,John Doe,Employee,IT,50000.0\n");
+                            writer.write("2001,admin,Administrator,Management,80000.0\n");
+                        }
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error creating " + fileName + ": " + e.getMessage());
+                }
+            }
+        }
     }
 
 //================================================================================================================
@@ -76,10 +123,11 @@ public class Main {
         while (adminRunning) {
             System.out.println("\n=============== Administrator Menu ===============");
             System.out.println("1. Staff Management");
-            System.out.println("2. Request Management");
-            System.out.println("3. Shift Management");
-            System.out.println("4. Logout");
-            System.out.print("Please select a category (1-4): ");
+            System.out.println("2. Duty Request Management");
+            System.out.println("3. Leave Request Management");
+            System.out.println("4. Shift Management");
+            System.out.println("5. Logout");
+            System.out.print("Please select a category (1-5): ");
 
             int adminChoice = scanner.nextInt();
             scanner.nextLine(); 
@@ -91,12 +139,12 @@ public class Main {
                     break;
 
                 case 2:
-                    // Request Management Sub-Menu
+                    // Duty Request Management Sub-Menu
                     dutyRequestMenu(admin, scanner);
                     break;
 
                 case 3:
-                    // Request Management Sub-Menu
+                    // Leave Request Management Sub-Menu
                     leaveRequestMenu(admin, scanner);
                     break;
 
@@ -130,11 +178,9 @@ public class Main {
             System.out.println("2. Edit Staff Profile");
             System.out.println("3. View All Staff Profiles");
             System.out.println("4. Search Staff Profile By ID");
-            System.out.println("5. Search Staff Profile By Name");
-            System.out.println("6. Search Staff Profile By Department");
-            System.out.println("7. Delete Staff Profile");
-            System.out.println("8. Back to Main Menu");
-            System.out.print("Please select an option (1-8): ");
+            System.out.println("5. Delete Staff Profile");
+            System.out.println("6. Back to Main Menu");
+            System.out.print("Please select an option (1-6): ");
 
             int staffChoice = scanner.nextInt();
             scanner.nextLine(); 
@@ -149,26 +195,13 @@ public class Main {
                     String staffName = scanner.nextLine();
                     System.out.print("Enter Role: ");
                     String role = scanner.nextLine();
-                    System.out.print("Enter Department: ");
-                    String department = scanner.nextLine();
-                    System.out.print("Enter Salary: ");
-                    double salary = scanner.nextDouble();
-                    scanner.nextLine();
 
-                    admin.addStaffProfile(staffId, staffName, role, department, salary);
+                    admin.addStaffProfile(staffId, staffName, role);
                     break;
 
                 case 2:
                     // Edit staff profile
-                    System.out.print("Enter Staff ID to Edit: ");
-                    int editStaffId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter Field to Edit (name/role/department/salary): ");
-                    String field = scanner.nextLine();
-                    System.out.print("Enter New Value: ");
-                    String newValue = scanner.nextLine();
-
-                    admin.editStaffProfile(editStaffId, field, newValue);
+                    admin.editStaffProfileMenu(scanner);
                     break;
 
                 case 3:
@@ -184,33 +217,13 @@ public class Main {
                     break;
 
                 case 5:
-                    // Search staff by name
-                    System.out.print("Enter Name to Search: ");
-                    String searchName = scanner.nextLine();
-                    var resultsByName = admin.searchStaffByName(searchName);
-                    for (var staff : resultsByName) {
-                        System.out.println("ID: " + staff.getStaffId() + ", Name: " + staff.getName());
-                    }
-                    break;
-
-                case 6:
-                    // Search staff by department
-                    System.out.print("Enter Department to Search: ");
-                    String staffDepartment = scanner.nextLine();
-                    var resultsByDept = admin.getStaffByDepartment(staffDepartment);
-                    for (var staff : resultsByDept) {
-                        System.out.println("ID: " + staff.getStaffId() + ", Name: " + staff.getName());
-                    }
-                    break;
-
-                case 7:
                     // Delete staff profile
                     System.out.print("Enter Staff ID to Delete: ");
                     int deleteStaffId = scanner.nextInt();
                     admin.deleteStaffProfile(deleteStaffId);
                     break;
 
-                case 8:
+                case 6:
                     // Back to main menu
                     staffManagementRunning = false;
                     break;
@@ -228,11 +241,11 @@ public class Main {
     private static void dutyRequestMenu(Administrator admin, Scanner scanner) {
         boolean dutyManagementRunning = true;
 
-        while (requestManagementRunning) {
+        while (dutyManagementRunning) {
             System.out.println("\n=============== Duty Request Management Menu ===============");
-            System.out.println("1. View All Duty Requests");
+            System.out.println("1. View Pending Duty Requests");
             System.out.println("2. Approve Duty Request");
-            System.out.println("3. Remove Duty Request");
+            System.out.println("3. Reject Duty Request");
             System.out.println("4. Back to Main Menu");
             System.out.print("Please select an option (1-4): ");
 
@@ -242,31 +255,27 @@ public class Main {
             switch (requestChoice) {
                 case 1:
                     // View all duty requests
-                    admin.viewPendingRequests();
+                    admin.viewPendingDutyRequestsWithCaseNumbers();
                     break;
 
                 case 2:
-                    // Approve duty request
-                    System.out.print("Enter Employee ID to Approve: ");
-                    int dutyEmployeeID = scanner.nextInt();
-                    System.out.print("Enter Date (YYYY-MM-DD) to Approve: ");
-                    int dutyApproveDate = scanner.nextInt();
-                    System.out.print("Enter Session to Approve: ");
-                    int dutyApproveSession = scanner.nextInt();
+                    // Approve duty request by case number
+                    admin.viewPendingDutyRequestsWithCaseNumbers();
+                    System.out.print("Enter Case Number to Approve: ");
+                    int approveDutyCaseNumber = scanner.nextInt();
+                    scanner.nextLine();
 
-                    admin.approveDutyRequest(dutyEmployeeID, dutyApproveDate, dutyApproveSession);
+                    admin.approveDutyRequestByCaseNumber(approveDutyCaseNumber);
                     break;
 
                 case 3:
-                    // Remove duty request
-                    System.out.print("Enter Employee ID to Remove: ");
-                    int dutyId = scanner.nextInt();
-                    System.out.print("Enter Date (YYYY-MM-DD) to Remove: ");
-                    int dutyDate = scanner.nextInt();
-                    System.out.print("Enter Session to Remove: ");
-                    int dutySession = scanner.nextInt();
+                    // Reject duty request by case number
+                    admin.viewPendingDutyRequestsWithCaseNumbers();
+                    System.out.print("Enter Case Number to Reject: ");
+                    int rejectDutyCaseNumber = scanner.nextInt();
+                    scanner.nextLine();
 
-                    admin.removeDutyRequest(dutyId, dutyDate, dutySession);
+                    admin.rejectDutyRequestByCaseNumber(rejectDutyCaseNumber);
                     break;
 
                 case 4:
@@ -285,45 +294,64 @@ public class Main {
 //================================================================================================================
 
     private static void leaveRequestMenu(Administrator admin, Scanner scanner) {
-        boolean LeaveManagementRunning = true;
+        boolean leaveManagementRunning = true;
 
-        while (requestManagementRunning) {
+        while (leaveManagementRunning) {
             System.out.println("\n=============== Leave Request Management Menu ===============");
-            System.out.println("1. View Pending Leave Requests");
+            System.out.println("1. Request Leave");
             System.out.println("2. Approve Leave Request");
             System.out.println("3. Reject Leave Request");
-            System.out.println("4. Back to Main Menu");
-            System.out.print("Please select an option (1-4): ");
+            System.out.println("4. View All Leave Requests");
+            System.out.println("5. Back to Main Menu");
+            System.out.print("Please select an option (1-5): ");
 
             int requestChoice = scanner.nextInt();
             scanner.nextLine(); 
 
             switch (requestChoice) {
                 case 1:
-                    // View pending leave requests
-                    admin.viewPendingRequests();
+                    // Request leave with date validation
+                    System.out.print("Enter Employee ID: ");
+                    int employeeId = scanner.nextInt();
+                    scanner.nextLine();
+                    
+                    String startDate = admin.getValidDateInput(scanner, "Enter Start Date (YYYY-MM-DD): ");
+                    String endDate = admin.getValidDateInput(scanner, "Enter End Date (YYYY-MM-DD): ");
+                    
+                    System.out.print("Enter Reason: ");
+                    String reason = scanner.nextLine();
+                    
+                    admin.requestLeave(employeeId, startDate, endDate, reason);
                     break;
 
                 case 2:
-                    // Approve leave request
-                    System.out.print("Enter Request ID to Approve: ");
-                    int approveRequestId = scanner.nextInt();
-                    admin.approveRequest(approveRequestId);
+                    // Approve leave request by case number
+                    admin.viewPendingLeaveRequestsWithCaseNumbers();
+                    System.out.print("Enter Case Number to Approve: ");
+                    int approveCaseNumber = scanner.nextInt();
+                    scanner.nextLine();
+                    
+                    admin.approveLeaveRequestByCaseNumber(approveCaseNumber);
                     break;
 
                 case 3:
-                    // Reject leave request
-                    System.out.print("Enter Request ID to Reject: ");
-                    int rejectRequestId = scanner.nextInt();
+                    // Reject leave request by case number
+                    admin.viewPendingLeaveRequestsWithCaseNumbers();
+                    System.out.print("Enter Case Number to Reject: ");
+                    int rejectCaseNumber = scanner.nextInt();
                     scanner.nextLine();
-                    System.out.print("Enter Reason for Rejection: ");
-                    String rejectionReason = scanner.nextLine();
-                    admin.rejectRequest(rejectRequestId, rejectionReason);
+                    
+                    admin.rejectLeaveRequestByCaseNumber(rejectCaseNumber);
                     break;
 
                 case 4:
+                    // View all leave requests
+                    admin.viewAllLeaveRequests();
+                    break;
+
+                case 5:
                     // Back to main menu
-                    LeaveManagementRunning = false;
+                    leaveManagementRunning = false;
                     break;
 
                 default:
@@ -333,7 +361,7 @@ public class Main {
     }
 
 //================================================================================================================
-//====================Request management sub menu: Shift request===================================================
+//====================Shift management sub menu===================================================
 //================================================================================================================
 
     private static void shiftManagementMenu(Administrator admin, Scanner scanner) {
@@ -341,10 +369,10 @@ public class Main {
 
         while (shiftManagementRunning) {
             System.out.println("\n=============== Shift Management Menu ===============");
-            System.out.println("1. View Shift Schedule");
-            System.out.println("2. Search Shift Schedule By Session");
-            System.out.println("3. Assign Shift Schedule");
-            System.out.println("4. Edit Shift Schedule");
+            System.out.println("1. View All Shift Schedules");
+            System.out.println("2. View Shift Schedule By Date");
+            System.out.println("3. Search Shift Schedule By Session");
+            System.out.println("4. Assign Shift Schedule");
             System.out.println("5. Delete/Cancel Shift Schedule");
             System.out.println("6. Back to Main Menu");
             System.out.print("Please select an option (1-6): ");
@@ -354,56 +382,60 @@ public class Main {
 
             switch (shiftChoice) {
                 case 1:
-                    // View shift schedule
-                    System.out.print("Enter Date (YYYY-MM-DD): ");
-                    String date = scanner.nextLine();
-                    admin.viewShiftSchedule(date);
+                    // View all shift schedules
+                    admin.viewAllShiftSchedules();
                     break;
 
                 case 2:
-                    // View shift schedule by session
-                    System.out.print("Enter Session: ");
-                    String viewSession = scanner.nextLine();
-                    System.out.print("Enter Date (YYYY-MM-DD): ");
-                    String viewDate = scanner.nextLine();
-                    admin.viewShiftSchedule(viewSession, viewDate);
+                    // View shift schedule with date validation
+                    String date = admin.getValidDateInput(scanner, "Enter Date (YYYY-MM-DD): ");
+                    admin.viewShiftSchedule(date);
                     break;
 
                 case 3:
-                    // Assign shift schedule
-                    System.out.print("Enter Staff ID: ");
-                    int staffId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter Date (YYYY-MM-DD): ");
-                    String shiftDate = scanner.nextLine();
-                    System.out.print("Enter Session: ");
-                    String session = scanner.nextLine();
-                    System.out.print("Enter Notes: ");
-                    String note = scanner.nextLine();
-                    scanner.nextLine();
-
-                    administrator.assignShift(staffId, shiftDate, session, note);
+                    // View shift schedule by session with date validation
+                    System.out.print("Enter Session (MORNING/AFTERNOON/NIGHT): ");
+                    String viewSession = scanner.nextLine();
+                    System.out.print("Enter Date (YYYY-MM-DD) or press Enter for all dates: ");
+                    String viewDate = scanner.nextLine();
+                    if (viewDate.trim().isEmpty()) {
+                        viewDate = null;
+                    } else {
+                        // Validate the entered date
+                        while (!admin.isValidDate(viewDate)) {
+                            System.out.println("Invalid date format! Please enter date in YYYY-MM-DD format (e.g., 2025-10-25)");
+                            System.out.print("Enter Date (YYYY-MM-DD) or press Enter for all dates: ");
+                            viewDate = scanner.nextLine();
+                            if (viewDate.trim().isEmpty()) {
+                                viewDate = null;
+                                break;
+                            }
+                        }
+                    }
+                    admin.viewShiftsBySession(viewSession, viewDate);
                     break;
 
                 case 4:
-                    // Edit shift schedule
-                    System.out.print("Enter Shift ID: ");
-                    int shiftId = scanner.nextInt();
+                    // Assign shift schedule with date validation
+                    System.out.print("Enter Staff ID: ");
+                    int staffId = scanner.nextInt();
                     scanner.nextLine();
-                    System.out.print("Enter Field: ");
-                    String field = scanner.nextLine();
-                    System.out.print("Enter Changes: ");
-                    String changes = scanner.nextLine();
-                    scanner.nextLine();
+                    
+                    String shiftDate = admin.getValidDateInput(scanner, "Enter Date (YYYY-MM-DD): ");
+                    
+                    System.out.print("Enter Session (MORNING/AFTERNOON/NIGHT): ");
+                    String session = scanner.nextLine();
+                    System.out.print("Enter Notes: ");
+                    String note = scanner.nextLine();
 
-                    administrator.editShift(shiftId, field, changes);
+                    admin.assignShift(staffId, shiftDate, session, note);
                     break;
 
                 case 5:
                     // Delete/Cancel shift schedule
                     System.out.print("Enter Shift ID: ");
-                    String sID = scanner.nextLine();
-                    admin.deleteShift(sID);
+                    int shiftId = scanner.nextInt();
+                    admin.deleteShift(shiftId);
                     break;
 
                 case 6:

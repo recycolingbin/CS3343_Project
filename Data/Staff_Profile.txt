@@ -1,3 +1,4 @@
-# Staff Profile Data File
-# Format: StaffID|Name|Role|Department|Salary
-# Example: 101|Alice Wong|Cashier|Sales|3000.0
+1001,Test Name With Spaces And Numbers 123,SuperLongRoleNameThatShouldBeHandledProperly
+2001,admin,Administrator
+1002,Alice Wang,Employee
+1003,Bob Chen,Employee

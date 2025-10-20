@@ -13,8 +13,8 @@ public abstract class BaseFunction {
     protected int userId;
     protected String username;
     protected String password;
-    protected static final String SHIFT_FILE = "CS3343 Project/Data/Shift.txt";
-    protected static final String STAFF_PROFILE_FILE = "CS3343 Project/Data/Staff_Profile.txt";
+    protected static final String SHIFT_FILE = "Data/Shift.txt";
+    protected static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
     
     public static final String MORNING_SESSION = "MORNING";
     public static final String AFTERNOON_SESSION = "AFTERNOON";
@@ -53,8 +53,8 @@ public abstract class BaseFunction {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 7) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 8) {
                         int shiftId = Integer.parseInt(parts[0].trim());
                         int employeeId = Integer.parseInt(parts[1].trim());
                         String date = parts[2].trim();
@@ -62,7 +62,7 @@ public abstract class BaseFunction {
                         String startTime = parts[4].trim();
                         String endTime = parts[5].trim();
                         String status = parts[6].trim();
-                        String notes = parts.length > 7 ? parts[7].trim() : "";
+                        String notes = parts[7].trim();
                         shifts.add(new Shift(shiftId, employeeId, date, session, startTime, endTime, status, notes));
                     }
                 }
@@ -80,13 +80,12 @@ public abstract class BaseFunction {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 5 && Integer.parseInt(parts[0].trim()) == staffId) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 3 && Integer.parseInt(parts[0].trim()) == staffId) {
                         String name = parts[1].trim();
                         String role = parts[2].trim();
-                        String department = parts[3].trim();
-                        double salary = Double.parseDouble(parts[4].trim());
-                        return new StaffProfile(staffId, name, role, department, salary);
+                        // Use simplified constructor for consistency
+                        return new StaffProfile(staffId, name, role);
                     }
                 }
             }
@@ -215,7 +214,9 @@ public abstract class BaseFunction {
     }
 
     protected boolean isValidSession(String session) {
-        return MORNING_SESSION.equals(session) || AFTERNOON_SESSION.equals(session) || NIGHT_SESSION.equals(session);
+        if (session == null) return false;
+        String upperSession = session.toUpperCase();
+        return MORNING_SESSION.equals(upperSession) || AFTERNOON_SESSION.equals(upperSession) || NIGHT_SESSION.equals(upperSession);
     }
 
     protected int getSessionOrder(String session) {
