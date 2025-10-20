@@ -307,38 +307,4 @@ public abstract class BaseFunction {
         System.out.println("Too many invalid attempts. Returning to menu.");
         return null;
     }
-
-    // ================== SHIFT CLASS ==================
-    protected static class Shift {
-        private int shiftId;
-        private int employeeId;
-        private String date;
-        private String session;
-        private String startTime;
-        private String endTime;
-        private String status;
-        private String notes;
-
-        public Shift(int shiftId, int employeeId, String date, String session,
-                    String startTime, String endTime, String status, String notes) {
-            this.shiftId = shiftId;
-            this.employeeId = employeeId;
-            this.date = date;
-            this.session = session;
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.status = status;
-            this.notes = notes;
-        }
-
-        public int getShiftId() { return shiftId; }
-        public int getEmployeeId() { return employeeId; }
-        public String getDate() { return date; }
-        public String getSession() { return session; }
-        public String getStartTime() { return startTime; }
-        public String getEndTime() { return endTime; }
-        public String getStatus() { return status; }
-        public String getNotes() { return notes; }
-    }
-
 }
