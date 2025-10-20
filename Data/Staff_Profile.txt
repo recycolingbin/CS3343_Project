@@ -2,9 +2,12 @@
 2001,admin,Administrator
 1002,Alice Wang,Employee
 1003,Bob Chen,Employee
+<<<<<<< Updated upstream
 58532848,Anna,Employee
 58526307,Kelly,Employee
 58534798,Tina,Employee
 58526485,Alice,Employee
 57840269,Palla,Employee
 57943098,William,Employee
+=======
+>>>>>>> Stashed changes
