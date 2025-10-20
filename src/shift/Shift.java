@@ -1,4 +1,4 @@
-package baseFunction;
+package shift;
 
 public class Shift {
     private int shiftId;

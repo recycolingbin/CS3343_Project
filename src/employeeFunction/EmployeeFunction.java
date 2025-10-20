@@ -91,6 +91,26 @@ public class EmployeeFunction extends BaseFunction {
                 System.out.println("Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
                 return;
             }
+            
+            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+    			boolean found = false;
+    			while (fileScanner.hasNextLine()) {
+    				String line = fileScanner.nextLine();
+    				String[] info = line.split("\\,");
+    				if (info[0].equals(userid)) {
+    					if (info[1].equals(date) && info[2].equals(session)) {
+    						found = true;
+    						break;
+    					}
+    				}
+    			}
+    			if (found) {
+    				System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
+    				return;
+    			}
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
 
             try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
                 writer.write(userid + "," + date + "," + session + ",PENDING\n");
@@ -123,6 +143,27 @@ public class EmployeeFunction extends BaseFunction {
                     System.out.println("Error: End date cannot be earlier than start date! Please try again.");
                 }
             }
+            
+            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+    			boolean found = false;
+    			while (fileScanner.hasNextLine()) {
+    				String line = fileScanner.nextLine();
+    				String[] info = line.split("\\,");
+    				if (info[0].equals(userid)) {
+    					if (info[1].compareTo(startDate) >= 0 && info[1].compareTo(endDate) <= 0) {
+    						found = true;
+    						break;
+    					}
+    				}
+    			}
+    			if (!found) {
+    				System.out.println("You do not have a duty during " + startDate + " to " + endDate + ". Cannot request leave.");
+    				return;
+    			}
+
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
 
             System.out.print("Please enter the reason for leave: ");
             String reason = scanner.nextLine().trim();
