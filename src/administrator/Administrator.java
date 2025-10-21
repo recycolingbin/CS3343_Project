@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import baseFunction.BaseFunction;
+import baseFunction.Shift;
 import staffProfile.StaffProfile;
 
 public class Administrator extends BaseFunction {
@@ -16,8 +17,6 @@ public class Administrator extends BaseFunction {
     private static final int INITIAL_REQUEST_ID = 2000;
     private static final int INITIAL_SHIFT_ID = 3000;
     
-    // Request status constants
-    private static final String STATUS_PENDING = "PENDING";
 
     public Administrator(int userId, String username, String password) {
         super(userId, username, password);
@@ -51,7 +50,6 @@ public class Administrator extends BaseFunction {
                         int staffId = Integer.parseInt(parts[0].trim());
                         String name = parts[1].trim();
                         String role = parts[2].trim();
-                        // Use simplified constructor without department and salary
                         profiles.add(new StaffProfile(staffId, name, role));
                     }
                 }
@@ -75,7 +73,7 @@ public class Administrator extends BaseFunction {
         }
     }
 
-    // Add staff profile with validation (simplified without department and salary)
+    // Add staff profile with validation
     public boolean addStaffProfile(int staffId, String staffName, String role) {
         List<StaffProfile> profiles = loadStaffProfiles();
 
@@ -172,15 +170,19 @@ public class Administrator extends BaseFunction {
         }
 
         System.out.println("===================== ALL STAFF PROFILES =====================");
-        System.out.printf("%-8s %-20s %-15s %-15s %-10s%n", "ID", "Name", "Role", "Department", "Salary");
-        System.out.println("----------------------------------------------------------------");
+        System.out.printf("%-8s %-25s %-20s%n", "ID", "Name", "Role");
+        System.out.println("----------------------------------------------------------");
 
         for (StaffProfile staff : profiles) {
-            System.out.printf("%-8d %-20s %-15s %-15s $%-9.2f%n",
-                    staff.getStaffId(), staff.getName(), staff.getRole(),
-                    staff.getDepartment(), staff.getSalary());
+            String truncatedName = staff.getName().length() > 25 ? 
+                                  staff.getName().substring(0, 22) + "..." : staff.getName();
+            String truncatedRole = staff.getRole().length() > 20 ? 
+                                  staff.getRole().substring(0, 17) + "..." : staff.getRole();
+                                  
+            System.out.printf("%-8d %-25s %-20s%n",
+                    staff.getStaffId(), truncatedName, truncatedRole);
         }
-        System.out.println("================================================================");
+        System.out.println("==========================================================");
     }
 
     // Delete staff profile with confirmation
@@ -292,7 +294,7 @@ public class Administrator extends BaseFunction {
         
         // Save to file
         try (PrintWriter writer = new PrintWriter(new FileWriter(LEAVE_REQUEST_FILE, true))) {
-            writer.println(requestId + "|" + employeeId + "|" + startDate + "|" + endDate + "|" + reason + "|PENDING|" + requestDate);
+            writer.println(requestId + "|" + employeeId + "|" + startDate + "|" + endDate + "|" + reason + "|" + requestDate);
         } catch (IOException e) {
             System.out.println("Error saving leave request: " + e.getMessage());
             return false;
@@ -306,7 +308,6 @@ public class Administrator extends BaseFunction {
         System.out.println("  Employee: " + employeeName + " (ID: " + employeeId + ")");
         System.out.println("  Period: " + startDate + " to " + endDate);
         System.out.println("  Reason: " + reason);
-        System.out.println("  Status: PENDING");
         
         return true;
     }
@@ -360,8 +361,7 @@ public class Administrator extends BaseFunction {
             for (Shift shift : shifts) {
                 if (shift.getEmployeeId() == employeeId &&
                         shift.getDate().equals(date) &&
-                        shift.getSession().equals(upperSession) &&
-                        !"CANCELLED".equals(shift.getStatus())) {
+                        shift.getSession().equals(upperSession)) {
                     System.out.println("Error: Employee already assigned to " + upperSession + " session on " + date);
                     return false;
                 }
@@ -375,7 +375,7 @@ public class Administrator extends BaseFunction {
             String startTime = times[0];
             String endTime = times[1];
 
-            Shift newShift = new Shift(newShiftId, employeeId, date, upperSession, startTime, endTime, "SCHEDULED", notes);
+            Shift newShift = new Shift(newShiftId, employeeId, date, upperSession, startTime, endTime, notes);
             shifts.add(newShift);
             saveShifts(shifts);
 
@@ -450,7 +450,7 @@ public class Administrator extends BaseFunction {
                 writer.println(shift.getShiftId() + "," + shift.getEmployeeId() + "," +
                         shift.getDate() + "," + shift.getSession() + "," +
                         shift.getStartTime() + "," + shift.getEndTime() + "," +
-                        shift.getStatus() + "," + shift.getNotes());
+                        shift.getNotes());
             }
         } catch (IOException e) {
             System.out.println("Error saving shifts: " + e.getMessage());
@@ -751,9 +751,9 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 4) {
+                    if (parts.length >= 3) {
                         System.out.println("Employee ID: " + parts[0] + ", Date: " + parts[1] + 
-                                         ", Session: " + parts[2] + ", Status: " + parts[3]);
+                                         ", Session: " + parts[2]);
                         hasRequests = true;
                     }
                 }
@@ -776,12 +776,11 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 4 && 
+                    if (parts.length >= 3 && 
                         parts[0].trim().equals(String.valueOf(employeeId)) && 
-                        parts[2].trim().equalsIgnoreCase(session) &&
-                        parts[3].trim().equals("PENDING")) {
+                        parts[2].trim().equalsIgnoreCase(session)) {
                         // Approve this request
-                        lines.add(parts[0] + "," + parts[1] + "," + parts[2] + ",APPROVED");
+                        lines.add(parts[0] + "," + parts[1] + "," + parts[2]);
                         found = true;
                         
                         // Add to shift schedule
@@ -809,7 +808,7 @@ public class Administrator extends BaseFunction {
             }
             System.out.println("Duty request approved for employee " + employeeId + " session " + session);
         } else {
-            System.out.println("No pending duty request found for employee " + employeeId + " session " + session);
+            System.out.println("No duty request found for employee " + employeeId + " session " + session);
         }
     }
     
@@ -822,7 +821,7 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 4 && 
+                    if (parts.length >= 3 && 
                         parts[0].trim().equals(String.valueOf(employeeId)) && 
                         parts[2].trim().equalsIgnoreCase(session)) {
                         found = true;
@@ -853,34 +852,29 @@ public class Administrator extends BaseFunction {
     
     // ================== IMPROVED DUTY REQUEST MANAGEMENT ==================
     
-    public void viewPendingDutyRequestsWithCaseNumbers() {
-        System.out.println("\n=============== Pending Duty Requests ===============");
-        List<String> pendingRequests = getPendingDutyRequests();
+    public void viewDutyRequestsWithCaseNumbers() {
+        System.out.println("\n=============== Duty Requests ===============");
+        List<String> requests = getDutyRequests();
         
-        if (pendingRequests.isEmpty()) {
-            System.out.println("No pending duty requests found.");
+        if (requests.isEmpty()) {
+            System.out.println("No duty requests found.");
             return;
         }
         
-        displayPendingDutyRequests(pendingRequests);
+        displayDutyRequests(requests);
     }
     
-    private List<String> getPendingDutyRequests() {
-        List<String> pendingRequests = new ArrayList<>();
+    private List<String> getDutyRequests() {
+        List<String> requests = new ArrayList<>();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
             String line;
-            int caseNumber = 1;
             
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= MIN_REQUEST_FIELDS && parts[3].trim().equals(STATUS_PENDING)) {
-                        System.out.println("Case #" + caseNumber + " - Employee ID: " + parts[0] + 
-                                         ", Date: " + parts[1] + ", Session: " + parts[2] + 
-                                         ", Status: " + parts[3]);
-                        pendingRequests.add(line);
-                        caseNumber++;
+                    if (parts.length >= 3) {
+                        requests.add(line);
                     }
                 }
             }
@@ -888,17 +882,16 @@ public class Administrator extends BaseFunction {
             System.err.println("Error reading duty requests: " + e.getMessage());
         }
         
-        return pendingRequests;
+        return requests;
     }
     
-    private void displayPendingDutyRequests(List<String> pendingRequests) {
+    private void displayDutyRequests(List<String> requests) {
         int caseNumber = 1;
-        for (String request : pendingRequests) {
+        for (String request : requests) {
             String[] parts = request.split(",");
-            if (parts.length >= 4) {
+            if (parts.length >= 3) {
                 System.out.println("Case #" + caseNumber + " - Employee ID: " + parts[0] + 
-                                 ", Date: " + parts[1] + ", Session: " + parts[2] + 
-                                 ", Status: " + parts[3]);
+                                 ", Date: " + parts[1] + ", Session: " + parts[2]);
                 caseNumber++;
             }
         }
@@ -906,20 +899,20 @@ public class Administrator extends BaseFunction {
     
     public void approveDutyRequestByCaseNumber(int caseNumber) {
         List<String> allLines = new ArrayList<>();
-        List<String> pendingRequests = new ArrayList<>();
+        List<String> requests = new ArrayList<>();
         
-        // Read all lines and identify pending requests
-        if (!loadDutyRequestData(allLines, pendingRequests)) {
+        // Read all lines and identify requests
+        if (!loadDutyRequestData(allLines, requests)) {
             return;
         }
         
         // Validate case number
-        if (!isValidCaseNumber(caseNumber, pendingRequests.size())) {
+        if (!isValidCaseNumber(caseNumber, requests.size())) {
             return;
         }
         
         // Process the approval
-        String requestToApprove = pendingRequests.get(caseNumber - 1);
+        String requestToApprove = requests.get(caseNumber - 1);
         String[] parts = requestToApprove.split(",");
         
         // Remove approved request and add to shift schedule
@@ -934,15 +927,15 @@ public class Administrator extends BaseFunction {
                           ", Session: " + parts[2]);
     }
     
-    private boolean loadDutyRequestData(List<String> allLines, List<String> pendingRequests) {
+    private boolean loadDutyRequestData(List<String> allLines, List<String> requests) {
         try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 allLines.add(line);
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= MIN_REQUEST_FIELDS && parts[3].trim().equals(STATUS_PENDING)) {
-                        pendingRequests.add(line);
+                    if (parts.length >= 3) {
+                        requests.add(line);
                     }
                 }
             }
@@ -953,9 +946,9 @@ public class Administrator extends BaseFunction {
         }
     }
     
-    private boolean isValidCaseNumber(int caseNumber, int totalPending) {
-        if (caseNumber < 1 || caseNumber > totalPending) {
-            System.out.println("Invalid case number! Please enter a number between 1 and " + totalPending);
+    private boolean isValidCaseNumber(int caseNumber, int totalRequests) {
+        if (caseNumber < 1 || caseNumber > totalRequests) {
+            System.out.println("Invalid case number! Please enter a number between 1 and " + totalRequests);
             return false;
         }
         return true;
@@ -984,20 +977,20 @@ public class Administrator extends BaseFunction {
     
     public void rejectDutyRequestByCaseNumber(int caseNumber) {
         List<String> allLines = new ArrayList<>();
-        List<String> pendingRequests = new ArrayList<>();
+        List<String> requests = new ArrayList<>();
         
-        // Read all lines and identify pending requests
-        if (!loadDutyRequestData(allLines, pendingRequests)) {
+        // Read all lines and identify requests
+        if (!loadDutyRequestData(allLines, requests)) {
             return;
         }
         
         // Validate case number
-        if (!isValidCaseNumber(caseNumber, pendingRequests.size())) {
+        if (!isValidCaseNumber(caseNumber, requests.size())) {
             return;
         }
         
         // Process the rejection
-        String requestToReject = pendingRequests.get(caseNumber - 1);
+        String requestToReject = requests.get(caseNumber - 1);
         String[] parts = requestToReject.split(",");
         
         // Remove rejected request
@@ -1021,9 +1014,9 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5) {
+                    if (parts.length >= 4) {
                         System.out.println("Employee ID: " + parts[0] + ", From: " + parts[1] + 
-                                         " To: " + parts[2] + ", Reason: " + parts[3] + ", Status: " + parts[4]);
+                                         " To: " + parts[2] + ", Reason: " + parts[3]);
                         hasRequests = true;
                     }
                 }
@@ -1045,14 +1038,13 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5 && 
+                    if (parts.length >= 4 && 
                         parts[0].trim().equals(String.valueOf(employeeId)) && 
-                        parts[1].trim().equals(startDate) &&
-                        parts[4].trim().equals("PENDING")) {
-                        lines.add(parts[0] + "," + parts[1] + "," + parts[2] + "," + parts[3] + ",APPROVED");
+                        parts[1].trim().equals(startDate)) {
+                        // Remove this leave request since it's approved
                         found = true;
                         
-                        // Remove shifts for the leave period (simplified - just remove for start date)
+                        // Remove shifts for the leave period
                         removeShiftsForLeave(employeeId, parts[1], parts[2]);
                     } else {
                         lines.add(line);
@@ -1074,7 +1066,7 @@ public class Administrator extends BaseFunction {
             }
             System.out.println("Leave request approved for employee " + employeeId + " starting " + startDate);
         } else {
-            System.out.println("No pending leave request found for employee " + employeeId + " starting " + startDate);
+            System.out.println("No leave request found for employee " + employeeId + " starting " + startDate);
         }
     }
     
@@ -1087,11 +1079,10 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5 && 
+                    if (parts.length >= 4 && 
                         parts[0].trim().equals(String.valueOf(employeeId)) && 
-                        parts[1].trim().equals(startDate) &&
-                        parts[4].trim().equals("PENDING")) {
-                        lines.add(parts[0] + "," + parts[1] + "," + parts[2] + "," + parts[3] + ",REJECTED");
+                        parts[1].trim().equals(startDate)) {
+                        // Remove this leave request since it's rejected
                         found = true;
                     } else {
                         lines.add(line);
@@ -1113,7 +1104,7 @@ public class Administrator extends BaseFunction {
             }
             System.out.println("Leave request rejected for employee " + employeeId + " starting " + startDate);
         } else {
-            System.out.println("No pending leave request found for employee " + employeeId + " starting " + startDate);
+            System.out.println("No leave request found for employee " + employeeId + " starting " + startDate);
         }
     }
     
@@ -1173,9 +1164,9 @@ public class Administrator extends BaseFunction {
     
     // ================== IMPROVED LEAVE REQUEST MANAGEMENT ==================
     
-    public void viewPendingLeaveRequestsWithCaseNumbers() {
-        System.out.println("\n=============== Pending Leave Requests ===============");
-        List<String> pendingRequests = new ArrayList<>();
+    public void viewLeaveRequestsWithCaseNumbers() {
+        System.out.println("\n=============== Leave Requests ===============");
+        List<String> requests = new ArrayList<>();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
             String line;
@@ -1184,18 +1175,18 @@ public class Administrator extends BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5 && parts[4].trim().equals("PENDING")) {
+                    if (parts.length >= 4) {
                         System.out.println("Case #" + caseNumber + " - Employee ID: " + parts[0] + 
                                          ", From: " + parts[1] + " To: " + parts[2] + 
-                                         ", Reason: " + parts[3] + ", Status: " + parts[4]);
-                        pendingRequests.add(line);
+                                         ", Reason: " + parts[3]);
+                        requests.add(line);
                         caseNumber++;
                     }
                 }
             }
             
-            if (pendingRequests.isEmpty()) {
-                System.out.println("No pending leave requests found.");
+            if (requests.isEmpty()) {
+                System.out.println("No leave requests found.");
             }
         } catch (IOException e) {
             System.err.println("Error reading leave requests: " + e.getMessage());
@@ -1204,17 +1195,17 @@ public class Administrator extends BaseFunction {
     
     public void approveLeaveRequestByCaseNumber(int caseNumber) {
         List<String> allLines = new ArrayList<>();
-        List<String> pendingRequests = new ArrayList<>();
+        List<String> requests = new ArrayList<>();
         
-        // Read all lines and identify pending requests
+        // Read all lines and identify requests
         try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 allLines.add(line);
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5 && parts[4].trim().equals("PENDING")) {
-                        pendingRequests.add(line);
+                    if (parts.length >= 4) {
+                        requests.add(line);
                     }
                 }
             }
@@ -1224,13 +1215,13 @@ public class Administrator extends BaseFunction {
         }
         
         // Check if case number is valid
-        if (caseNumber < 1 || caseNumber > pendingRequests.size()) {
-            System.out.println("Invalid case number! Please enter a number between 1 and " + pendingRequests.size());
+        if (caseNumber < 1 || caseNumber > requests.size()) {
+            System.out.println("Invalid case number! Please enter a number between 1 and " + requests.size());
             return;
         }
         
         // Get the specific request to approve
-        String requestToApprove = pendingRequests.get(caseNumber - 1);
+        String requestToApprove = requests.get(caseNumber - 1);
         String[] parts = requestToApprove.split(",");
         
         // Remove the approved request from all lines (don't keep approved requests)
@@ -1257,17 +1248,17 @@ public class Administrator extends BaseFunction {
     
     public void rejectLeaveRequestByCaseNumber(int caseNumber) {
         List<String> allLines = new ArrayList<>();
-        List<String> pendingRequests = new ArrayList<>();
+        List<String> requests = new ArrayList<>();
         
-        // Read all lines and identify pending requests
+        // Read all lines and identify requests
         try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 allLines.add(line);
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 5 && parts[4].trim().equals("PENDING")) {
-                        pendingRequests.add(line);
+                    if (parts.length >= 4) {
+                        requests.add(line);
                     }
                 }
             }
@@ -1277,13 +1268,13 @@ public class Administrator extends BaseFunction {
         }
         
         // Check if case number is valid
-        if (caseNumber < 1 || caseNumber > pendingRequests.size()) {
-            System.out.println("Invalid case number! Please enter a number between 1 and " + pendingRequests.size());
+        if (caseNumber < 1 || caseNumber > requests.size()) {
+            System.out.println("Invalid case number! Please enter a number between 1 and " + requests.size());
             return;
         }
         
         // Get the specific request to reject
-        String requestToReject = pendingRequests.get(caseNumber - 1);
+        String requestToReject = requests.get(caseNumber - 1);
         String[] parts = requestToReject.split(",");
         
         // Remove the rejected request from all lines (don't keep rejected requests)

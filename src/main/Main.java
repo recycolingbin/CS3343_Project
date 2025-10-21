@@ -256,12 +256,12 @@ public class Main {
             switch (requestChoice) {
                 case 1:
                     // View all duty requests
-                    admin.viewPendingDutyRequestsWithCaseNumbers();
+                    admin.viewDutyRequestsWithCaseNumbers();
                     break;
 
                 case 2:
                     // Approve duty request by case number
-                    admin.viewPendingDutyRequestsWithCaseNumbers();
+                    admin.viewDutyRequestsWithCaseNumbers();
                     System.out.print("Enter Case Number to Approve: ");
                     int approveDutyCaseNumber = scanner.nextInt();
                     scanner.nextLine();
@@ -271,7 +271,7 @@ public class Main {
 
                 case 3:
                     // Reject duty request by case number
-                    admin.viewPendingDutyRequestsWithCaseNumbers();
+                    admin.viewDutyRequestsWithCaseNumbers();
                     System.out.print("Enter Case Number to Reject: ");
                     int rejectDutyCaseNumber = scanner.nextInt();
                     scanner.nextLine();
@@ -327,7 +327,7 @@ public class Main {
 
                 case 2:
                     // Approve leave request by case number
-                    admin.viewPendingLeaveRequestsWithCaseNumbers();
+                    admin.viewLeaveRequestsWithCaseNumbers();
                     System.out.print("Enter Case Number to Approve: ");
                     int approveCaseNumber = scanner.nextInt();
                     scanner.nextLine();
@@ -337,7 +337,7 @@ public class Main {
 
                 case 3:
                     // Reject leave request by case number
-                    admin.viewPendingLeaveRequestsWithCaseNumbers();
+                    admin.viewLeaveRequestsWithCaseNumbers();
                     System.out.print("Enter Case Number to Reject: ");
                     int rejectCaseNumber = scanner.nextInt();
                     scanner.nextLine();

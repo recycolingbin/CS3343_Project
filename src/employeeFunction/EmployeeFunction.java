@@ -113,7 +113,7 @@ public class EmployeeFunction extends BaseFunction {
     		}
 
             try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-                writer.write(userid + "," + date + "," + session + ",PENDING\n");
+                writer.write(userid + "," + date + "," + session + "\n");
                 System.out.println("Duty request submitted successfully.");
             } catch (IOException e) {
                 System.err.println("Error writing duty request: " + e.getMessage());
@@ -174,7 +174,7 @@ public class EmployeeFunction extends BaseFunction {
             }
 
             try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
-                writer.write(userid + "," + startDate + "," + endDate + "," + reason + ",PENDING\n");
+                writer.write(userid + "," + startDate + "," + endDate + "," + reason + "\n");
                 System.out.println("Leave request submitted successfully.");
             } catch (IOException e) {
                 System.err.println("Error writing leave request: " + e.getMessage());

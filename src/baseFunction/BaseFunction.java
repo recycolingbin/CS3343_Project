@@ -55,16 +55,15 @@ public abstract class BaseFunction {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 8) {
+                    if (parts.length >= 7) {
                         int shiftId = Integer.parseInt(parts[0].trim());
                         int employeeId = Integer.parseInt(parts[1].trim());
                         String date = parts[2].trim();
                         String session = parts[3].trim();
                         String startTime = parts[4].trim();
                         String endTime = parts[5].trim();
-                        String status = parts[6].trim();
-                        String notes = parts[7].trim();
-                        shifts.add(new Shift(shiftId, employeeId, date, session, startTime, endTime, status, notes));
+                        String notes = parts[6].trim();
+                        shifts.add(new Shift(shiftId, employeeId, date, session, startTime, endTime, notes));
                     }
                 }
             }
@@ -121,7 +120,7 @@ public abstract class BaseFunction {
 
         System.out.println("==================== SHIFT SCHEDULE FOR " + date + " ====================");
         System.out.printf("%-8s %-12s %-20s %-10s %-15s %-10s%n",
-                "Shift ID", "Session", "Employee", "Time", "Status", "Notes");
+                "Shift ID", "Session", "Employee", "Time", "Notes");
         System.out.println("------------------------------------------------------------------------");
 
         for (Shift shift : dayShifts) {
@@ -131,7 +130,7 @@ public abstract class BaseFunction {
 
             System.out.printf("%-8d %-12s %-20s %-10s %-15s %-10s%n",
                     shift.getShiftId(), shift.getSession(), employeeName,
-                    timeRange, shift.getStatus(), shift.getNotes());
+                    timeRange, shift.getNotes());
         }
         System.out.println("========================================================================");
     }
@@ -161,7 +160,7 @@ public abstract class BaseFunction {
         String title = session + " SHIFTS" + (date != null ? " - " + date : "");
         System.out.println("==================== " + title + " ====================");
         System.out.printf("%-8s %-12s %-20s %-10s %-15s%n",
-                "Shift ID", "Date", "Employee", "Time", "Status");
+                "Shift ID", "Date", "Employee", "Time");
         System.out.println("------------------------------------------------------------");
 
         for (Shift shift : sessionShifts) {
@@ -171,7 +170,7 @@ public abstract class BaseFunction {
 
             System.out.printf("%-8d %-12s %-20s %-10s %-15s%n",
                     shift.getShiftId(), shift.getDate(), employeeName,
-                    timeRange, shift.getStatus());
+                    timeRange);
         }
         System.out.println("============================================================");
     }
@@ -200,16 +199,15 @@ public abstract class BaseFunction {
         });
 
         System.out.println("\n========== MY SHIFT SCHEDULE ==========");
-        System.out.printf("%-12s %-10s %-12s %-10s%n", "Date", "Session", "Time", "Status");
+        System.out.printf("%-12s %-10s %-12s %-10s%n", "Date", "Session", "Time");
         System.out.println("----------------------------------------");
         
         for (Shift shift : myShifts) {
             String timeRange = shift.getStartTime() + "-" + shift.getEndTime();
-            System.out.printf("%-12s %-10s %-12s %-10s%n",
+            System.out.printf("%-12s %-10s %-12s%n",
                     shift.getDate(),
                     shift.getSession(),
-                    timeRange,
-                    shift.getStatus());
+                    timeRange);
         }
         System.out.println("========================================");
     }
