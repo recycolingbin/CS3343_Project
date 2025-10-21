@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import administrator.Administrator;
+import adminFunction.AdminFunction;
 import baseFunction.BaseFunction;
 import employeeFunction.EmployeeFunction;
 import staffProfile.StaffProfile;
@@ -39,7 +39,7 @@ public class Main {
                     EmployeeFunction employeeFunction = new EmployeeFunction();
                     if (employeeFunction.login(Username, Password)) {
                         System.out.println("Employee login successful.");
-                        employeeFunction.Login_page("1001");
+                        employeeFunction.loginPage("1001");
                     } else {
                         System.out.println("Invalid. Please try again :(");
                     }
@@ -52,7 +52,7 @@ public class Main {
                     System.out.print("Enter Password: ");
                     String AdminPassword = scanner.nextLine();
 
-                    Administrator admin = new Administrator(2001, AdminUsername, AdminPassword);
+                    AdminFunction admin = new AdminFunction(2001, AdminUsername, AdminPassword);
                     if (admin.login(AdminUsername, AdminPassword)) {
                         System.out.println("Administrator login successful.");
                         adminMenu(admin, scanner);
@@ -118,7 +118,7 @@ public class Main {
 //===============================Admin menu=======================================================================
 //================================================================================================================
 
-    private static void adminMenu(Administrator admin, Scanner scanner) {
+    private static void adminMenu(AdminFunction admin, Scanner scanner) {
         boolean adminRunning = true;
 
         while (adminRunning) {
@@ -170,7 +170,7 @@ public class Main {
 //================Admin sub menu: Staff management================================================================
 //================================================================================================================
 
-    private static void staffManagementMenu(Administrator admin, Scanner scanner) {
+    private static void staffManagementMenu(AdminFunction admin, Scanner scanner) {
         boolean staffManagementRunning = true;
 
         while (staffManagementRunning) {
@@ -239,7 +239,7 @@ public class Main {
 //====================Request management sub menu: Duty request===================================================
 //================================================================================================================
 
-    private static void dutyRequestMenu(Administrator admin, Scanner scanner) {
+    private static void dutyRequestMenu(AdminFunction admin, Scanner scanner) {
         boolean dutyManagementRunning = true;
 
         while (dutyManagementRunning) {
@@ -294,7 +294,7 @@ public class Main {
 //====================Request management sub menu: Leave request===================================================
 //================================================================================================================
 
-    private static void leaveRequestMenu(Administrator admin, Scanner scanner) {
+    private static void leaveRequestMenu(AdminFunction admin, Scanner scanner) {
         boolean leaveManagementRunning = true;
 
         while (leaveManagementRunning) {
@@ -365,7 +365,7 @@ public class Main {
 //====================Shift management sub menu===================================================
 //================================================================================================================
 
-    private static void shiftManagementMenu(Administrator admin, Scanner scanner) {
+    private static void shiftManagementMenu(AdminFunction admin, Scanner scanner) {
         boolean shiftManagementRunning = true;
 
         while (shiftManagementRunning) {

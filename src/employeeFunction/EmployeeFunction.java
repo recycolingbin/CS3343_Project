@@ -33,8 +33,8 @@ public class EmployeeFunction extends BaseFunction {
         }
         return false;
     }
-
-    public void Login_page(String userid) {
+    //Login_page rename as loginPage
+    public void loginPage(String userid) {
         Scanner scanner = new Scanner(System.in);
         
         while (true) {
@@ -63,6 +63,7 @@ public class EmployeeFunction extends BaseFunction {
                         break;
                     case 4:
                         System.out.println("Logging out...");
+                        scanner.close();
                         return;
                     default:
                         System.out.println("Invalid choice. Please try again.");

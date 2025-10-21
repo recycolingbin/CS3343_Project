@@ -1,4 +1,4 @@
-package administrator;
+package adminFunction;
 
 import java.io.*;
 import java.util.*;
@@ -7,7 +7,7 @@ import baseFunction.BaseFunction;
 import baseFunction.Shift;
 import staffProfile.StaffProfile;
 
-public class Administrator extends BaseFunction {
+public class AdminFunction extends BaseFunction {
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
@@ -18,7 +18,7 @@ public class Administrator extends BaseFunction {
     private static final int INITIAL_SHIFT_ID = 3000;
     
 
-    public Administrator(int userId, String username, String password) {
+    public AdminFunction(int userId, String username, String password) {
         super(userId, username, password);
         initializeStaffFile();
     }
