@@ -77,7 +77,6 @@ public class EmployeeFunction extends BaseFunction {
         }
     }
     
-    
 	public boolean AddDuty(String userid, String date, String session) {
 		try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
     			boolean found = false;
