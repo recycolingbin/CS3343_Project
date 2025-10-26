@@ -35,7 +35,7 @@ public abstract class BaseFunction {
         System.out.println("Viewing available functions for user: " + username);
     }
     
-    public void Login_page(String userId) {
+    public void loginPage(String userId) {
         System.out.println("Login page for user: " + userId);
     }
     
@@ -305,4 +305,5 @@ public abstract class BaseFunction {
         System.out.println("Too many invalid attempts. Returning to menu.");
         return null;
     }
+
 }
