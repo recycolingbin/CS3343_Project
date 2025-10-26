@@ -76,6 +76,36 @@ public class EmployeeFunction extends BaseFunction {
             }
         }
     }
+    
+	public boolean AddDuty(String userid, String date, String session) {
+		try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+    			boolean found = false;
+    			while (fileScanner.hasNextLine()) {
+    				String line = fileScanner.nextLine();
+    				String[] info = line.split("\\,");
+    				if (info[0].equals(userid)) {
+    					if (info[1].equals(date) && info[2].equals(session)) {
+    						found = true;
+    						break;
+    					}
+    				}
+    			}
+    			if (found) {
+    				System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
+    				return false;
+    			}
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+			
+		try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
+			writer.write(userid + "," + date + "," + session + "\n");
+			return true;
+        } catch (IOException e) {
+        	System.err.println("Error writing duty request: " + e.getMessage());
+        }
+		return false;
+	}
 
     public void requestDuty(String userid) {
         Scanner scanner = new Scanner(System.in);
@@ -92,32 +122,13 @@ public class EmployeeFunction extends BaseFunction {
                 return;
             }
             
-            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
-    			boolean found = false;
-    			while (fileScanner.hasNextLine()) {
-    				String line = fileScanner.nextLine();
-    				String[] info = line.split("\\,");
-    				if (info[0].equals(userid)) {
-    					if (info[1].equals(date) && info[2].equals(session)) {
-    						found = true;
-    						break;
-    					}
-    				}
-    			}
-    			if (found) {
-    				System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
-    				return;
-    			}
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-
-            try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-                writer.write(userid + "," + date + "," + session + "\n");
-                System.out.println("Duty request submitted successfully.");
-            } catch (IOException e) {
-                System.err.println("Error writing duty request: " + e.getMessage());
-            }
+			if (AddDuty(userid, date, session)) {
+				System.out.println("Duty request submitted successfully.");
+			}
+			else {
+				return;
+			}
+            
         } catch (Exception e) {
             System.err.println("Error processing duty request: " + e.getMessage());
         }

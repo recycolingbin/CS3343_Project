@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import baseFunction.BaseFunction;
-import baseFunction.Shift;
+import shift.Shift;
 import staffProfile.StaffProfile;
 
 public class AdminFunction extends BaseFunction {

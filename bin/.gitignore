@@ -1,1 +1,9 @@
 /.metadata/
+/.gitignore
+/adminFunction/
+/administrator/
+/baseFunction/
+/employeeFunction/
+/main/
+/shift/
+/staffProfile/

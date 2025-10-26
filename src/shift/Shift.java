@@ -65,6 +65,7 @@ public class Shift {
     public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
+
     public void setNotes(String notes) {
         this.notes = notes;
     }
