@@ -63,8 +63,7 @@ public class EmployeeFunction extends BaseFunction {
                         break;
                     case 4:
                         System.out.println("Logging out...");
-                        scanner.close();
-                        return;
+                        return; // Don't close scanner - it closes System.in
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
