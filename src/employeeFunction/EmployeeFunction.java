@@ -36,7 +36,7 @@ public class EmployeeFunction extends BaseFunction {
         System.out.println("Invalid. Please try again :(");
         return false;
     }
-    //Login_page rename as loginPage
+    
     public void loginPage(String userid) {
         Scanner scanner = new Scanner(System.in);
         
