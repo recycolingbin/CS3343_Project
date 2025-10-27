@@ -35,16 +35,10 @@ public class Main {
                         String Password = scanner.nextLine();
 
                         EmployeeFunction employeeFunction = new EmployeeFunction();
-<<<<<<< HEAD
+//<<<<<<< HEAD
                         employeeFunction.login(Username, Password);
-=======
-                        if (employeeFunction.login(Username, Password)) {
-                            System.out.println("Employee login successful.");
-                            employeeFunction.loginPage("1001");
-                        } else {
-                            System.out.println("Invalid username or password. Please try again :(");
-                        }
->>>>>>> refs/remotes/origin/main
+//=======}
+//>>>>>>> refs/remotes/origin/main
                         break;
 
                     case 2:
