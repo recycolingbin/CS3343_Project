@@ -38,12 +38,7 @@ public class Main {
 
                         // Create employee function and handle login
                         EmployeeFunction employeeFunction = new EmployeeFunction();
-                        if (employeeFunction.login(Username, Password)) {
-                            System.out.println("Employee login successful.");
-                            employeeFunction.loginPage("1001");
-                        } else {
-                            System.out.println("Invalid. Please try again :(");
-                        }
+                        employeeFunction.login(Username, Password);
                         break;
 
                     case 2:

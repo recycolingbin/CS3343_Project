@@ -12,7 +12,7 @@ public class EmployeeFunction extends BaseFunction {
     public EmployeeFunction() {
         super(0, "", ""); // Default constructor with dummy values
     }
-
+    
     public boolean login(String username, String password) {
         try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
             String line;
@@ -24,6 +24,8 @@ public class EmployeeFunction extends BaseFunction {
                     // CRITICAL SECURITY BUG: Password is not being validated!
                     // Currently any password works for any employee
                     if (staffName.equals(username) && role.equals("Employee")) {
+                    	System.out.println("Employee login successful.");
+                        loginPage(parts[0].trim());
                         return true;
                     }
                 }
@@ -31,6 +33,7 @@ public class EmployeeFunction extends BaseFunction {
         } catch (IOException e) {
             System.err.println("Error reading staff profiles: " + e.getMessage());
         }
+        System.out.println("Invalid. Please try again :(");
         return false;
     }
     //Login_page rename as loginPage
@@ -77,7 +80,7 @@ public class EmployeeFunction extends BaseFunction {
         }
     }
     
-	public boolean AddDuty(String userid, String date, String session) {
+	public boolean addDuty(String userid, String date, String session) {
 		try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
     			boolean found = false;
     			while (fileScanner.hasNextLine()) {
@@ -122,7 +125,7 @@ public class EmployeeFunction extends BaseFunction {
                 return;
             }
             
-			if (AddDuty(userid, date, session)) {
+			if (addDuty(userid, date, session)) {
 				System.out.println("Duty request submitted successfully.");
 			}
 			else {
@@ -132,6 +135,33 @@ public class EmployeeFunction extends BaseFunction {
         } catch (Exception e) {
             System.err.println("Error processing duty request: " + e.getMessage());
         }
+    }
+    
+    public boolean checkduty(String userid, String startDate, String endDate) {
+    	try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+			boolean found = false;
+			while (fileScanner.hasNextLine()) {
+				String line = fileScanner.nextLine();
+				String[] info = line.split("\\,");
+				if (info[0].equals(userid)) {
+					if (info[1].compareTo(startDate) >= 0 && info[1].compareTo(endDate) <= 0) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				System.out.println("You do not have a duty during " + startDate + " to " + endDate + ". Cannot request leave.");
+				return false;
+			}
+			else {
+				return true;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
     }
 
     public void requestLeave(String userid) {
@@ -155,40 +185,27 @@ public class EmployeeFunction extends BaseFunction {
                 }
             }
             
-            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
-    			boolean found = false;
-    			while (fileScanner.hasNextLine()) {
-    				String line = fileScanner.nextLine();
-    				String[] info = line.split("\\,");
-    				if (info[0].equals(userid)) {
-    					if (info[1].compareTo(startDate) >= 0 && info[1].compareTo(endDate) <= 0) {
-    						found = true;
-    						break;
-    					}
-    				}
-    			}
-    			if (!found) {
-    				System.out.println("You do not have a duty during " + startDate + " to " + endDate + ". Cannot request leave.");
-    				return;
-    			}
-
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-
-            System.out.print("Please enter the reason for leave: ");
-            String reason = scanner.nextLine().trim();
+			if (!checkduty(userid, startDate, endDate)) {
+				String reason = "";
+				
+				while (true) {
+					System.out.print("Please enter the reason for leave: ");
+					reason = scanner.nextLine().trim();
             
-            if (reason.isEmpty()) {
-                System.out.println("Reason cannot be empty!");
-                return;
-            }
+					if (reason.isEmpty()) {
+						System.out.println("Reason cannot be empty!");
+					}
+					else {
+						break;
+					}
+				}				
 
-            try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
-                writer.write(userid + "," + startDate + "," + endDate + "," + reason + "\n");
-                System.out.println("Leave request submitted successfully.");
-            } catch (IOException e) {
-                System.err.println("Error writing leave request: " + e.getMessage());
+				try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
+					writer.write(userid + "," + startDate + "," + endDate + "," + reason + "\n");
+					System.out.println("Leave request submitted successfully.");
+				} catch (IOException e) {
+					System.err.println("Error writing leave request: " + e.getMessage());
+				}
             }
         } catch (Exception e) {
             System.err.println("Error processing leave request: " + e.getMessage());
