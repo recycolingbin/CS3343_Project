@@ -1,9 +1,2 @@
 /.metadata/
-/.gitignore
-/adminFunction/
-/baseFunction/
-/employeeFunction/
-/main/
 /main_employeefunction_testcase/
-/shift/
-/staffProfile/

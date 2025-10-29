@@ -3,6 +3,8 @@ package main_employeefunction_testcase;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.*;
 import org.junit.jupiter.api.Test;
+
+import employeeFunction.EmployeeFunction;
 import main.Main;
 
 class Main_employeefunction_testcase {
@@ -24,5 +26,21 @@ class Main_employeefunction_testcase {
 		System.setIn(System.in);
 		System.setOut(System.out);
 	}
-
+	
+	@Test
+	void loginPageTest() {
+		EmployeeFunction e = new EmployeeFunction();
+		String input = "4\n";
+		InputStream in = new ByteArrayInputStream(input.getBytes());
+		System.setIn(in);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		System.setOut(new PrintStream(out));
+		
+		e.loginPage("1002");
+		String output = out.toString();
+		assertTrue(output.contains("Logging out..."));
+		
+		System.setIn(System.in);
+		System.setOut(System.out);
+	}
 }
