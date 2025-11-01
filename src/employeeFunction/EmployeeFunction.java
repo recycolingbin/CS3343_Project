@@ -82,24 +82,24 @@ public class EmployeeFunction extends BaseFunction {
     
 	public boolean addDuty(String userid, String date, String session) {
 		try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
-    			boolean found = false;
-    			while (fileScanner.hasNextLine()) {
-    				String line = fileScanner.nextLine();
-    				String[] info = line.split("\\,");
-    				if (info[0].equals(userid)) {
-    					if (info[1].equals(date) && info[2].equals(session)) {
-    						found = true;
-    						break;
-    					}
+    		boolean found = false;
+    		while (fileScanner.hasNextLine()) {
+    			String line = fileScanner.nextLine();
+    			String[] info = line.split("\\,");
+    			if (info[0].equals(userid)) {
+    				if (info[1].equals(date) && info[2].equals(session)) {
+    					found = true;
+    					break;
     				}
     			}
-    			if (found) {
-    				System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
-    				return false;
-    			}
-    		} catch (Exception e) {
-    			e.printStackTrace();
     		}
+    		if (found) {
+    			System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
+    			return false;
+    		}
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
 			
 		try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
 			writer.write(userid + "," + date + "," + session + "\n");

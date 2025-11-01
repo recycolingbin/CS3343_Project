@@ -812,7 +812,7 @@ public class AdminFunction extends BaseFunction {
         }
     }
     
-    public void removeDutyRequest(int employeeId, String session) {
+    public void removeDutyRequest(int employeeId, String date, String session) {
         List<String> lines = new ArrayList<>();
         boolean found = false;
         
@@ -823,6 +823,7 @@ public class AdminFunction extends BaseFunction {
                     String[] parts = line.split(",");
                     if (parts.length >= 3 && 
                         parts[0].trim().equals(String.valueOf(employeeId)) && 
+                        parts[1].trim().equals(date) &&
                         parts[2].trim().equalsIgnoreCase(session)) {
                         found = true;
                         // Skip this line (remove it)
@@ -844,9 +845,9 @@ public class AdminFunction extends BaseFunction {
             } catch (IOException e) {
                 System.err.println("Error updating duty requests: " + e.getMessage());
             }
-            System.out.println("Duty request removed for employee " + employeeId + " session " + session);
+            System.out.println("Duty request removed for employee " + employeeId + " on " + date + " session " + session);
         } else {
-            System.out.println("No duty request found for employee " + employeeId + " session " + session);
+            System.out.println("No duty request found for employee " + employeeId + " on " + date + " session " + session);
         }
     }
     

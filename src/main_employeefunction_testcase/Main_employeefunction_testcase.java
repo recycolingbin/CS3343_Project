@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import employeeFunction.EmployeeFunction;
 import main.Main;
+import adminFunction.AdminFunction;
 
 class Main_employeefunction_testcase {
 
@@ -42,5 +43,24 @@ class Main_employeefunction_testcase {
 		
 		System.setIn(System.in);
 		System.setOut(System.out);
+	}
+	
+	@Test
+	void addDutyTest() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.addDuty("1002", "2024-12-25", "Morning");
+		assertEquals(true, result);		
+	}
+	
+	@Test
+	void removeDutyTest() {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		AdminFunction admin = new AdminFunction(2001, "admin", "adminpass");
+		admin.removeDutyRequest(1002, "2024-12-25", "Morning");		
+		
+		System.setOut(new PrintStream(out));
+		String output = out.toString();
+		assertTrue(output.contains("Duty request removed for employee 2001 session Morning"));
 	}
 }
