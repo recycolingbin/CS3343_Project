@@ -1,6 +1,7 @@
 package employeeFunction;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import baseFunction.BaseFunction;
 
@@ -81,16 +82,15 @@ public class EmployeeFunction extends BaseFunction {
     }
     
 	public boolean addDuty(String userid, String date, String session) {
-		try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+		File duty = new File(DUTY_REQUEST_FILE);
+		try (Scanner fileScanner = new Scanner(duty)) {
     		boolean found = false;
     		while (fileScanner.hasNextLine()) {
     			String line = fileScanner.nextLine();
-    			String[] info = line.split("\\,");
-    			if (info[0].equals(userid)) {
-    				if (info[1].equals(date) && info[2].equals(session)) {
-    					found = true;
-    					break;
-    				}
+    			String[] info = line.split(",");
+    			if (info[0].equals(userid) && info[1].equals(date) && info[2].equals(session)) {
+    				found = true;
+    				break;
     			}
     		}
     		if (found) {
@@ -137,17 +137,20 @@ public class EmployeeFunction extends BaseFunction {
         }
     }
     
-    public boolean checkduty(String userid, String startDate, String endDate) {
-    	try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
+    public boolean checkDuty(String userid, String startDate, String endDate) throws Exception {
+    	File duty = new File(DUTY_REQUEST_FILE);
+    	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    	Date sd = simpleDateFormat.parse(startDate);
+    	Date ed = simpleDateFormat.parse(endDate);
+    	
+    	try (Scanner fileScanner = new Scanner(duty)) {
 			boolean found = false;
 			while (fileScanner.hasNextLine()) {
 				String line = fileScanner.nextLine();
-				String[] info = line.split("\\,");
-				if (info[0].equals(userid)) {
-					if (info[1].compareTo(startDate) >= 0 && info[1].compareTo(endDate) <= 0) {
-						found = true;
-						break;
-					}
+				String[] info = line.split(",");
+				if (info[0].equals(userid) && (sd.before(simpleDateFormat.parse(info[1])) && ed.after(simpleDateFormat.parse(info[1])) || sd.equals(simpleDateFormat.parse(info[1])) || ed.equals(simpleDateFormat.parse(info[1])))) {
+					found = true;
+					break;
 				}
 			}
 			if (!found) {
@@ -171,11 +174,10 @@ public class EmployeeFunction extends BaseFunction {
             String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
             if (startDate == null) return; // user cancelled or too many attempts
             
-            String endDate;
+            String endDate = "";
             
             // Validate that end date is not earlier than start date
             while (true) {
-                endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
                 if (endDate == null) return; // user cancelled or too many attempts
                 
                 if (isDateAfterOrEqual(endDate, startDate)) {
@@ -185,7 +187,7 @@ public class EmployeeFunction extends BaseFunction {
                 }
             }
             
-			if (!checkduty(userid, startDate, endDate)) {
+			if (checkDuty(userid, startDate, endDate)) {
 				String reason = "";
 				
 				while (true) {

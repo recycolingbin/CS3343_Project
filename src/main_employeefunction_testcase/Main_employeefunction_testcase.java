@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.*;
 import org.junit.jupiter.api.Test;
 
+import adminFunction.AdminFunction;
 import employeeFunction.EmployeeFunction;
 import main.Main;
-import adminFunction.AdminFunction;
 
 class Main_employeefunction_testcase {
 
@@ -46,21 +46,121 @@ class Main_employeefunction_testcase {
 	}
 	
 	@Test
-	void addDutyTest() {
+	void addDutyTest1() {
 		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.addDuty("1002", "2024-12-25", "Morning");
-		assertEquals(true, result);		
+		boolean result = e.addDuty("1002", "2025-12-25", "MORNING");
+		assertEquals(true, result);
 	}
 	
 	@Test
-	void removeDutyTest() {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		
-		AdminFunction admin = new AdminFunction(2001, "admin", "adminpass");
-		admin.removeDutyRequest(1002, "2024-12-25", "Morning");		
-		
-		System.setOut(new PrintStream(out));
-		String output = out.toString();
-		assertTrue(output.contains("Duty request removed for employee 2001 session Morning"));
+	void addDutyTest2() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.addDuty("1002", "2025-12-25", "MORNING");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void checkDutyTest1() throws Exception {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.checkDuty("1003", "2025-11-11", "2025-11-13");
+		assertEquals(true, result);
+	}
+	
+	@Test
+	void checkDutyTest2() throws Exception {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.checkDuty("1003", "2025-11-12", "2025-11-13");
+		assertEquals(true, result);
+	}
+	
+	@Test
+	void checkDutyTest3() throws Exception {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.checkDuty("1003", "2025-11-11", "2025-11-12");
+		assertEquals(true, result);
+	}
+	
+	@Test
+	void checkDutyTest4() throws Exception {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.checkDuty("1003", "2025-11-10", "2025-11-11");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest1() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("1");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest2() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2019-1-1");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest3() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2031-1-1");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest4() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-13-1");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest5() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-0-1");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest6() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-1-0");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest7() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-1-32");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest8() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-2-29");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest9() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-4-31");
+		assertEquals(false, result);
+	}
+	
+	@Test
+	void isValidDateTest10() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2025-1-1");
+		assertEquals(true, result);
+	}
+	
+	@Test
+	void isLeapYearTest1() {
+		EmployeeFunction e = new EmployeeFunction();
+		boolean result = e.isValidDate("2024-2-29");
+		assertEquals(true, result);
 	}
 }
