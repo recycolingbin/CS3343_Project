@@ -228,22 +228,7 @@ public class AdminFunction extends BaseFunction {
 
     // ================== ROSTER PREPARATION ==================
 
-    // Base Request class
-    public static class Request {
-        protected int employeeId;
-        protected int requestId;
-        protected String requestDate;
-
-        public Request(int employeeId, int requestId, String requestDate) {
-            this.employeeId = employeeId;
-            this.requestId = requestId;
-            this.requestDate = requestDate;
-        }
-
-        public int getEmployeeId() { return employeeId; }
-        public int getRequestId() { return requestId; }
-        public String getRequestDate() { return requestDate; }
-    }
+    // Request base class has been extracted to adminFunction.Request
 
     // Duty Request extends Request
     public static class DutyRequest extends Request {
@@ -337,110 +322,83 @@ public class AdminFunction extends BaseFunction {
         return maxId + 1;
     }
 
-    // ================== INNER CLASSES FOR SHIFT OPERATIONS ==================
-    
-    // Inner class for assigning shifts
-    public class ShiftAssigner {
-        public boolean assignShift(int employeeId, String date, String session, String notes) {
-            if (!staffExists(employeeId)) {
-                System.out.println("Error: Employee ID " + employeeId + " not found!");
-                return false;
-            }
+    // ================== SHIFT OPERATIONS (simplified) ==================
 
-            // Convert session to uppercase for consistency
-            String upperSession = session.toUpperCase();
-
-            if (!isValidSession(upperSession)) {
-                System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
-                return false;
-            }
-
-            List<Shift> shifts = loadShifts();
-
-            // Check for duplicate shift assignment
-            for (Shift shift : shifts) {
-                if (shift.getEmployeeId() == employeeId &&
-                        shift.getDate().equals(date) &&
-                        shift.getSession().equals(upperSession)) {
-                    System.out.println("Error: Employee already assigned to " + upperSession + " session on " + date);
-                    return false;
-                }
-            }
-
-            // Generate new shift ID
-            int newShiftId = generateShiftId(shifts);
-
-            // Determine start and end times based on session
-            String[] times = getSessionTimes(upperSession);
-            String startTime = times[0];
-            String endTime = times[1];
-
-            Shift newShift = new Shift(newShiftId, employeeId, date, upperSession, startTime, endTime, notes);
-            shifts.add(newShift);
-            saveShifts(shifts);
-
-            StaffProfile staff = getUserInfo(employeeId);
-            String employeeName = (staff != null) ? staff.getName() : "Unknown";
-
-            System.out.println("Shift assigned successfully:");
-            System.out.println("  Shift ID: " + newShiftId);
-            System.out.println("  Employee: " + employeeName + " (ID: " + employeeId + ")");
-            System.out.println("  Date: " + date);
-            System.out.println("  Session: " + session + " (" + startTime + " - " + endTime + ")");
-            if (notes != null && !notes.trim().isEmpty()) {
-                System.out.println("  Notes: " + notes);
-            }
-
-            return true;
-        }
-    }
-    
-    // Inner class for deleting shifts
-    public class ShiftDeleter {
-        public boolean deleteShift(int shiftId) {
-            List<Shift> shifts = loadShifts();
-            Shift targetShift = null;
-
-            for (Shift shift : shifts) {
-                if (shift.getShiftId() == shiftId) {
-                    targetShift = shift;
-                    break;
-                }
-            }
-
-            if (targetShift == null) {
-                System.out.println("Error: Shift ID " + shiftId + " not found!");
-                return false;
-            }
-
-            shifts.remove(targetShift);
-            saveShifts(shifts);
-
-            StaffProfile staff = getUserInfo(targetShift.getEmployeeId());
-            String employeeName = (staff != null) ? staff.getName() : "Unknown";
-
-            System.out.println("Shift deleted successfully:");
-            System.out.println("  Shift ID: " + shiftId);
-            System.out.println("  Employee: " + employeeName);
-            System.out.println("  Date: " + targetShift.getDate());
-            System.out.println("  Session: " + targetShift.getSession());
-
-            return true;
-        }
-    }
-    
-    // Create instances of inner classes for operations
-    private ShiftAssigner shiftAssigner = new ShiftAssigner();
-    private ShiftDeleter shiftDeleter = new ShiftDeleter();
-
-    // Assign shift to employee - delegates to inner class
+    // Assign shift to employee
     public boolean assignShift(int employeeId, String date, String session, String notes) {
-        return shiftAssigner.assignShift(employeeId, date, session, notes);
+        if (!staffExists(employeeId)) {
+            System.out.println("Error: Employee ID " + employeeId + " not found!");
+            return false;
+        }
+
+        String upperSession = session.toUpperCase();
+        if (!isValidSession(upperSession)) {
+            System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
+            return false;
+        }
+
+        List<Shift> shifts = loadShifts();
+        for (Shift shift : shifts) {
+            if (shift.getEmployeeId() == employeeId && shift.getDate().equals(date) && shift.getSession().equals(upperSession)) {
+                System.out.println("Error: Employee already assigned to " + upperSession + " session on " + date);
+                return false;
+            }
+        }
+
+        int newShiftId = generateShiftId(shifts);
+        String[] times = getSessionTimes(upperSession);
+        String startTime = times[0];
+        String endTime = times[1];
+
+        Shift newShift = new Shift(newShiftId, employeeId, date, upperSession, startTime, endTime, notes);
+        shifts.add(newShift);
+        saveShifts(shifts);
+
+        StaffProfile staff = getUserInfo(employeeId);
+        String employeeName = (staff != null) ? staff.getName() : "Unknown";
+
+        System.out.println("Shift assigned successfully:");
+        System.out.println("  Shift ID: " + newShiftId);
+        System.out.println("  Employee: " + employeeName + " (ID: " + employeeId + ")");
+        System.out.println("  Date: " + date);
+        System.out.println("  Session: " + session + " (" + startTime + " - " + endTime + ")");
+        if (notes != null && !notes.trim().isEmpty()) {
+            System.out.println("  Notes: " + notes);
+        }
+
+        return true;
     }
 
-    // Delete shift - delegates to inner class  
+    // Delete shift
     public boolean deleteShift(int shiftId) {
-        return shiftDeleter.deleteShift(shiftId);
+        List<Shift> shifts = loadShifts();
+        Shift targetShift = null;
+
+        for (Shift shift : shifts) {
+            if (shift.getShiftId() == shiftId) {
+                targetShift = shift;
+                break;
+            }
+        }
+
+        if (targetShift == null) {
+            System.out.println("Error: Shift ID " + shiftId + " not found!");
+            return false;
+        }
+
+        shifts.remove(targetShift);
+        saveShifts(shifts);
+
+        StaffProfile staff = getUserInfo(targetShift.getEmployeeId());
+        String employeeName = (staff != null) ? staff.getName() : "Unknown";
+
+        System.out.println("Shift deleted successfully:");
+        System.out.println("  Shift ID: " + shiftId);
+        System.out.println("  Employee: " + employeeName);
+        System.out.println("  Date: " + targetShift.getDate());
+        System.out.println("  Session: " + targetShift.getSession());
+
+        return true;
     }
 
     // Save shifts to file
@@ -509,10 +467,12 @@ public class AdminFunction extends BaseFunction {
         while (true) {
             System.out.println("\n==================== ADMINISTRATOR LOGIN ====================");
             System.out.println("1. Staff Management");
-            System.out.println("2. Roster Preparation"); 
-            System.out.println("3. Session Management");
-            System.out.println("4. View Shift Schedule");
-            System.out.println("5. Exit");
+            System.out.println("2. Roster Preparation");
+            System.out.println("3. Leave Request Management");
+            System.out.println("4. Duty Request Management");
+            System.out.println("5. Session Management");
+            System.out.println("6. View Shift Schedule");
+            System.out.println("7. Exit");
             System.out.print("Select an option: ");
             
             try {
@@ -526,13 +486,19 @@ public class AdminFunction extends BaseFunction {
                         rosterPreparationMenu(scanner);
                         break;
                     case 3:
-                        sessionManagementMenu(scanner);
+                        leaveRequestManagementMenu(scanner);
                         break;
                     case 4:
+                        dutyRequestManagementMenu(scanner);
+                        break;
+                    case 5:
+                        sessionManagementMenu(scanner);
+                        break;
+                    case 6:
                         String todayDate = java.time.LocalDate.now().toString();
                         viewShiftSchedule(todayDate);
                         break;
-                    case 5:
+                    case 7:
                         System.out.println("Logging out...");
                         return;
                     default:
@@ -588,8 +554,82 @@ public class AdminFunction extends BaseFunction {
     private void rosterPreparationMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n================== ROSTER PREPARATION ==================");
+            System.out.println("--- Leave & Duty Request Management ---");
             System.out.println("1. Request Leave");
-            System.out.println("2. Back to Main Menu");
+            System.out.println("2. View Leave Requests");
+            System.out.println("3. Approve Leave Request (by case #)");
+            System.out.println("4. Reject Leave Request (by case #)");
+            System.out.println("5. View Duty Requests");
+            System.out.println("6. Approve Duty Request (by case #)");
+            System.out.println("7. Reject Duty Request (by case #)");
+            System.out.println("--- Shift Management ---");
+            System.out.println("8. Assign Shift to Staff");
+            System.out.println("9. Delete/Cancel Shift");
+            System.out.println("10. View All Shifts");
+            System.out.println("11. Back to Main Menu");
+            System.out.print("Select an option: ");
+
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+
+                switch (choice) {
+                    case 1:
+                        requestLeaveMenu(scanner);
+                        break;
+                    case 2:
+                        viewLeaveRequestsWithCaseNumbers();
+                        break;
+                    case 3:
+                        System.out.print("Enter case number to approve: ");
+                        int caseToApprove = Integer.parseInt(scanner.nextLine());
+                        approveLeaveRequestByCaseNumber(caseToApprove);
+                        break;
+                    case 4:
+                        System.out.print("Enter case number to reject: ");
+                        int caseToReject = Integer.parseInt(scanner.nextLine());
+                        rejectLeaveRequestByCaseNumber(caseToReject);
+                        break;
+                    case 5:
+                        viewDutyRequestsWithCaseNumbers();
+                        break;
+                    case 6:
+                        System.out.print("Enter case number to approve (duty): ");
+                        int dutyApprove = Integer.parseInt(scanner.nextLine());
+                        approveDutyRequestByCaseNumber(dutyApprove);
+                        break;
+                    case 7:
+                        System.out.print("Enter case number to reject (duty): ");
+                        int dutyReject = Integer.parseInt(scanner.nextLine());
+                        rejectDutyRequestByCaseNumber(dutyReject);
+                        break;
+                    case 8:
+                        assignShiftMenu(scanner);
+                        break;
+                    case 9:
+                        deleteShiftMenu(scanner);
+                        break;
+                    case 10:
+                        viewAllShiftSchedules();
+                        break;
+                    case 11:
+                        return;
+                    default:
+                        System.out.println("Invalid option! Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number.");
+            }
+        }
+    }
+    
+    private void leaveRequestManagementMenu(Scanner scanner) {
+        while (true) {
+            System.out.println("\n================== LEAVE REQUEST MANAGEMENT ==================");
+            System.out.println("1. View All Leave Requests");
+            System.out.println("2. Approve Leave Request (by case #)");
+            System.out.println("3. Reject Leave Request (by case #)");
+            System.out.println("4. Request Leave");
+            System.out.println("5. Back to Main Menu");
             System.out.print("Select an option: ");
             
             try {
@@ -597,9 +637,59 @@ public class AdminFunction extends BaseFunction {
                 
                 switch (choice) {
                     case 1:
-                        requestLeaveMenu(scanner);
+                        viewLeaveRequestsWithCaseNumbers();
                         break;
                     case 2:
+                        System.out.print("Enter case number to approve: ");
+                        int caseToApprove = Integer.parseInt(scanner.nextLine());
+                        approveLeaveRequestByCaseNumber(caseToApprove);
+                        break;
+                    case 3:
+                        System.out.print("Enter case number to reject: ");
+                        int caseToReject = Integer.parseInt(scanner.nextLine());
+                        rejectLeaveRequestByCaseNumber(caseToReject);
+                        break;
+                    case 4:
+                        requestLeaveMenu(scanner);
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid option! Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number.");
+            }
+        }
+    }
+    
+    private void dutyRequestManagementMenu(Scanner scanner) {
+        while (true) {
+            System.out.println("\n================== DUTY REQUEST MANAGEMENT ==================");
+            System.out.println("1. View All Duty Requests");
+            System.out.println("2. Approve Duty Request (by case #)");
+            System.out.println("3. Reject Duty Request (by case #)");
+            System.out.println("4. Back to Main Menu");
+            System.out.print("Select an option: ");
+            
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+                
+                switch (choice) {
+                    case 1:
+                        viewDutyRequestsWithCaseNumbers();
+                        break;
+                    case 2:
+                        System.out.print("Enter case number to approve: ");
+                        int caseToApprove = Integer.parseInt(scanner.nextLine());
+                        approveDutyRequestByCaseNumber(caseToApprove);
+                        break;
+                    case 3:
+                        System.out.print("Enter case number to reject: ");
+                        int caseToReject = Integer.parseInt(scanner.nextLine());
+                        rejectDutyRequestByCaseNumber(caseToReject);
+                        break;
+                    case 4:
                         return;
                     default:
                         System.out.println("Invalid option! Please try again.");
@@ -613,7 +703,7 @@ public class AdminFunction extends BaseFunction {
     private void sessionManagementMenu(Scanner scanner) {
         while (true) {
             System.out.println("\n================== SESSION MANAGEMENT ==================");
-            System.out.println("1. View Shift Schedule by Date");
+            System.out.println("1. View All Shift Schedules");
             System.out.println("2. Delete Shift");
             System.out.println("3. Back to Main Menu");
             System.out.print("Select an option: ");
@@ -623,7 +713,7 @@ public class AdminFunction extends BaseFunction {
                 
                 switch (choice) {
                     case 1:
-                        viewShiftScheduleByDateMenu(scanner);
+                        viewAllShiftSchedules();
                         break;
                     case 2:
                         deleteShiftMenu(scanner);
@@ -729,11 +819,20 @@ public class AdminFunction extends BaseFunction {
         requestLeave(employeeId, startDate, endDate, reason);
     }
     
-    private void viewShiftScheduleByDateMenu(Scanner scanner) {
+    private void assignShiftMenu(Scanner scanner) {
+        System.out.print("Enter Staff ID: ");
+        int staffId = Integer.parseInt(scanner.nextLine());
         System.out.print("Enter Date (YYYY-MM-DD): ");
         String date = scanner.nextLine();
-        viewShiftSchedule(date);
+        System.out.print("Enter Session (MORNING/AFTERNOON/NIGHT): ");
+        String session = scanner.nextLine();
+        System.out.print("Enter Notes: ");
+        String notes = scanner.nextLine();
+        
+        assignShift(staffId, date, session, notes);
     }
+    
+    // Removed viewShiftScheduleByDateMenu to simplify shift management; use viewAllShiftSchedules()
     
     private void deleteShiftMenu(Scanner scanner) {
         System.out.print("Enter Shift ID to delete: ");
