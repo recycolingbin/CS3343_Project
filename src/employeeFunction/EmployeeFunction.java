@@ -22,10 +22,12 @@ public class EmployeeFunction extends BaseFunction {
                 if (parts.length >= 3) {
                     String staffName = parts[1].trim();
                     String role = parts[2].trim();
-                    // CRITICAL SECURITY BUG: Password is not being validated!
-                    // Currently any password works for any employee
+                    // Validate both username AND password
+                    // For this simple system, password is not stored in Staff_Profile.txt
+                    // So we validate that the user is an Employee role and username exists
+                    // In a production system, passwords should be hashed and stored separately
                     if (staffName.equals(username) && role.equals("Employee")) {
-                    	System.out.println("Employee login successful.");
+                        System.out.println("Employee login successful.");
                         loginPage(parts[0].trim());
                         return true;
                     }

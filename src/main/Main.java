@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import adminFunction.AdminFunction;
+import adminFunction.AdminFunctionRefactored;
 import employeeFunction.EmployeeFunction;
 
 public class Main {
@@ -35,10 +35,11 @@ public class Main {
                         String Password = scanner.nextLine();
 
                         EmployeeFunction employeeFunction = new EmployeeFunction();
-//<<<<<<< HEAD
-                        employeeFunction.login(Username, Password);
-//=======}
-//>>>>>>> refs/remotes/origin/main
+                        if (employeeFunction.login(Username, Password)) {
+                            employeeFunction.loginPage(Username);
+                        } else {
+                            System.out.println("Invalid credentials. Please try again.");
+                        }
                         break;
 
                     case 2:
@@ -48,10 +49,10 @@ public class Main {
                         System.out.print("Enter Password: ");
                         String AdminPassword = scanner.nextLine();
 
-                        AdminFunction admin = new AdminFunction(2001, AdminUsername, AdminPassword);
+                        AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, AdminUsername, AdminPassword);
                         if (admin.login(AdminUsername, AdminPassword)) {
                             System.out.println("Administrator login successful.");
-                            admin.loginPage(); 
+                            admin.getMenuManager().loginPage();
                         } else {
                             System.out.println("Invalid username or password. Please try again :(");
                         }

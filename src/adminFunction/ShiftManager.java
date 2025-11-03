@@ -2,7 +2,7 @@ package adminFunction;
 
 import java.io.*;
 import java.util.*;
-import baseFunction.Shift;
+import shift.Shift;
 import staffProfile.StaffProfile;
 
 /**
