@@ -1,17 +1,18 @@
 package main;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import adminFunction.AdminFunctionRefactored;
+import adminFunction.AdminFunction;
 import employeeFunction.EmployeeFunction;
 
 public class Main {
     public static void main(String[] args) {
         // Initialize data directories and files
         initializeDataFiles();
-        
+
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -26,55 +27,49 @@ public class Main {
                 scanner.nextLine();
 
                 switch (choice) {
-                case 1:
-                    // Employee login
-                    System.out.print("Enter Employee Username: ");
-                    String Username = scanner.nextLine();
-                    System.out.print("Enter Password: ");
-                    String Password = scanner.nextLine();
+                    case 1:
+                        // Employee login
+                        System.out.print("Enter Employee Username: ");
+                        String Username = scanner.nextLine();
+                        System.out.print("Enter Password: ");
+                        String Password = scanner.nextLine();
 
-                    // Create employee function and handle login
-                    EmployeeFunction employeeFunction = new EmployeeFunction();
-                    if (employeeFunction.login(Username, Password)) {
-                        System.out.println("Employee login successful.");
-                        employeeFunction.loginPage("1001");
-                    } else {
-                        System.out.println("Invalid. Please try again :(");
-                    }
-                    break;
+                        EmployeeFunction employeeFunction = new EmployeeFunction();
+//<<<<<<< HEAD
+                        employeeFunction.login(Username, Password);
+//=======}
+//>>>>>>> refs/remotes/origin/main
+                        break;
 
-                case 2:
-                    // Administrator login
-                    System.out.print("Enter Administrator Username: ");
-                    String AdminUsername = scanner.nextLine();
-                    System.out.print("Enter Password: ");
-                    String AdminPassword = scanner.nextLine();
+                    case 2:
+                        // Administrator login
+                        System.out.print("Enter Administrator Username: ");
+                        String AdminUsername = scanner.nextLine();
+                        System.out.print("Enter Password: ");
+                        String AdminPassword = scanner.nextLine();
 
-                    AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, AdminUsername, AdminPassword);
-                    if (admin.login(AdminUsername, AdminPassword)) {
-                        System.out.println("Administrator login successful.");
-                        admin.getMenuManager().loginPage();
-                    } else {
-                        System.out.println("Invalid. Please try again.");
-                    }
-                    break;
+                        AdminFunction admin = new AdminFunction(2001, AdminUsername, AdminPassword);
+                        if (admin.login(AdminUsername, AdminPassword)) {
+                            System.out.println("Administrator login successful.");
+                            admin.loginPage(); 
+                        } else {
+                            System.out.println("Invalid username or password. Please try again :(");
+                        }
+                        break;
 
-                case 3:
-                    // Exit the program
-                    System.out.println("See you next time :)");
-                    scanner.close();
-                    return;
+                    case 3:
+                        // Exit the program
+                        System.out.println("See you next time :)");
+                        scanner.close();
+                        return;
 
-                default:
-                    System.out.println("Invalid choice. Please try again :(");
-            }
-        } catch (Exception e) {
-            System.out.println("Invalid input! Please enter a number between 1-3.");
-            // Clear invalid input if available to avoid NoSuchElementException when input stream ends
-            if (scanner.hasNextLine()) {
+                    default:
+                        System.out.println("Invalid choice. Please try again :(");
+                }
+            } catch (Exception e) {
+                System.out.println("Invalid input! Please enter a number between 1-3.");
                 scanner.nextLine(); // Clear invalid input
             }
-        }
         }
     }
 
@@ -88,10 +83,10 @@ public class Main {
 
         // Create data files if they don't exist
         String[] files = {
-            "Data/Staff_Profile.txt",
-            "Data/Duty_Request.txt", 
-            "Data/Leave_Request.txt",
-            "Data/Shift.txt"
+                "Data/Staff_Profile.txt",
+                "Data/Duty_Request.txt",
+                "Data/Leave_Request.txt",
+                "Data/Shift.txt"
         };
 
         for (String fileName : files) {
@@ -100,12 +95,12 @@ public class Main {
                 try {
                     file.createNewFile();
                     System.out.println("Created " + fileName);
-                    
+
                     // Add sample data for Staff_Profile.txt if it's newly created
                     if (fileName.equals("Data/Staff_Profile.txt")) {
                         try (FileWriter writer = new FileWriter(file)) {
-                            writer.write("1001,John Doe,Employee\n");
-                            writer.write("2001,admin,Administrator\n");
+                            writer.write("1001,John Doe,Employee,IT,50000.0\n");
+                            writer.write("2001,admin,Administrator,Management,80000.0\n");
                         }
                     }
                 } catch (IOException e) {

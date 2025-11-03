@@ -1,6 +1,7 @@
 package employeeFunction;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import baseFunction.BaseFunction;
 
@@ -12,7 +13,7 @@ public class EmployeeFunction extends BaseFunction {
     public EmployeeFunction() {
         super(0, "", ""); // Default constructor with dummy values
     }
-
+    
     public boolean login(String username, String password) {
         try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
             String line;
@@ -24,6 +25,8 @@ public class EmployeeFunction extends BaseFunction {
                     // CRITICAL SECURITY BUG: Password is not being validated!
                     // Currently any password works for any employee
                     if (staffName.equals(username) && role.equals("Employee")) {
+                    	System.out.println("Employee login successful.");
+                        loginPage(parts[0].trim());
                         return true;
                     }
                 }
@@ -31,9 +34,10 @@ public class EmployeeFunction extends BaseFunction {
         } catch (IOException e) {
             System.err.println("Error reading staff profiles: " + e.getMessage());
         }
+        System.out.println("Invalid. Please try again :(");
         return false;
     }
-    //Login_page rename as loginPage
+    
     public void loginPage(String userid) {
         Scanner scanner = new Scanner(System.in);
         
@@ -76,6 +80,35 @@ public class EmployeeFunction extends BaseFunction {
             }
         }
     }
+    
+	public boolean addDuty(String userid, String date, String session) {
+		File duty = new File(DUTY_REQUEST_FILE);
+		try (Scanner fileScanner = new Scanner(duty)) {
+    		boolean found = false;
+    		while (fileScanner.hasNextLine()) {
+    			String line = fileScanner.nextLine();
+    			String[] info = line.split(",");
+    			if (info[0].equals(userid) && info[1].equals(date) && info[2].equals(session)) {
+    				found = true;
+    				break;
+    			}
+    		}
+    		if (found) {
+    			System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
+    			return false;
+    		}
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+			
+		try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
+			writer.write(userid + "," + date + "," + session + "\n");
+			return true;
+        } catch (IOException e) {
+        	System.err.println("Error writing duty request: " + e.getMessage());
+        }
+		return false;
+	}
 
     public void requestDuty(String userid) {
         Scanner scanner = new Scanner(System.in);
@@ -92,35 +125,46 @@ public class EmployeeFunction extends BaseFunction {
                 return;
             }
             
-            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
-    			boolean found = false;
-    			while (fileScanner.hasNextLine()) {
-    				String line = fileScanner.nextLine();
-    				String[] info = line.split("\\,");
-    				if (info[0].equals(userid)) {
-    					if (info[1].equals(date) && info[2].equals(session)) {
-    						found = true;
-    						break;
-    					}
-    				}
-    			}
-    			if (found) {
-    				System.out.println("You already have duty on " + date + " at section " + session + ". Cannot request another duty.");
-    				return;
-    			}
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-
-            try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-                writer.write(userid + "," + date + "," + session + "\n");
-                System.out.println("Duty request submitted successfully.");
-            } catch (IOException e) {
-                System.err.println("Error writing duty request: " + e.getMessage());
-            }
+			if (addDuty(userid, date, session)) {
+				System.out.println("Duty request submitted successfully.");
+			}
+			else {
+				return;
+			}
+            
         } catch (Exception e) {
             System.err.println("Error processing duty request: " + e.getMessage());
         }
+    }
+    
+    public boolean checkDuty(String userid, String startDate, String endDate) throws Exception {
+    	File duty = new File(DUTY_REQUEST_FILE);
+    	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    	Date sd = simpleDateFormat.parse(startDate);
+    	Date ed = simpleDateFormat.parse(endDate);
+    	
+    	try (Scanner fileScanner = new Scanner(duty)) {
+			boolean found = false;
+			while (fileScanner.hasNextLine()) {
+				String line = fileScanner.nextLine();
+				String[] info = line.split(",");
+				if (info[0].equals(userid) && (sd.before(simpleDateFormat.parse(info[1])) && ed.after(simpleDateFormat.parse(info[1])) || sd.equals(simpleDateFormat.parse(info[1])) || ed.equals(simpleDateFormat.parse(info[1])))) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				System.out.println("You do not have a duty during " + startDate + " to " + endDate + ". Cannot request leave.");
+				return false;
+			}
+			else {
+				return true;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
     }
 
     public void requestLeave(String userid) {
@@ -130,11 +174,10 @@ public class EmployeeFunction extends BaseFunction {
             String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
             if (startDate == null) return; // user cancelled or too many attempts
             
-            String endDate;
+            String endDate = "";
             
             // Validate that end date is not earlier than start date
             while (true) {
-                endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
                 if (endDate == null) return; // user cancelled or too many attempts
                 
                 if (isDateAfterOrEqual(endDate, startDate)) {
@@ -144,40 +187,27 @@ public class EmployeeFunction extends BaseFunction {
                 }
             }
             
-            try (Scanner fileScanner = new Scanner(DUTY_REQUEST_FILE)) {
-    			boolean found = false;
-    			while (fileScanner.hasNextLine()) {
-    				String line = fileScanner.nextLine();
-    				String[] info = line.split("\\,");
-    				if (info[0].equals(userid)) {
-    					if (info[1].compareTo(startDate) >= 0 && info[1].compareTo(endDate) <= 0) {
-    						found = true;
-    						break;
-    					}
-    				}
-    			}
-    			if (!found) {
-    				System.out.println("You do not have a duty during " + startDate + " to " + endDate + ". Cannot request leave.");
-    				return;
-    			}
-
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-
-            System.out.print("Please enter the reason for leave: ");
-            String reason = scanner.nextLine().trim();
+			if (checkDuty(userid, startDate, endDate)) {
+				String reason = "";
+				
+				while (true) {
+					System.out.print("Please enter the reason for leave: ");
+					reason = scanner.nextLine().trim();
             
-            if (reason.isEmpty()) {
-                System.out.println("Reason cannot be empty!");
-                return;
-            }
+					if (reason.isEmpty()) {
+						System.out.println("Reason cannot be empty!");
+					}
+					else {
+						break;
+					}
+				}				
 
-            try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
-                writer.write(userid + "," + startDate + "," + endDate + "," + reason + "\n");
-                System.out.println("Leave request submitted successfully.");
-            } catch (IOException e) {
-                System.err.println("Error writing leave request: " + e.getMessage());
+				try (FileWriter writer = new FileWriter(LEAVE_REQUEST_FILE, true)) {
+					writer.write(userid + "," + startDate + "," + endDate + "," + reason + "\n");
+					System.out.println("Leave request submitted successfully.");
+				} catch (IOException e) {
+					System.err.println("Error writing leave request: " + e.getMessage());
+				}
             }
         } catch (Exception e) {
             System.err.println("Error processing leave request: " + e.getMessage());
