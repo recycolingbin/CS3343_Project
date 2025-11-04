@@ -176,17 +176,14 @@ public class EmployeeFunction extends BaseFunction {
             String startDate = getValidDateInput(scanner, "Please enter the start date for leave (YYYY-MM-DD): ");
             if (startDate == null) return; // user cancelled or too many attempts
             
-            String endDate = "";
+            String endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
+            if (endDate == null) return; // user cancelled or too many attempts
             
             // Validate that end date is not earlier than start date
-            while (true) {
-                if (endDate == null) return; // user cancelled or too many attempts
-                
-                if (isDateAfterOrEqual(endDate, startDate)) {
-                    break;
-                } else {
-                    System.out.println("Error: End date cannot be earlier than start date! Please try again.");
-                }
+            while (!isDateAfterOrEqual(endDate, startDate)) {
+                System.out.println("Error: End date cannot be earlier than start date! Please try again.");
+                endDate = getValidDateInput(scanner, "Please enter the end date for leave (YYYY-MM-DD): ");
+                if (endDate == null) return;
             }
             
 			if (checkDuty(userid, startDate, endDate)) {
