@@ -334,40 +334,31 @@ public class AllTests {
     @Nested
     class AllBaseFunctionDirectTests {
 
-        // Simple concrete subclass to expose protected methods for testing
-        class TestBase extends BaseFunction {
-            TestBase(int userId, String username, String password) { super(userId, username, password); }
-            public java.util.List<shift.Shift> callLoadShifts() { return loadShifts(); }
-            public staffProfile.StaffProfile callGetUserInfo(int id) { return getUserInfo(id); }
-            public boolean callIsValidSession(String s) { return isValidSession(s); }
-            public int callGetSessionOrder(String s) { return getSessionOrder(s); }
-        }
-
-        private TestBase base;
+        private AllTests.TestBase base;
 
         @BeforeEach
         void setup() {
-            base = new TestBase(1001, "tester", "secret");
+            base = new AllTests.TestBase(1001, "tester", "secret");
         }
 
         @Test
         @DisplayName("isValidSession should validate MORNING/AFTERNOON/NIGHT")
         void testIsValidSessionVariants() {
-            assertTrue(base.callIsValidSession("MORNING"));
-            assertTrue(base.callIsValidSession("AFTERNOON"));
-            assertTrue(base.callIsValidSession("NIGHT"));
-            assertTrue(base.callIsValidSession("morning"));
-            assertFalse(base.callIsValidSession(null));
-            assertFalse(base.callIsValidSession("INVALID"));
+            assertTrue(base.exposeIsValidSession("MORNING"));
+            assertTrue(base.exposeIsValidSession("AFTERNOON"));
+            assertTrue(base.exposeIsValidSession("NIGHT"));
+            assertTrue(base.exposeIsValidSession("morning"));
+            assertFalse(base.exposeIsValidSession(null));
+            assertFalse(base.exposeIsValidSession("INVALID"));
         }
 
         @Test
         @DisplayName("getSessionOrder should return 1/2/3 and 4 for default")
         void testGetSessionOrder() {
-            assertEquals(1, base.callGetSessionOrder("MORNING"));
-            assertEquals(2, base.callGetSessionOrder("AFTERNOON"));
-            assertEquals(3, base.callGetSessionOrder("NIGHT"));
-            assertEquals(4, base.callGetSessionOrder("X"));
+            assertEquals(1, base.exposeGetSessionOrder("MORNING"));
+            assertEquals(2, base.exposeGetSessionOrder("AFTERNOON"));
+            assertEquals(3, base.exposeGetSessionOrder("NIGHT"));
+            assertEquals(4, base.exposeGetSessionOrder("X"));
         }
 
         @Test
@@ -2347,11 +2338,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.loadShifts should return list with shifts from file")
         void testBaseFunctionLoadShifts() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public List<Shift> exposeLoadShifts() { return loadShifts(); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             List<Shift> shifts = base.exposeLoadShifts();
             assertNotNull(shifts);
             assertTrue(shifts.size() > 0);
@@ -2360,11 +2347,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.getUserInfo should return staff profile")
         void testBaseFunctionGetUserInfo() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             StaffProfile profile = base.exposeGetUserInfo(1001);
             assertNotNull(profile);
             assertEquals(1001, profile.getStaffId());
@@ -2373,11 +2356,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.getUserInfo with invalid ID should return null")
         void testBaseFunctionGetUserInfoInvalidId() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             StaffProfile profile = base.exposeGetUserInfo(999999);
             assertNull(profile);
         }
@@ -2385,11 +2364,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.isValidSession should accept MORNING/AFTERNOON/NIGHT")
         void testBaseFunctionIsValidSession() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeIsValidSession(String s) { return isValidSession(s); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             assertTrue(base.exposeIsValidSession("MORNING"));
             assertTrue(base.exposeIsValidSession("AFTERNOON"));
             assertTrue(base.exposeIsValidSession("NIGHT"));
@@ -2399,11 +2374,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.getSessionOrder should return correct order")
         void testBaseFunctionGetSessionOrder() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public int exposeGetSessionOrder(String s) { return getSessionOrder(s); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             assertEquals(1, base.exposeGetSessionOrder("MORNING"));
             assertEquals(2, base.exposeGetSessionOrder("AFTERNOON"));
             assertEquals(3, base.exposeGetSessionOrder("NIGHT"));
@@ -2413,11 +2384,7 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.isValidDate with various formats and edge cases")
         void testBaseFunctionIsValidDateComprehensive() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeIsValidDate(String d) { return isValidDate(d); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             assertTrue(base.exposeIsValidDate("2025-12-25"));
             assertTrue(base.exposeIsValidDate("2025-1-1"));
             assertTrue(base.exposeIsValidDate("2024-2-29")); // leap year
@@ -2430,16 +2397,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewShiftSchedule with existing date")
         void testBaseFunctionViewShiftScheduleWithDate() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftSchedule(String d) { viewShiftSchedule(d); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftSchedule("2025-12-15");
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewShiftSchedule("2025-12-15");
                 String output = out.toString();
                 assertTrue(output.contains("Shift") || output.contains("shift"));
             } finally {
@@ -2450,16 +2413,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewShiftsBySession with MORNING session")
         void testBaseFunctionViewShiftsBySessionMorning() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftsBySession("2025-12-15", "MORNING");
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewShiftsBySession("2025-12-15", "MORNING");
                 String output = out.toString();
                 assertTrue(output.length() > 0);
             } finally {
@@ -2470,16 +2429,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewShiftsBySession with invalid session")
         void testBaseFunctionViewShiftsBySessionInvalid() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftsBySession("2025-12-15", "INVALID");
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewShiftsBySession("2025-12-15", "INVALID");
                 String output = out.toString();
                 assertTrue(output.contains("Invalid") || output.contains("INVALID"));
             } finally {
@@ -2490,16 +2445,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewMyRoster should show user roster")
         void testBaseFunctionViewMyRoster() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewMyRoster() { viewMyRoster(); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewMyRoster();
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewMyRoster();
                 String output = out.toString();
                 assertTrue(output.contains("SCHEDULE") || output.contains("roster"));
             } finally {
@@ -2512,11 +2463,7 @@ public class AllTests {
         void testBaseFunctionGetValidDateInputSingleValid() {
             String input = "2025-03-15\n";
             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             String result = base.exposeGetValidDateInput(sc, "Enter date: ");
             assertEquals("2025-03-15", result);
         }
@@ -2526,11 +2473,7 @@ public class AllTests {
         void testBaseFunctionGetValidDateInputMultipleRetries() {
             String input = "invalid\n2025-13-01\n2025-12-32\n2025-06-15\n";
             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
             String result = base.exposeGetValidDateInput(sc, "Enter date: ");
             assertEquals("2025-06-15", result);
         }
@@ -2870,18 +2813,14 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.loginPage should print menu")
         void testBaseFunctionLoginPageDisplay() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeLoginPage(String param) { loginPage(param); }
-            }
             InputStream prevIn = System.in;
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setIn(new ByteArrayInputStream("4\n".getBytes()));
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeLoginPage("1001");
+                AllTests.TestBase base = new AllTests.TestBase(1001, "test", "pass");
+                base.loginPage("1001");
                 String output = out.toString();
                 assertTrue(output.contains("Employee Menu") || output.contains("1."));
             } finally {
@@ -3022,14 +2961,10 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.login with various credential combinations")
         void testBaseFunctionLoginEdgeCases() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposedLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "test", "pass");
-            boolean result = base.exposedLogin("test", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "test", "pass");
+            boolean result = base.exposeLogin("test", "pass");
             assertTrue(result);
-            boolean fail = base.exposedLogin("test", "wrong");
+            boolean fail = base.exposeLogin("test", "wrong");
             assertFalse(fail);
         }
 
@@ -3037,16 +2972,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewShiftSchedule with sorting")
         void testBaseViewShiftScheduleSorting() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftSchedule(String date) { viewShiftSchedule(date); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeViewShiftSchedule("2025-10-23");
+                AllTests.TestBase base = new AllTests.TestBase(1001, "test", "pass");
+                base.viewShiftSchedule("2025-10-23");
                 String output = out.toString();
                 assertTrue(output.contains("shift") || output.contains("No shifts"));
             } finally {
@@ -3057,16 +2988,12 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.viewMyRoster with sorting")
         void testBaseViewMyRosterSorting() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewMyRoster() { viewMyRoster(); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeViewMyRoster();
+                AllTests.TestBase base = new AllTests.TestBase(1001, "test", "pass");
+                base.viewMyRoster();
                 String output = out.toString();
                 assertTrue(output.contains("SCHEDULE") || output.contains("No shifts"));
             } finally {
@@ -3200,14 +3127,9 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.getUserId and getUsername consistency")
         void testBaseFunctionUserIdUsernameConsistency() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public int exposeGetUserId() { return getUserId(); }
-                public String exposeGetUsername() { return getUsername(); }
-            }
-            TestBase base = new TestBase(1007, "testuser", "pass");
-            assertEquals(1007, base.exposeGetUserId());
-            assertEquals("testuser", base.exposeGetUsername());
+            AllTests.TestBase base = new AllTests.TestBase(1007, "testuser", "pass");
+            assertEquals(1007, base.getUserId());
+            assertEquals("testuser", base.getUsername());
         }
 
         @Test
@@ -4131,6 +4053,204 @@ public class AllTests {
             AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "password");
             MenuManager mm = admin.getMenuManager();
             assertNotNull(mm);
+        }
+    }
+
+    // ==================== 100% COVERAGE: EDGE CASES & ERROR PATHS ====================
+    @Nested
+    @DisplayName("100% Coverage Tests - Edge Cases")
+    class CompleteCoverageTests {
+        
+        @Test
+        @DisplayName("BaseFunction.isValidDate with leap year edge cases")
+        void testIsValidDateLeapYearEdgeCases() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            // Leap years
+            assertTrue(base.exposeIsValidDate("2024-02-29")); // Divisible by 4
+            assertTrue(base.exposeIsValidDate("2000-02-29")); // Divisible by 400
+            // Non-leap years
+            assertFalse(base.exposeIsValidDate("2023-02-29")); // Not divisible by 4
+            assertFalse(base.exposeIsValidDate("2100-02-29")); // Divisible by 100 but not 400
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidDate with boundary years")
+        void testIsValidDateYearBoundaries() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertTrue(base.exposeIsValidDate("2020-01-01")); // Min valid year
+            assertTrue(base.exposeIsValidDate("2030-12-31")); // Max valid year
+            assertFalse(base.exposeIsValidDate("2019-12-31")); // Below min
+            assertFalse(base.exposeIsValidDate("2031-01-01")); // Above max
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidDate with all month day limits")
+        void testIsValidDateMonthDayLimits() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            // 31-day months
+            assertTrue(base.exposeIsValidDate("2025-01-31"));
+            assertFalse(base.exposeIsValidDate("2025-01-32"));
+            // 30-day months
+            assertTrue(base.exposeIsValidDate("2025-04-30"));
+            assertFalse(base.exposeIsValidDate("2025-04-31"));
+            // February non-leap
+            assertTrue(base.exposeIsValidDate("2025-02-28"));
+            assertFalse(base.exposeIsValidDate("2025-02-29"));
+        }
+
+        @Test
+        @DisplayName("BaseFunction.getValidDateInput exceeds MAX_ATTEMPTS")
+        void testGetValidDateInputMaxAttemptsExceeded() {
+            // 11 invalid inputs to exceed MAX_ATTEMPTS (10)
+            String input = "bad\nbad\nbad\nbad\nbad\nbad\nbad\nbad\nbad\nbad\nbad\n";
+            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setOut(new PrintStream(out));
+                String result = base.exposeGetValidDateInput(sc, "Date: ");
+                assertNull(result); // Should return null after max attempts
+                assertTrue(out.toString().contains("Too many invalid attempts"));
+            } finally {
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("BaseFunction.getValidDateInput when scanner ends early")
+        void testGetValidDateInputScannerEnds() {
+            String input = ""; // Empty input, hasNextLine() will return false
+            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setOut(new PrintStream(out));
+                String result = base.exposeGetValidDateInput(sc, "Date: ");
+                assertNull(result); // Should return null when input stream ends
+                assertTrue(out.toString().contains("Input stream ended"));
+            } finally {
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("BaseFunction.viewShiftsBySession with null date parameter")
+        void testViewShiftsBySessionNullDate() {
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setOut(new PrintStream(out));
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewShiftsBySession("MORNING", null); // null date should show all MORNING shifts
+                String output = out.toString();
+                assertTrue(output.contains("MORNING SHIFTS") || output.contains("No MORNING shifts"));
+            } finally {
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidSession with null input")
+        void testIsValidSessionNull() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertFalse(base.exposeIsValidSession(null));
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidSession with empty string")
+        void testIsValidSessionEmpty() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertFalse(base.exposeIsValidSession(""));
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidDate with null input")
+        void testIsValidDateNull() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertFalse(base.exposeIsValidDate(null));
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidDate with empty string")
+        void testIsValidDateEmpty() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertFalse(base.exposeIsValidDate(""));
+            assertFalse(base.exposeIsValidDate("   ")); // Whitespace only
+        }
+
+        @Test
+        @DisplayName("BaseFunction.isValidDate with malformed input")
+        void testIsValidDateMalformed() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertFalse(base.exposeIsValidDate("2025/12/25")); // Wrong separator
+            assertFalse(base.exposeIsValidDate("2025-12")); // Missing day
+            assertFalse(base.exposeIsValidDate("12-25-2025")); // Wrong order
+            assertFalse(base.exposeIsValidDate("2025-13-99")); // Invalid month and day
+            assertFalse(base.exposeIsValidDate("abc-def-ghi")); // Non-numeric
+        }
+
+        @Test
+        @DisplayName("BaseFunction.viewMyRoster with multiple shifts on same date")
+        void testViewMyRosterMultipleShiftsSameDate() {
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setOut(new PrintStream(out));
+                AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+                base.viewMyRoster();
+                String output = out.toString();
+                assertTrue(output.contains("MY SHIFT SCHEDULE") || output.contains("No shifts"));
+            } finally {
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("BaseFunction.getSessionOrder with default case")
+        void testGetSessionOrderDefault() {
+            AllTests.TestBase base = new AllTests.TestBase(1001, "user", "pass");
+            assertEquals(4, base.exposeGetSessionOrder("UNKNOWN"));
+            assertEquals(4, base.exposeGetSessionOrder(""));
+            assertEquals(4, base.exposeGetSessionOrder(null));
+        }
+
+        @Test
+        @DisplayName("StaffProfile with empty and null fields")
+        void testStaffProfileEmptyFields() {
+            StaffProfile sp1 = new StaffProfile(1, "", "");
+            assertEquals("", sp1.getName());
+            assertEquals("", sp1.getRole());
+            
+            StaffProfile sp2 = new StaffProfile(2, null, null);
+            assertNull(sp2.getName());
+            assertNull(sp2.getRole());
+        }
+
+        @Test
+        @DisplayName("StaffProfile setter coverage")
+        void testStaffProfileSetters() {
+            StaffProfile sp = new StaffProfile(1, "Original", "OldRole");
+            sp.setName("Updated");
+            sp.setRole("NewRole");
+            assertEquals("Updated", sp.getName());
+            assertEquals("NewRole", sp.getRole());
+        }
+
+        @Test
+        @DisplayName("Shift getters comprehensive coverage")
+        void testShiftGettersComplete() {
+            Shift shift = new Shift(1, 1001, "2025-12-25", "MORNING", "06:00", "14:00", "Test shift");
+            assertEquals(1, shift.getShiftId());
+            assertEquals(1001, shift.getEmployeeId());
+            assertEquals("2025-12-25", shift.getDate());
+            assertEquals("MORNING", shift.getSession());
+            assertEquals("06:00", shift.getStartTime());
+            assertEquals("14:00", shift.getEndTime());
+            assertEquals("Test shift", shift.getNotes());
         }
     }
 
