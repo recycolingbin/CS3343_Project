@@ -4133,4 +4133,285 @@ public class AllTests {
             assertNotNull(mm);
         }
     }
+
+    // ==================== ADMIN MenuManager COVERAGE ====================
+    @Nested
+    @DisplayName("Admin MenuManager Tests")
+    class AdminMenuManagerTests {
+
+        // Lightweight test doubles to avoid disk I/O and capture interactions
+        static class StubStaffManager extends StaffManager {
+            boolean addCalled; int addId; String addName; String addRole; boolean addReturn = true;
+            boolean editCalled; int editId; String editField; String editValue; boolean editReturn = true;
+            boolean delCalled; int delId; boolean delReturn = true;
+            boolean viewCalled; int viewId;
+            boolean viewAllCalled;
+
+            @Override
+            public boolean addStaffProfile(int staffId, String staffName, String role) {
+                addCalled = true; addId = staffId; addName = staffName; addRole = role; return addReturn;
+            }
+            @Override
+            public boolean editStaffProfile(int staffId, String field, String newValue) {
+                editCalled = true; editId = staffId; editField = field; editValue = newValue; return editReturn;
+            }
+            @Override
+            public boolean deleteStaffProfile(int staffId) {
+                delCalled = true; delId = staffId; return delReturn;
+            }
+            @Override
+            public void viewStaffProfile(int staffId) { viewCalled = true; viewId = staffId; }
+            @Override
+            public void viewAllStaffProfiles() { viewAllCalled = true; }
+            @Override
+            public boolean staffExists(int staffId) { return true; }
+            @Override
+            public StaffProfile getStaffInfo(int staffId) { return new StaffProfile(staffId, "Demo", "Role"); }
+        }
+
+        static class StubRequestManager extends RequestManager {
+            boolean viewLeaveCalled;
+            boolean viewDutyCalled;
+            Integer approveLeaveCase; Integer rejectLeaveCase;
+            Integer approveDutyCase; Integer rejectDutyCase;
+
+            @Override
+            public void viewLeaveRequestsWithCaseNumbers(StaffManager staffManager) { viewLeaveCalled = true; }
+            @Override
+            public void viewDutyRequestsWithCaseNumbers(StaffManager staffManager) { viewDutyCalled = true; }
+            @Override
+            public boolean approveLeaveRequestByCaseNumber(int caseNumber) { approveLeaveCase = caseNumber; return true; }
+            @Override
+            public boolean rejectLeaveRequestByCaseNumber(int caseNumber) { rejectLeaveCase = caseNumber; return true; }
+            @Override
+            public boolean approveDutyRequestByCaseNumber(int caseNumber) { approveDutyCase = caseNumber; return true; }
+            @Override
+            public boolean rejectDutyRequestByCaseNumber(int caseNumber) { rejectDutyCase = caseNumber; return true; }
+        }
+
+        static class StubShiftManager extends ShiftManager {
+            boolean viewAllCalled;
+            boolean assignCalled; int assignEmpId; String assignDate; String assignSession; String assignNotes;
+            boolean deleteCalled; int deleteShiftId;
+
+            @Override
+            public void viewAllShiftSchedules() { viewAllCalled = true; }
+            @Override
+            public boolean assignShift(int employeeId, String date, String session, String notes, StaffManager staffManager) {
+                assignCalled = true; assignEmpId = employeeId; assignDate = date; assignSession = session; assignNotes = notes; return true;
+            }
+            @Override
+            public boolean deleteShift(int shiftId, StaffManager staffManager) { deleteCalled = true; deleteShiftId = shiftId; return true; }
+        }
+
+        private MenuManager newMenuWith(String input, StubStaffManager sm, StubRequestManager rm, StubShiftManager shm) {
+            // Create scanner bound to the captured System.in
+            Scanner sc = new Scanner(System.in);
+            return new MenuManager(sm, rm, shm, sc);
+        }
+
+        @Test
+        @DisplayName("Main menu routes to Staff Management and logs out")
+        void testAdminMainRoutesAndLogout() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // 1 -> Staff Management, 6 -> Back to Main, 6 -> Logout
+            String input = "1\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String output = io.getOutput();
+                assertTrue(output.contains("Staff Management"));
+                assertTrue(output.contains("Logged out successfully."));
+            }
+        }
+
+        @Test
+        @DisplayName("Staff Management: Add profile succeeds")
+        void testStaffAddProfile() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Staff menu (1) -> Add (1) -> id,name,role -> Back (6) -> Logout (6)
+            String input = "1\n1\n1234\nAlice\nNurse\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String out = io.getOutput();
+                assertTrue(sm.addCalled && sm.addId == 1234 && "Alice".equals(sm.addName) && "Nurse".equals(sm.addRole));
+                assertTrue(out.contains("Staff profile added successfully!"));
+            }
+        }
+
+        @Test
+        @DisplayName("Staff Management: Edit role only triggers update message")
+        void testStaffEditRoleOnly() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Staff menu (1) -> Edit (2) -> id -> skip name -> role -> Back -> Logout
+            String input = "1\n2\n1234\n\nManager\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String out = io.getOutput();
+                assertTrue(sm.editCalled && sm.editId == 1234 && "role".equalsIgnoreCase(sm.editField));
+                assertTrue(out.contains("Staff profile updated successfully!"));
+            }
+        }
+
+        @Test
+        @DisplayName("Staff Management: Delete profile")
+        void testStaffDeleteProfile() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            String input = "1\n3\n5432\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertTrue(sm.delCalled && sm.delId == 5432);
+            }
+        }
+
+        @Test
+        @DisplayName("Staff Management: View single and all profiles")
+        void testStaffViewOperations() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // View one (4) then view all (5) then back (6) then logout (6)
+            String input = "1\n4\n1001\n5\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertTrue(sm.viewCalled && sm.viewId == 1001);
+                assertTrue(sm.viewAllCalled);
+            }
+        }
+
+        @Test
+        @DisplayName("Leave Request menu: invalid input then back")
+        void testLeaveRequestInvalidInputThenBack() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Go to Leave menu (3) -> Approve (2) -> invalid case 'abc' -> Back (4) -> Logout (6)
+            String input = "3\n2\nabc\n4\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String out = io.getOutput();
+                assertTrue(out.contains("Invalid input!"));
+            }
+        }
+
+        @Test
+        @DisplayName("Duty Request menu: view then back")
+        void testDutyRequestViewThenBack() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            String input = "4\n1\n4\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertTrue(rm.viewDutyCalled);
+            }
+        }
+
+        @Test
+        @DisplayName("Session management shows available sessions")
+        void testSessionManagementViewSessions() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            String input = "2\n1\n2\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String out = io.getOutput();
+                assertTrue(out.contains("MORNING") && out.contains("AFTERNOON") && out.contains("NIGHT"));
+            }
+        }
+
+        @Test
+        @DisplayName("Roster: assign shift happy path")
+        void testRosterAssignShift() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Roster (5) -> Assign (8) -> inputs -> Back (10) -> Logout (6)
+            String input = "5\n8\n1001\n2025-12-01\nMORNING\nNote\n10\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertTrue(shm.assignCalled);
+                assertEquals(1001, shm.assignEmpId);
+                assertEquals("2025-12-01", shm.assignDate);
+                assertEquals("MORNING", shm.assignSession.toUpperCase());
+                assertEquals("Note", shm.assignNotes);
+            }
+        }
+
+        @Test
+        @DisplayName("Roster: delete shift")
+        void testRosterDeleteShift() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            String input = "5\n9\n3010\n10\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertTrue(shm.deleteCalled && shm.deleteShiftId == 3010);
+            }
+        }
+
+        @Test
+        @DisplayName("Roster: approve leave and reject duty by case number")
+        void testRosterApproveRejectFlows() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Approve Leave: 5 -> 1 -> (view) -> case 7 -> back 10
+            // Reject Duty: 5 -> 4 -> (view) -> case 2 -> back 10 -> logout 6
+            String input = "5\n1\n7\n10\n5\n4\n2\n10\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                assertEquals(7, rm.approveLeaveCase);
+                assertEquals(2, rm.rejectDutyCase);
+            }
+        }
+
+        @Test
+        @DisplayName("Invalid options in menus show error")
+        void testInvalidOptions() {
+            StubStaffManager sm = new StubStaffManager();
+            StubRequestManager rm = new StubRequestManager();
+            StubShiftManager shm = new StubShiftManager();
+
+            // Invalid in main (x), staff (x) then exit paths
+            String input = "x\n1\nx\n6\n6\n";
+            try (IOCapture io = new IOCapture(input)) {
+                MenuManager menu = newMenuWith(input, sm, rm, shm);
+                menu.loginPage();
+                String out = io.getOutput();
+                assertTrue(out.contains("Invalid option"));
+            }
+        }
+    }
 }
