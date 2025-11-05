@@ -1,4 +1,4 @@
-package adminFunction;
+package staffRosteringSystem;
 
 import java.util.*;
 
@@ -132,13 +132,15 @@ public class MenuManager {
                     System.out.print("Enter Staff ID to view: ");
                     try {
                         int staffId = Integer.parseInt(scanner.nextLine().trim());
-                        staffManager.viewStaffProfile(staffId);
+                        System.out.println(staffManager.viewStaffProfile(staffId));
+                        //staffManager.viewStaffProfile(staffId);
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid input!");
                     }
                     break;
                 case "5":
-                    staffManager.viewAllStaffProfiles();
+                    System.out.println(staffManager.viewAllStaffProfiles(null));
+                	//staffManager.viewAllStaffProfiles(null);
                     break;
                 case "6":
                     return;

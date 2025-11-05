@@ -1,4 +1,4 @@
-package staffProfile;
+package staffRosteringSystem;
 
 public class StaffProfile {
     private int staffId;

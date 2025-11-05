@@ -1,4 +1,4 @@
-package shift;
+package staffRosteringSystem;
 
 public class Shift {
     private int shiftId;

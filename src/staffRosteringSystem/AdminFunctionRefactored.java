@@ -1,7 +1,6 @@
-package adminFunction;
+package staffRosteringSystem;
 
 import java.util.*;
-import baseFunction.BaseFunction;
 
 /**
  * AdminFunction (Refactored) is a lightweight coordinator class.
@@ -70,11 +69,13 @@ public class AdminFunctionRefactored extends BaseFunction {
     }
 
     public void viewStaffProfile(int staffId) {
-        staffManager.viewStaffProfile(staffId);
+        System.out.println(staffManager.viewStaffProfile(staffId));
+    	//staffManager.viewStaffProfile(staffId);
     }
 
     public void viewAllStaffProfiles() {
-        staffManager.viewAllStaffProfiles();
+    	System.out.println( staffManager.viewAllStaffProfiles(null));
+    	//staffManager.viewAllStaffProfiles(staffId);
     }
 
     // Request Management delegations

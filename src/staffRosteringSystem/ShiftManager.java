@@ -1,9 +1,7 @@
-package adminFunction;
+package staffRosteringSystem;
 
 import java.io.*;
 import java.util.*;
-import shift.Shift;
-import staffProfile.StaffProfile;
 
 /**
  * ShiftManager handles all shift operations.

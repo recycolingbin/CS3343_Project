@@ -1,12 +1,9 @@
-package main;
+package staffRosteringSystem;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
-
-import adminFunction.AdminFunctionRefactored;
-import employeeFunction.EmployeeFunction;
 
 public class Main {
     public static void main(String[] args) {

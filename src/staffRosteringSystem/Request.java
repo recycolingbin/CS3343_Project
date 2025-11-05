@@ -1,4 +1,4 @@
-package adminFunction;
+package staffRosteringSystem;
 
 public abstract class Request {
     protected int employeeId;

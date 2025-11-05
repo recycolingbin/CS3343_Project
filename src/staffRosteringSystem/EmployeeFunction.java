@@ -1,9 +1,8 @@
-package employeeFunction;
+package staffRosteringSystem;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import baseFunction.BaseFunction;
 
 public class EmployeeFunction extends BaseFunction {
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";

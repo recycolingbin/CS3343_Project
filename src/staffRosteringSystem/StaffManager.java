@@ -1,8 +1,8 @@
-package adminFunction;
+package staffRosteringSystem;
 
 import java.io.*;
 import java.util.*;
-import staffProfile.StaffProfile;
+import java.util.function.Function;
 
 /**
  * StaffManager handles all staff profile operations.
@@ -13,9 +13,32 @@ import staffProfile.StaffProfile;
  */
 public class StaffManager {
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
-
+    
+    public boolean initializeStaffProfileFile(String filePath) {
+        FileOperations fOps = new FileOperations();
+        return fOps.initializeFile(filePath);    
+    }
+    
     // Load staff profiles from file
     public List<StaffProfile> loadStaffProfiles() {
+        FileOperations fOps = new FileOperations();
+        Function<String, StaffProfile> parser = line -> {
+            
+                String[] parts = line.split(",");
+                if (parts.length >= 3) {
+                    int staffId = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    String role = parts[2].trim();
+                    return new StaffProfile(staffId, name, role);
+                }
+                return null;
+            
+        };
+        return fOps.loadData(STAFF_PROFILE_FILE, parser);
+    }
+    
+    
+    /* public List<StaffProfile> loadStaffProfiles() {
         List<StaffProfile> profiles = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
             String line;
@@ -36,9 +59,17 @@ public class StaffManager {
             System.out.println("Error parsing staff data: " + e.getMessage());
         }
         return profiles;
-    }
+    } */ 
 
     // Save staff profiles to file
+    public boolean saveStaffProfiles(List<StaffProfile> profiles) {
+        FileOperations fOps = new FileOperations();
+        Function<StaffProfile, String> formatter = profile ->
+            profile.getStaffId() + "," + profile.getName() + "," + profile.getRole();
+        return fOps.saveData(STAFF_PROFILE_FILE, profiles, formatter);
+    }
+
+    /*
     public void saveStaffProfiles(List<StaffProfile> profiles) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(STAFF_PROFILE_FILE))) {
             for (StaffProfile profile : profiles) {
@@ -47,8 +78,8 @@ public class StaffManager {
         } catch (IOException e) {
             System.out.println("Error saving staff profiles: " + e.getMessage());
         }
-    }
-
+    } */
+    
     // Add staff profile with validation
     public boolean addStaffProfile(int staffId, String staffName, String role) {
         List<StaffProfile> profiles = loadStaffProfiles();
@@ -93,7 +124,7 @@ public class StaffManager {
         switch (field.toLowerCase()) {
             case "name":
                 targetStaff.setName(newValue);
-                updated = true;
+         updated = true;
                 break;
             case "role":
                 targetStaff.setRole(newValue);
@@ -113,7 +144,7 @@ public class StaffManager {
     }
 
     // View staff profile with detailed information
-    public void viewStaffProfile(int staffId) {
+    public String viewStaffProfile(int staffId) { //return String for testability
         List<StaffProfile> profiles = loadStaffProfiles();
         StaffProfile staff = null;
         
@@ -126,20 +157,63 @@ public class StaffManager {
         }
         
         if (staff == null) {
-            System.out.println("Error: Staff ID " + staffId + " not found!");
-            return;
+            return "Error: Staff ID " + staffId + " not found!";
         }
-
-        System.out.println("==================== STAFF PROFILE ====================");
-        System.out.println("Staff ID: " + staff.getStaffId());
-        System.out.println("Name: " + staff.getName());
-        System.out.println("Role: " + staff.getRole());
-        System.out.println("======================================================");
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("==================== STAFF PROFILE ====================\n");
+        sb.append("Staff ID: ").append(staff.getStaffId()).append("\n");
+        sb.append("Name: ").append(staff.getName()).append("\n");
+        sb.append("Role: ").append(staff.getRole()).append("\n");
+        sb.append("======================================================");
+        
+        return sb.toString();
+//        System.out.println("==================== STAFF PROFILE ====================");
+//        System.out.println("Staff ID: " + staff.getStaffId());
+//        System.out.println("Name: " + staff.getName());
+//        System.out.println("Role: " + staff.getRole());
+//        System.out.println("======================================================");
     }
 
-    // View all staff profiles
-    public void viewAllStaffProfiles() {
+    //View all staff profiles
+    /*public void viewAllStaffProfiles() {
         List<StaffProfile> profiles = loadStaffProfiles();
+        if (profiles.isEmpty()) {
+            System.out.println("No staff profiles found.");
+            return;
+        } */
+    
+	public String viewAllStaffProfiles(List<StaffProfile> profiles) { //return String for testability
+		if (profiles == null) {
+			profiles = loadStaffProfiles();
+		}
+		if (profiles.isEmpty()) {
+			return "No staff profiles found.";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("===================== ALL STAFF PROFILES =====================\n");
+		sb.append(String.format("%-8s %-25s %-20s%n", "ID", "Name", "Role"));
+		sb.append("----------------------------------------------------------\n");
+
+		for (StaffProfile staff : profiles) {
+			String truncatedName = staff.getName().length() > 25 ? staff.getName().substring(0, 22) + "..."
+					: staff.getName();
+			String truncatedRole = staff.getRole().length() > 20 ? staff.getRole().substring(0, 17) + "..."
+					: staff.getRole();
+
+			sb.append(String.format("%-8d %-25s %-20s%n", staff.getStaffId(), truncatedName, truncatedRole));
+		}
+		sb.append("==========================================================\n");
+		return sb.toString();
+	}
+    
+    // View all staff profiles
+    /*
+	public void viewAllStaffProfiles(List<StaffProfile> profiles) {
+    	if (profiles == null)
+    		profiles = loadStaffProfiles();
+    	
         if (profiles.isEmpty()) {
             System.out.println("No staff profiles found.");
             return;
@@ -159,7 +233,7 @@ public class StaffManager {
                     staff.getStaffId(), truncatedName, truncatedRole);
         }
         System.out.println("==========================================================");
-    }
+    } */
 
     // Delete staff profile with confirmation
     public boolean deleteStaffProfile(int staffId) {
@@ -214,7 +288,7 @@ public class StaffManager {
     }
 
     // Initialize staff file if it doesn't exist
-    public void initializeStaffFile() {
+    /*public void initializeStaffFile() {
         File file = new File(STAFF_PROFILE_FILE);
         if (!file.exists()) {
             try {
@@ -224,5 +298,5 @@ public class StaffManager {
                 System.out.println("Error creating staff profile file: " + e.getMessage());
             }
         }
-    }
+    }*/
 }
