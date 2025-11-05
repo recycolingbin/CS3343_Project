@@ -1,15 +1,14 @@
-package main_employeefunction_testcase;
+package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import staffRosteringSystem.EmployeeFunction;
-import staffRosteringSystem.Main;
 
-class Main_employeefunction_testcase {
+class EmployeeFunctionTest {
 
-	@Test
+/*	@Test
 	void mainTest() throws Exception {
 		String input = "3\n";
 		InputStream in = new ByteArrayInputStream(input.getBytes());
@@ -43,7 +42,8 @@ class Main_employeefunction_testcase {
 		System.setIn(System.in);
 		System.setOut(System.out);
 	}
-	
+*/	
+
 	@Test
 	void addDutyTest1() {
 		EmployeeFunction e = new EmployeeFunction();

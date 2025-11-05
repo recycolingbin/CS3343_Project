@@ -2,6 +2,7 @@ package staffRosteringSystem;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * RequestManager handles all leave and duty request operations.
@@ -16,37 +17,64 @@ public class RequestManager {
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
     private static final int INITIAL_REQUEST_ID = 1000;
 
-    // Inner classes for request types
-    public static class LeaveRequest extends Request {
-        private String leaveType;
-        private String reason;
+//    // Inner classes for request types
+//    public static class LeaveRequest extends Request {
+//        private String leaveType;
+//        private String reason;
+//
+//        public LeaveRequest(int employeeId, int requestId, String requestDate, String leaveType, String reason) {
+//            super(employeeId, requestId, requestDate);
+//            this.leaveType = leaveType;
+//            this.reason = reason;
+//        }
+//
+//        public String getLeaveType() { return leaveType; }
+//        public String getReason() { return reason; }
+//    }
+//
+//    public static class DutyRequest extends Request {
+//        private String dutyType;
+//        private String dutyDescription;
+//
+//        public DutyRequest(int employeeId, int requestId, String requestDate, String dutyType, String dutyDescription) {
+//            super(employeeId, requestId, requestDate);
+//            this.dutyType = dutyType;
+//            this.dutyDescription = dutyDescription;
+//        }
+//
+//        public String getDutyType() { return dutyType; }
+//        public String getDutyDescription() { return dutyDescription; }
+//    }
 
-        public LeaveRequest(int employeeId, int requestId, String requestDate, String leaveType, String reason) {
-            super(employeeId, requestId, requestDate);
-            this.leaveType = leaveType;
-            this.reason = reason;
-        }
-
-        public String getLeaveType() { return leaveType; }
-        public String getReason() { return reason; }
+    //Initialize RequestFiles if not exists
+    public boolean initializeRequestFiles(String filePath) {
+        FileOperations fOps = new FileOperations();
+        return fOps.initializeFile(filePath);    
     }
-
-    public static class DutyRequest extends Request {
-        private String dutyType;
-        private String dutyDescription;
-
-        public DutyRequest(int employeeId, int requestId, String requestDate, String dutyType, String dutyDescription) {
-            super(employeeId, requestId, requestDate);
-            this.dutyType = dutyType;
-            this.dutyDescription = dutyDescription;
-        }
-
-        public String getDutyType() { return dutyType; }
-        public String getDutyDescription() { return dutyDescription; }
-    }
-
+    
     // Load leave requests
     public List<LeaveRequest> loadLeaveRequests() {
+    	FileOperations fOps = new FileOperations();
+		Function<String, LeaveRequest> parser = line -> {
+			String[] parts = line.split("\\|");
+			if (parts.length >= 5) {
+				try {
+					int employeeId = Integer.parseInt(parts[0].trim());
+					int requestId = Integer.parseInt(parts[1].trim());
+					String requestDate = parts[2].trim();
+					String leaveType = parts[3].trim();
+					String reason = parts[4].trim();
+					return new LeaveRequest(employeeId, requestId, requestDate, leaveType, reason);
+				} catch (NumberFormatException e) {
+					System.out.println("Error parsing leave request data: " + e.getMessage());
+				}
+			}
+			return null;
+		};
+		return fOps.loadData(LEAVE_REQUEST_FILE, parser);
+    }
+    
+    /*public List<LeaveRequest> loadLeaveRequests() {
         List<LeaveRequest> requests = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
             String line;
@@ -69,10 +97,31 @@ public class RequestManager {
             System.out.println("Error parsing leave request data: " + e.getMessage());
         }
         return requests;
-    }
+    } */
 
     // Load duty requests
-    public List<DutyRequest> loadDutyRequests() {
+	public List<DutyRequest> loadDutyRequests() {
+    	FileOperations fOps = new FileOperations();
+    	Function<String, DutyRequest> parser = line -> {
+    		String[] parts = line.split(",");
+    	    if  (parts.length >= 5) {
+    	        try {
+    	            int employeeId = Integer.parseInt(parts[0].trim());
+    	            int requestId = Integer.parseInt(parts[1].trim());
+    	            String requestDate = parts[2].trim();
+    	            String dutyType = parts[3].trim();
+    	            String dutyDescription = parts[4].trim();
+    	            return new DutyRequest(employeeId, requestId, requestDate, dutyType, dutyDescription);
+    	        } catch (NumberFormatException e) {
+    	            System.out.println("Error parsing duty request data: " + e.getMessage());
+    	        }
+    	    }
+    	    return null;
+    	};
+    	return fOps.loadData(DUTY_REQUEST_FILE, parser);
+	}
+    
+    /*public List<DutyRequest> loadDutyRequests() {
         List<DutyRequest> requests = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
             String line;
@@ -95,10 +144,18 @@ public class RequestManager {
             System.out.println("Error parsing duty request data: " + e.getMessage());
         }
         return requests;
-    }
+    }*/
 
+	public boolean saveLeaveRequests(List<LeaveRequest> requests) {
+		FileOperations fOps = new FileOperations();
+		Function<LeaveRequest, String> formatter = req -> req.getEmployeeId() + "|" + req.getRequestId() + "|"
+				+ req.getRequestDate() + "|" + req.getLeaveType() + "|" + req.getReason();
+		return fOps.saveData(LEAVE_REQUEST_FILE, requests, formatter);
+	}
+	
+	
     // Save leave requests
-    public void saveLeaveRequests(List<LeaveRequest> requests) {
+    /*public void saveLeaveRequests(List<LeaveRequest> requests) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(LEAVE_REQUEST_FILE))) {
             for (LeaveRequest req : requests) {
                 writer.println(req.getEmployeeId() + "|" + req.getRequestId() + "|" +
@@ -107,19 +164,26 @@ public class RequestManager {
         } catch (IOException e) {
             System.out.println("Error saving leave requests: " + e.getMessage());
         }
-    }
+    }*/
 
     // Save duty requests
-    public void saveDutyRequests(List<DutyRequest> requests) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(DUTY_REQUEST_FILE))) {
-            for (DutyRequest req : requests) {
-                writer.println(req.getEmployeeId() + "," + req.getRequestId() + "," +
-                        req.getRequestDate() + "," + req.getDutyType() + "," + req.getDutyDescription());
-            }
-        } catch (IOException e) {
-            System.out.println("Error saving duty requests: " + e.getMessage());
-        }
-    }
+	public boolean saveDutyRequests(List<DutyRequest> requests) {
+		FileOperations fOps = new FileOperations();
+		Function<DutyRequest, String> formatter = req -> req.getEmployeeId() + "," + req.getRequestId() + ","
+				+ req.getRequestDate() + "," + req.getDutyType() + "," + req.getDutyDescription();
+		return fOps.saveData(DUTY_REQUEST_FILE, requests, formatter);
+	}
+	
+//    public void saveDutyRequests(List<DutyRequest> requests) {
+//        try (PrintWriter writer = new PrintWriter(new FileWriter(DUTY_REQUEST_FILE))) {
+//            for (DutyRequest req : requests) {
+//                writer.println(req.getEmployeeId() + "," + req.getRequestId() + "," +
+//                        req.getRequestDate() + "," + req.getDutyType() + "," + req.getDutyDescription());
+//            }
+//        } catch (IOException e) {
+//            System.out.println("Error saving duty requests: " + e.getMessage());
+//        }
+//    }
 
     // View leave requests with case numbers
     public void viewLeaveRequestsWithCaseNumbers(StaffManager staffManager) {

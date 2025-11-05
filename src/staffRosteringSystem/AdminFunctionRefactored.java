@@ -40,7 +40,7 @@ public class AdminFunctionRefactored extends BaseFunction {
         this.shiftManager = new ShiftManager();
         
         // Initialize request files if they don't exist
-        this.requestManager.initializeRequestFiles();
+        this.requestManager.initializeRequestFiles(null);
         
         this.menuManager = new MenuManager(staffManager, requestManager, shiftManager, scanner);
     }
