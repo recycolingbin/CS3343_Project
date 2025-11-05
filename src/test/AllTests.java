@@ -19,6 +19,7 @@ import shift.Shift;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
@@ -48,6 +49,60 @@ public class AllTests {
         int id = 900000; // start high to avoid collisions with seeded data
         while (taken.contains(id)) id++;
         return id;
+    }
+
+    // ============================================================================
+    // REUSABLE TEST HELPER CLASS (eliminates 20+ duplicate TestBase definitions)
+    // ============================================================================
+    
+    /**
+     * Concrete implementation of BaseFunction for testing protected methods
+     * SINGLE DEFINITION used by all tests instead of duplicating TestBase in each method
+     */
+    private static class TestBase extends BaseFunction {
+        // Expose protected methods for testing
+        public List<Shift> exposeLoadShifts() { return loadShifts(); }
+        public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
+        public boolean exposeLogin(String u, String p) { return login(u, p); }
+        public boolean exposeIsValidSession(String s) { return isValidSession(s); }
+        public int exposeGetSessionOrder(String s) { return getSessionOrder(s); }
+        
+        public TestBase(int userId, String username, String password) {
+            super(userId, username, password);
+        }
+    }
+    
+    // ============================================================================
+    // REUSABLE INPUT/OUTPUT STREAM HELPER METHODS
+    // ============================================================================
+    
+    /**
+     * Helper to capture System.in and System.out for interactive tests
+     */
+    private static class IOCapture implements AutoCloseable {
+        private final InputStream prevIn;
+        private final PrintStream prevOut;
+        private final ByteArrayInputStream newIn;
+        private final ByteArrayOutputStream newOut;
+        
+        IOCapture(String input) {
+            this.prevIn = System.in;
+            this.prevOut = System.out;
+            this.newIn = new ByteArrayInputStream(input.getBytes());
+            this.newOut = new ByteArrayOutputStream();
+            System.setIn(newIn);
+            System.setOut(new PrintStream(newOut));
+        }
+        
+        String getOutput() {
+            return newOut.toString();
+        }
+        
+        @Override
+        public void close() {
+            System.setIn(prevIn);
+            System.setOut(prevOut);
+        }
     }
 
     // ============================================================================
@@ -2241,49 +2296,33 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.login with exact match should return true")
         void testBaseFunctionLoginSuccess() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "john", "pass123");
             assertTrue(base.exposeLogin("john", "pass123"));
         }
 
         @Test
         @DisplayName("BaseFunction.login with wrong username should return false")
         void testBaseFunctionLoginWrongUsername() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "john", "pass123");
             assertFalse(base.exposeLogin("jane", "pass123"));
         }
 
         @Test
         @DisplayName("BaseFunction.login with wrong password should return false")
         void testBaseFunctionLoginWrongPassword() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
+            AllTests.TestBase base = new AllTests.TestBase(1001, "john", "pass123");
             assertFalse(base.exposeLogin("john", "wrongpass"));
         }
 
         @Test
         @DisplayName("BaseFunction.viewFunction should print user info")
         void testBaseFunctionViewFunction() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewFunction() { viewFunction(); }
-            }
             PrintStream prevOut = System.out;
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
                 System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "testuser", "pass");
-                base.exposeViewFunction();
+                AllTests.TestBase base = new AllTests.TestBase(1001, "testuser", "pass");
+                base.viewFunction();
                 String output = out.toString();
                 assertTrue(output.contains("testuser"));
             } finally {
@@ -2294,20 +2333,14 @@ public class AllTests {
         @Test
         @DisplayName("BaseFunction.getUserId should return correct ID")
         void testBaseFunctionGetUserId() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-            }
-            TestBase base = new TestBase(5555, "user", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(5555, "user", "pass");
             assertEquals(5555, base.getUserId());
         }
 
         @Test
         @DisplayName("BaseFunction.getUsername should return correct username")
         void testBaseFunctionGetUsername() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-            }
-            TestBase base = new TestBase(5555, "alice", "pass");
+            AllTests.TestBase base = new AllTests.TestBase(5555, "alice", "pass");
             assertEquals("alice", base.getUsername());
         }
 
@@ -3540,6 +3573,215 @@ public class AllTests {
         }
 
         @Test
+        @DisplayName("Main.initializeDataFiles creates Staff_Profile.txt with sample data")
+        void testMainInitializeStaffProfileWithSampleData() {
+            // Clean up first if file exists
+            File staffFile = new File("Data/Staff_Profile.txt");
+            if (staffFile.exists()) {
+                staffFile.delete();
+            }
+            
+            String input = "3\n";
+            InputStream prevIn = System.in;
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+                
+                // Verify Staff_Profile.txt was created
+                assertTrue(staffFile.exists(), "Staff_Profile.txt should be created");
+                
+                // Verify file contains sample data
+                try (Scanner scanner = new Scanner(staffFile)) {
+                    String content = "";
+                    while (scanner.hasNextLine()) {
+                        content += scanner.nextLine() + "\n";
+                    }
+                    
+                    // Check for John Doe entry (1001,John Doe,Employee,IT,50000.0)
+                    assertTrue(content.contains("1001") && content.contains("John Doe"), 
+                        "Staff_Profile.txt should contain John Doe sample data");
+                    
+                    // Check for admin entry (2001,admin,Administrator,Management,80000.0)
+                    assertTrue(content.contains("2001") && content.contains("admin"), 
+                        "Staff_Profile.txt should contain admin sample data");
+                    
+                    // Verify format
+                    assertTrue(content.contains("Employee") || content.contains("Administrator"), 
+                        "Staff_Profile.txt should contain role information");
+                } catch (FileNotFoundException e) {
+                    fail("Staff_Profile.txt should be readable: " + e.getMessage());
+                }
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("Main file creation logs output to console")
+        void testMainFileCreationLogsOutput() {
+            // Clean up files to force creation
+            File staffFile = new File("Data/Staff_Profile.txt");
+            File dutyFile = new File("Data/Duty_Request.txt");
+            File leaveFile = new File("Data/Leave_Request.txt");
+            File shiftFile = new File("Data/Shift.txt");
+            
+            staffFile.delete();
+            dutyFile.delete();
+            leaveFile.delete();
+            shiftFile.delete();
+            
+            String input = "3\n";
+            InputStream prevIn = System.in;
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+                
+                String output = out.toString();
+                
+                // Verify console output shows file creation messages
+                assertTrue(output.contains("Created") && output.contains("Data/Staff_Profile.txt"),
+                    "Should log Staff_Profile.txt creation");
+                assertTrue(output.contains("Created") && output.contains("Data/Duty_Request.txt"),
+                    "Should log Duty_Request.txt creation");
+                assertTrue(output.contains("Created") && output.contains("Data/Leave_Request.txt"),
+                    "Should log Leave_Request.txt creation");
+                assertTrue(output.contains("Created") && output.contains("Data/Shift.txt"),
+                    "Should log Shift.txt creation");
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("Main skips initialization for existing files")
+        void testMainSkipsExistingFileInitialization() {
+            // Ensure files exist
+            File staffFile = new File("Data/Staff_Profile.txt");
+            File dutyFile = new File("Data/Duty_Request.txt");
+            
+            // Run main to create files
+            String input = "3\n";
+            InputStream prevIn = System.in;
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+            
+            long firstStaffModTime = staffFile.lastModified();
+            long firstDutyModTime = dutyFile.lastModified();
+            
+            try {
+                Thread.sleep(100); // Small delay to ensure different timestamps if recreated
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            
+            // Run main again
+            input = "3\n";
+            prevIn = System.in;
+            prevOut = System.out;
+            out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+                
+                long secondStaffModTime = staffFile.lastModified();
+                long secondDutyModTime = dutyFile.lastModified();
+                
+                // Files should NOT be recreated (timestamps should be same)
+                assertEquals(firstStaffModTime, secondStaffModTime, 
+                    "Staff_Profile.txt should not be recreated if it exists");
+                assertEquals(firstDutyModTime, secondDutyModTime, 
+                    "Duty_Request.txt should not be recreated if it exists");
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("Main data directory creation successful")
+        void testMainDataDirectoryCreation() {
+            File dataDir = new File("Data");
+            
+            String input = "3\n";
+            InputStream prevIn = System.in;
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+                
+                assertTrue(dataDir.exists(), "Data directory should exist");
+                assertTrue(dataDir.isDirectory(), "Data should be a directory");
+                
+                String output = out.toString();
+                assertTrue(output.contains("Data directory") || output.contains("Created"), 
+                    "Should log directory status");
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
+        @DisplayName("Main sample data has correct format in Staff_Profile.txt")
+        void testMainSampleDataFormat() {
+            File staffFile = new File("Data/Staff_Profile.txt");
+            if (staffFile.exists()) {
+                staffFile.delete();
+            }
+            
+            String input = "3\n";
+            InputStream prevIn = System.in;
+            PrintStream prevOut = System.out;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                System.setIn(new ByteArrayInputStream(input.getBytes()));
+                System.setOut(new PrintStream(out));
+                Main.main(new String[] {});
+                
+                try (Scanner scanner = new Scanner(staffFile)) {
+                    int lineCount = 0;
+                    while (scanner.hasNextLine()) {
+                        String line = scanner.nextLine();
+                        lineCount++;
+                        
+                        // Each line should have comma-separated values
+                        assertTrue(line.contains(","), "Line should be comma-separated: " + line);
+                        
+                        // Should have proper format: ID,Name,Role,...
+                        String[] parts = line.split(",");
+                        assertTrue(parts.length >= 3, "Line should have at least ID, Name, Role: " + line);
+                    }
+                    
+                    assertTrue(lineCount >= 2, "Staff_Profile.txt should have at least 2 sample records");
+                } catch (FileNotFoundException e) {
+                    fail("Staff_Profile.txt should exist and be readable");
+                }
+            } finally {
+                System.setIn(prevIn);
+                System.setOut(prevOut);
+            }
+        }
+
+        @Test
         @DisplayName("Main with invalid employee credentials")
         void testMainInvalidEmployeeCredentials() {
             String input = "1\nInvalidUser\nWrongPassword\n3\n";  // Invalid employee login then exit
@@ -3569,7 +3811,6 @@ public class AllTests {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
                 assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
                
             } finally {
                 System.setIn(prevIn);
@@ -3641,7 +3882,6 @@ public class AllTests {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
                 ef.requestLeave(String.valueOf(userId));
-                String output = out.toString();
             } finally {
                 System.setIn(prevIn);
                 System.setOut(prevOut);
