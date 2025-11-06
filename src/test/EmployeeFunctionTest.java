@@ -2,6 +2,8 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.*;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import staffRosteringSystem.EmployeeFunction;
@@ -43,18 +45,30 @@ class EmployeeFunctionTest {
 		System.setOut(System.out);
 	}
 */	
+    @Test
+    void LoginTest() {
+		EmployeeFunction e = new EmployeeFunction();
+		String input = "4\n";
+		InputStream in = new ByteArrayInputStream(input.getBytes());
+		System.setIn(in);
+		boolean result = e.login("William", "123");
+		
+		assertEquals(true, result);
+		
+		System.setIn(System.in);
+    }
 
 	@Test
 	void addDutyTest1() {
 		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.addDuty("1002", "2025-12-25", "MORNING");
+		boolean result = e.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
 		assertEquals(true, result);
 	}
 	
 	@Test
 	void addDutyTest2() {
 		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.addDuty("1002", "2025-12-25", "MORNING");
+		boolean result = e.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
 		assertEquals(false, result);
 	}
 	

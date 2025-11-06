@@ -167,7 +167,7 @@ public class StaffManagerTest {
     	StaffManager staffManager = new StaffManager();
     	int id = uniqueStaffId(staffManager);
         staffManager.addStaffProfile(id, "John Doe", "Employee");
-        var info = staffManager.getStaffInfo(id);
+        StaffProfile info = staffManager.getStaffInfo(id);
         assertNotNull(info);
         assertEquals("John Doe", info.getName());
         assertEquals("Employee", info.getRole());
@@ -176,7 +176,7 @@ public class StaffManagerTest {
     @Test
     void testGetNonExistentStaffInfo() {
     	StaffManager staffManager = new StaffManager();
-        var info = staffManager.getStaffInfo(9999);
+        StaffProfile info = staffManager.getStaffInfo(9999);
         assertNull(info);
     }
     

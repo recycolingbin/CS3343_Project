@@ -101,24 +101,30 @@ public class RequestManager {
 
     // Load duty requests
 	public List<DutyRequest> loadDutyRequests() {
-    	FileOperations fOps = new FileOperations();
-    	Function<String, DutyRequest> parser = line -> {
-    		String[] parts = line.split(",");
-    	    if  (parts.length >= 5) {
-    	        try {
-    	            int employeeId = Integer.parseInt(parts[0].trim());
-    	            int requestId = Integer.parseInt(parts[1].trim());
-    	            String requestDate = parts[2].trim();
-    	            String dutyType = parts[3].trim();
-    	            String dutyDescription = parts[4].trim();
-    	            return new DutyRequest(employeeId, requestId, requestDate, dutyType, dutyDescription);
-    	        } catch (NumberFormatException e) {
-    	            System.out.println("Error parsing duty request data: " + e.getMessage());
-    	        }
-    	    }
-    	    return null;
-    	};
-    	return fOps.loadData(DUTY_REQUEST_FILE, parser);
+    	File duty = new File(DUTY_REQUEST_FILE);
+		try (Scanner filescanner = new Scanner(duty)) {
+			List<DutyRequest> requests = new ArrayList<>();
+			while (filescanner.hasNextLine()) {
+				String line = filescanner.nextLine();
+				if (!line.trim().isEmpty()) {
+					String[] parts = line.split(",");
+					if (parts.length >= 5) {
+						int employeeId = Integer.parseInt(parts[1].trim());
+						int requestId = Integer.parseInt(parts[0].trim());
+						String requestDate = parts[2].trim();
+						String section = parts[3].trim();
+						String dutyType = parts[4].trim();
+						String dutyDescription = parts[5].trim();
+						requests.add(new DutyRequest(employeeId, requestId, section, requestDate, dutyType, dutyDescription));
+					}
+				}
+			}
+			return requests;
+    		
+    	} catch (Exception e) {
+    		System.out.println("Error loading duty requests: " + e.getMessage());
+    	}
+		return null;
 	}
     
     /*public List<DutyRequest> loadDutyRequests() {
@@ -354,11 +360,13 @@ public class RequestManager {
         String dutyDescription = scanner.nextLine().trim();
         System.out.print("Enter date (YYYY-MM-DD): ");
         String date = scanner.nextLine().trim();
+        System.out.println("Enter Section: ");
+        String Section = scanner.nextLine().trim();
 
         List<DutyRequest> requests = loadDutyRequests();
         int newRequestId = generateRequestId(requests);
         
-        requests.add(new DutyRequest(employeeId, newRequestId, date, dutyType, dutyDescription));
+        requests.add(new DutyRequest(employeeId, newRequestId, date, Section, dutyType, dutyDescription));
         saveDutyRequests(requests);
 
         System.out.println("Duty request submitted successfully!");

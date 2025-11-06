@@ -1,6 +1,7 @@
 package staffRosteringSystem;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -82,14 +83,15 @@ public class EmployeeFunction extends BaseFunction {
         }
     }
     
-	public boolean addDuty(String userid, String date, String session) {
+	public boolean addDuty(String userid, String date, String session, String dutyType, String reason) {
 		File duty = new File(DUTY_REQUEST_FILE);
+		List<String> lines = new ArrayList<>();
 		try (Scanner fileScanner = new Scanner(duty)) {
     		boolean found = false;
     		while (fileScanner.hasNextLine()) {
     			String line = fileScanner.nextLine();
     			String[] info = line.split(",");
-    			if (info[0].equals(userid) && info[1].equals(date) && info[2].equals(session)) {
+    			if (info[1].equals(userid) && info[2].equals(date) && info[3].equals(session)) {
     				found = true;
     				break;
     			}
@@ -103,7 +105,8 @@ public class EmployeeFunction extends BaseFunction {
     	}
 			
 		try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
-			writer.write(userid + "," + date + "," + session + "\n");
+			lines = Files.readAllLines(duty.toPath());
+			writer.write((lines.size() + 1) + "," + userid + "," + date + "," + session + "," + dutyType + "," + reason + "\n");
 			return true;
         } catch (IOException e) {
         	System.err.println("Error writing duty request: " + e.getMessage());
@@ -126,7 +129,12 @@ public class EmployeeFunction extends BaseFunction {
                 return;
             }
             
-			if (addDuty(userid, date, session)) {
+            System.out.print("Please enter the type of duty: ");
+            String dutyType = scanner.nextLine().trim();
+            System.out.print("Please enter reason for duty request: ");
+            String reason = scanner.nextLine().trim();
+            
+			if (addDuty(userid, date, session, dutyType, reason)) {
 				System.out.println("Duty request submitted successfully.");
 			}
 			else {
@@ -149,7 +157,7 @@ public class EmployeeFunction extends BaseFunction {
 			while (fileScanner.hasNextLine()) {
 				String line = fileScanner.nextLine();
 				String[] info = line.split(",");
-				if (info[0].equals(userid) && (sd.before(simpleDateFormat.parse(info[1])) && ed.after(simpleDateFormat.parse(info[1])) || sd.equals(simpleDateFormat.parse(info[1])) || ed.equals(simpleDateFormat.parse(info[1])))) {
+				if (info[1].equals(userid) && (sd.before(simpleDateFormat.parse(info[2])) && ed.after(simpleDateFormat.parse(info[2])) || sd.equals(simpleDateFormat.parse(info[2])) || ed.equals(simpleDateFormat.parse(info[2])))) {
 					found = true;
 					break;
 				}
