@@ -287,18 +287,21 @@ public class RequestManager {
             System.out.println("Error: Invalid case number!");
             return false;
         }
-
+        
         DutyRequest req = requests.get(caseNumber - 1);
-        requests.remove(caseNumber - 1);
-        saveDutyRequests(requests);
-
-        System.out.println("Duty request approved successfully!");
-        System.out.println("  Request ID: " + req.getRequestId());
-        System.out.println("  Employee ID: " + req.getEmployeeId());
-        System.out.println("  Duty Type: " + req.getDutyType());
-        System.out.println("  Date: " + req.getRequestDate());
-
-        return true;
+        if (req != null) {
+        	requests.remove(caseNumber - 1);
+	        saveDutyRequests(requests);
+	
+	        System.out.println("Duty request approved successfully!");
+	        System.out.println("  Request ID: " + req.getRequestId());
+	        System.out.println("  Employee ID: " + req.getEmployeeId());
+	        System.out.println("  Duty Type: " + req.getDutyType());
+	        System.out.println("  Date: " + req.getRequestDate());
+	
+	        return true;
+        }
+        return false;
     }
 
     // Reject duty request by case number

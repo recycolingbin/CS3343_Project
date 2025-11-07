@@ -158,7 +158,7 @@ public abstract class BaseFunction {
         String title = session + " SHIFTS" + (date != null ? " - " + date : "");
         System.out.println("==================== " + title + " ====================");
         System.out.printf("%-8s %-12s %-20s %-10s %-15s%n",
-                "Shift ID", "Date", "Employee", "Time");
+                "Shift ID", "Date", "Employee", "Time", "Notes");
         System.out.println("------------------------------------------------------------");
 
         for (Shift shift : sessionShifts) {
@@ -168,7 +168,7 @@ public abstract class BaseFunction {
 
             System.out.printf("%-8d %-12s %-20s %-10s %-15s%n",
                     shift.getShiftId(), shift.getDate(), employeeName,
-                    timeRange);
+                    timeRange, shift.getNotes());
         }
         System.out.println("============================================================");
     }

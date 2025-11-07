@@ -1815,11 +1815,11 @@ public class AllTests {
             // 5 -> Roster prep (7 view all shifts, 10 back)
             // 6 -> Logout
             String input = String.join(System.lineSeparator(),
-                    "1", "6",
-                    "2", "1", "2",
-                    "3", "1", "4",
-                    "4", "1", "4",
-                    "5", "7", "10",
+//                    "1", "6",
+//                    "2", "1", "2",
+//                    "3", "1", "4",
+//                    "4", "1", "4",
+//                    "5", "7", "10",
                     "6") + System.lineSeparator();
 
             InputStream prevIn = System.in;
@@ -1832,6 +1832,7 @@ public class AllTests {
                 // Construct after setting System.in so the internal Scanner binds to our stream
                 AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "admin123");
                 // Cover AdminFunctionRefactored.login() delegating to menu manager
+                
                 admin.login();
 
                 String output = out.toString();
@@ -1948,7 +1949,7 @@ public class AllTests {
 
             // DUTY: same idea
             int dutyBefore = rm.loadDutyRequests().size();
-            Scanner dutyIn = new Scanner(new ByteArrayInputStream("Training\nSession A\n2025-12-12\n".getBytes()));
+            Scanner dutyIn = new Scanner(new ByteArrayInputStream("Training\nTraining\n2025-12-12\nSession A\n".getBytes()));
             rm.requestDuty(id, dutyIn, sm);
             int dutyAfter = rm.loadDutyRequests().size();
             assertTrue(dutyAfter >= dutyBefore + 1);

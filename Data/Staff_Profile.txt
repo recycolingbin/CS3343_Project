@@ -8,3 +8,36 @@
 58526485,Alice,Employee
 57840269,Palla,Employee
 57943098,William,Employee
+900000,AutoEmp47374,Employee
+900001,ShiftEmp,Employee
+900002,ReqEmp,Employee
+900003,RosterEmp,Employee
+900004,John,Employee
+900005,Alice,Manager
+900006,Test User,Employee
+900007,Temp User,Employee
+1006,Integration Test,Employee
+1005,Test Staff,Employee
+900008,Jane M,Employee
+900009,Jane A,Employee
+900010,Emp A,Employee
+900011,Emp B,Employee
+900012,Emp C,Employee
+900013,Temp Emp,Employee
+900014,LeaveTest,Employee
+900015,StaffTest,Employee
+900016,LeaveEmp,Employee
+94001,John,Employee
+94002,Jane,Manager
+900017,John,Employee
+900018,Jane,Manager
+900019,John,Employee
+900020,John Doe,Employee
+900021,John Doe,Employee
+900022,John,Employee
+900023,Jane,Manager
+900024,Bob,Employee
+900025,John Doe,Employee
+92001,John Doe,Employee
+900026,Jonathan,Employee
+900027,John,Manager
