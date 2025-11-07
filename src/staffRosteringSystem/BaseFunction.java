@@ -46,7 +46,7 @@ public abstract class BaseFunction {
     }
 
     // Load shifts from Shift.txt
-    protected List<Shift> loadShifts() {
+    protected static List<Shift> loadShifts() {
         List<Shift> shifts = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
             String line;

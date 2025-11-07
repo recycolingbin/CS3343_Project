@@ -22,29 +22,29 @@ public class ShiftManager {
     protected static final String NIGHT_SESSION = "NIGHT";
 
     // Load shifts from file
-    public List<Shift> loadShifts() {
-    	FileOperations fOps = new FileOperations();
-		Function<String, Shift> parser = line -> {
-			String[] parts = line.split(",");
-			if (parts.length >= 7) {
-				try {
-					int shiftId = Integer.parseInt(parts[0].trim());
-					int employeeId = Integer.parseInt(parts[1].trim());
-					String date = parts[2].trim();
-					String session = parts[3].trim();
-					String startTime = parts[4].trim();
-					String endTime = parts[5].trim();
-					String notes = parts[6].trim();
-					return new Shift(shiftId, employeeId, date, session, startTime, endTime, notes);
-				} catch (NumberFormatException e) {
-					System.out.println("Error parsing shift data: " + e.getMessage());
-				}
-			}
-			return null;
-		};
-		return fOps.loadData(SHIFT_FILE, parser);
+    // public List<Shift> loadShifts() {
+    // 	FileOperations fOps = new FileOperations();
+	// 	Function<String, Shift> parser = line -> {
+	// 		String[] parts = line.split(",");
+	// 		if (parts.length >= 7) {
+	// 			try {
+	// 				int shiftId = Integer.parseInt(parts[0].trim());
+	// 				int employeeId = Integer.parseInt(parts[1].trim());
+	// 				String date = parts[2].trim();
+	// 				String session = parts[3].trim();
+	// 				String startTime = parts[4].trim();
+	// 				String endTime = parts[5].trim();
+	// 				String notes = parts[6].trim();
+	// 				return new Shift(shiftId, employeeId, date, session, startTime, endTime, notes);
+	// 			} catch (NumberFormatException e) {
+	// 				System.out.println("Error parsing shift data: " + e.getMessage());
+	// 			}
+	// 		}
+	// 		return null;
+	// 	};
+	// 	return fOps.loadData(SHIFT_FILE, parser);
     	
-    }
+    // }
     
     /*public List<Shift> loadShifts() {
         List<Shift> shifts = new ArrayList<>();
@@ -110,11 +110,11 @@ public class ShiftManager {
 
         String upperSession = session.toUpperCase();
         if (!isValidSession(upperSession)) {
-            System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
+            System.out.println("Error: Invalid session! Vald sessions: MORNING, AFTERNOON, NIGHT");
             return false;
         }
 
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = BaseFunction.loadShifts();
         for (Shift shift : shifts) {
             if (shift.getEmployeeId() == employeeId && shift.getDate().equals(date) && shift.getSession().equals(upperSession)) {
                 System.out.println("Error: Employee already assigned to " + upperSession + " session on " + date);
@@ -148,7 +148,7 @@ public class ShiftManager {
 
     // Delete shift
     public boolean deleteShift(int shiftId, StaffManager staffManager) {
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = BaseFunction.loadShifts();
         Shift targetShift = null;
 
         for (Shift shift : shifts) {
@@ -180,7 +180,7 @@ public class ShiftManager {
 
     // View all shift schedules
     public void viewAllShiftSchedules() {
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = BaseFunction.loadShifts();
         if (shifts.isEmpty()) {
             System.out.println("No shifts scheduled.");
             return;
