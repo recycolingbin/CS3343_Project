@@ -134,87 +134,87 @@ public abstract class BaseFunction {
     }
 
     // View shifts by session
-    public void viewShiftsBySession(String session, String date) {
-        if (!isValidSession(session)) {
-            System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
-            return;
-        }
-
-        List<Shift> shifts = loadShifts();
-        List<Shift> sessionShifts = new ArrayList<>();
-
-        for (Shift shift : shifts) {
-            if (shift.getSession().equals(session) && (date == null || shift.getDate().equals(date))) {
-                sessionShifts.add(shift);
-            }
-        }
-
-        if (sessionShifts.isEmpty()) {
-            String dateStr = (date != null) ? " on " + date : "";
-            System.out.println("No " + session + " shifts found" + dateStr);
-            return;
-        }
-
-        String title = session + " SHIFTS" + (date != null ? " - " + date : "");
-        System.out.println("==================== " + title + " ====================");
-        System.out.printf("%-8s %-12s %-20s %-10s %-15s%n",
-                "Shift ID", "Date", "Employee", "Time", "Notes");
-        System.out.println("------------------------------------------------------------");
-
-        for (Shift shift : sessionShifts) {
-            StaffProfile staff = getUserInfo(shift.getEmployeeId());
-            String employeeName = (staff != null) ? staff.getName() : "Unknown";
-            String timeRange = shift.getStartTime() + "-" + shift.getEndTime();
-
-            System.out.printf("%-8d %-12s %-20s %-10s %-15s%n",
-                    shift.getShiftId(), shift.getDate(), employeeName,
-                    timeRange, shift.getNotes());
-        }
-        System.out.println("============================================================");
-    }
+//    public void viewShiftsBySession(String session, String date) {
+//        if (!isValidSession(session)) {
+//            System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
+//            return;
+//        }
+//
+//        List<Shift> shifts = loadShifts();
+//        List<Shift> sessionShifts = new ArrayList<>();
+//
+//        for (Shift shift : shifts) {
+//            if (shift.getSession().equals(session) && (date == null || shift.getDate().equals(date))) {
+//                sessionShifts.add(shift);
+//            }
+//        }
+//
+//        if (sessionShifts.isEmpty()) {
+//            String dateStr = (date != null) ? " on " + date : "";
+//            System.out.println("No " + session + " shifts found" + dateStr);
+//            return;
+//        }
+//
+//        String title = session + " SHIFTS" + (date != null ? " - " + date : "");
+//        System.out.println("==================== " + title + " ====================");
+//        System.out.printf("%-8s %-12s %-20s %-10s %-15s%n",
+//                "Shift ID", "Date", "Employee", "Time", "Notes");
+//        System.out.println("------------------------------------------------------------");
+//
+//        for (Shift shift : sessionShifts) {
+//            StaffProfile staff = getUserInfo(shift.getEmployeeId());
+//            String employeeName = (staff != null) ? staff.getName() : "Unknown";
+//            String timeRange = shift.getStartTime() + "-" + shift.getEndTime();
+//
+//            System.out.printf("%-8d %-12s %-20s %-10s %-15s%n",
+//                    shift.getShiftId(), shift.getDate(), employeeName,
+//                    timeRange, shift.getNotes());
+//        }
+//        System.out.println("============================================================");
+//    }
 
     // View personal roster for employees
-    public void viewMyRoster() {
-        List<Shift> shifts = loadShifts();
-        List<Shift> myShifts = new ArrayList<>();
+    // public void viewMyRoster() {
+    //     List<Shift> shifts = loadShifts();
+    //     List<Shift> myShifts = new ArrayList<>();
 
-        for (Shift shift : shifts) {
-            if (shift.getEmployeeId() == userId) {
-                myShifts.add(shift);
-            }
-        }
+    //     for (Shift shift : shifts) {
+    //         if (shift.getEmployeeId() == userId) {
+    //             myShifts.add(shift);
+    //         }
+    //     }
 
-        if (myShifts.isEmpty()) {
-            System.out.println("No shifts assigned to you yet.");
-            return;
-        }
+    //     if (myShifts.isEmpty()) {
+    //         System.out.println("No shifts assigned to you yet.");
+    //         return;
+    //     }
 
-        // Sort by date and session
-        myShifts.sort((s1, s2) -> {
-            int dateCompare = s1.getDate().compareTo(s2.getDate());
-            if (dateCompare != 0) return dateCompare;
-            return Integer.compare(getSessionOrder(s1.getSession()), getSessionOrder(s2.getSession()));
-        });
+    //     // Sort by date and session
+    //     myShifts.sort((s1, s2) -> {
+    //         int dateCompare = s1.getDate().compareTo(s2.getDate());
+    //         if (dateCompare != 0) return dateCompare;
+    //         return Integer.compare(getSessionOrder(s1.getSession()), getSessionOrder(s2.getSession()));
+    //     });
 
-        System.out.println("\n========== MY SHIFT SCHEDULE ==========");
-        System.out.printf("%-12s %-10s %-12s%n", "Date", "Session", "Time");
-        System.out.println("----------------------------------------");
+    //     System.out.println("\n========== MY SHIFT SCHEDULE ==========");
+    //     System.out.printf("%-12s %-10s %-12s%n", "Date", "Session", "Time");
+    //     System.out.println("----------------------------------------");
         
-        for (Shift shift : myShifts) {
-            String timeRange = shift.getStartTime() + "-" + shift.getEndTime();
-            System.out.printf("%-12s %-10s %-12s%n",
-                    shift.getDate(),
-                    shift.getSession(),
-                    timeRange);
-        }
-        System.out.println("========================================");
-    }
+    //     for (Shift shift : myShifts) {
+    //         String timeRange = shift.getStartTime() + "-" + shift.getEndTime();
+    //         System.out.printf("%-12s %-10s %-12s%n",
+    //                 shift.getDate(),
+    //                 shift.getSession(),
+    //                 timeRange);
+    //     }
+    //     System.out.println("========================================");
+    // }
 
-    protected boolean isValidSession(String session) {
-        if (session == null) return false;
-        String upperSession = session.toUpperCase();
-        return MORNING_SESSION.equals(upperSession) || AFTERNOON_SESSION.equals(upperSession) || NIGHT_SESSION.equals(upperSession);
-    }
+    // protected boolean isValidSession(String session) {
+    //     if (session == null) return false;
+    //     String upperSession = session.toUpperCase();
+    //     return MORNING_SESSION.equals(upperSession) || AFTERNOON_SESSION.equals(upperSession) || NIGHT_SESSION.equals(upperSession);
+    // }
 
     protected int getSessionOrder(String session) {
         switch (session) {

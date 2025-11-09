@@ -202,33 +202,33 @@ public class ShiftManager {
     }
 
     // Remove shifts for a specific employee and date range
-    public void removeShiftsForLeave(int employeeId) {
-        List<String> lines = new ArrayList<>();
+    // public void removeShiftsForLeave(int employeeId) {
+    //     List<String> lines = new ArrayList<>();
         
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 4 && !parts[0].trim().equals(String.valueOf(employeeId))) {
-                        lines.add(line);
-                    }
-                    // For simplicity, removing all shifts for this employee
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading shifts: " + e.getMessage());
-            return;
-        }
+    //     try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
+    //         String line;
+    //         while ((line = reader.readLine()) != null) {
+    //             if (!line.trim().isEmpty()) {
+    //                 String[] parts = line.split(",");
+    //                 if (parts.length >= 4 && !parts[0].trim().equals(String.valueOf(employeeId))) {
+    //                     lines.add(line);
+    //                 }
+    //                 // For simplicity, removing all shifts for this employee
+    //             }
+    //         }
+    //     } catch (IOException e) {
+    //         System.err.println("Error reading shifts: " + e.getMessage());
+    //         return;
+    //     }
         
-        try (FileWriter writer = new FileWriter(SHIFT_FILE)) {
-            for (String line : lines) {
-                writer.write(line + "\n");
-            }
-        } catch (IOException e) {
-            System.err.println("Error updating shifts: " + e.getMessage());
-        }
-    }
+    //     try (FileWriter writer = new FileWriter(SHIFT_FILE)) {
+    //         for (String line : lines) {
+    //             writer.write(line + "\n");
+    //         }
+    //     } catch (IOException e) {
+    //         System.err.println("Error updating shifts: " + e.getMessage());
+    //     }
+    // }
 
     // Helper methods
     protected boolean isValidSession(String session) {
