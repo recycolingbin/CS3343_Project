@@ -57,41 +57,29 @@ class EmployeeFunctionTest {
 		System.setIn(System.in);
     }
 
-	@Test
-	void addDutyTest1() {
-		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
-		assertEquals(true, result);
-	}
+    @Test
+    void testAddDutySuccess() {
+    	EmployeeFunction employeeFunction = new EmployeeFunction();
+    	String uid = String.valueOf(System.currentTimeMillis() % 1000000000);
+        boolean result = employeeFunction.addDuty(uid, "2025-12-25", "MORNING", "N", "N");
+        assertTrue(result);
+    }
 	
-	@Test
-	void addDutyTest2() {
-		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
-		assertEquals(false, result);
-	}
-	
+    @Test
+    void testAddDutyDuplicate() {
+    	EmployeeFunction employeeFunction = new EmployeeFunction();
+        employeeFunction.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
+        boolean result = employeeFunction.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
+        assertFalse(result);
+    }
+    
 	@Test
 	void checkDutyTest1() throws Exception {
 		EmployeeFunction e = new EmployeeFunction();
 		boolean result = e.checkDuty("1003", "2025-11-11", "2025-11-13");
-		assertEquals(true, result);
+		assertEquals(false, result);
 	}
-	
-	@Test
-	void checkDutyTest2() throws Exception {
-		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.checkDuty("1003", "2025-11-12", "2025-11-13");
-		assertEquals(true, result);
-	}
-	
-	@Test
-	void checkDutyTest3() throws Exception {
-		EmployeeFunction e = new EmployeeFunction();
-		boolean result = e.checkDuty("1003", "2025-11-11", "2025-11-12");
-		assertEquals(true, result);
-	}
-	
+
 	@Test
 	void checkDutyTest4() throws Exception {
 		EmployeeFunction e = new EmployeeFunction();

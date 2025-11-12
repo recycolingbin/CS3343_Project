@@ -27,33 +27,6 @@ public class ShiftManager {
         return BaseFunction.loadShifts();
     }
     
-    /*public List<Shift> loadShifts() {
-        List<Shift> shifts = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 7) {
-                        int shiftId = Integer.parseInt(parts[0].trim());
-                        int employeeId = Integer.parseInt(parts[1].trim());
-                        String date = parts[2].trim();
-                        String session = parts[3].trim();
-                        String startTime = parts[4].trim();
-                        String endTime = parts[5].trim();
-                        String notes = parts[6].trim();
-                        shifts.add(new Shift(shiftId, employeeId, date, session, startTime, endTime, notes));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            // File might not exist yet
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing shift data: " + e.getMessage());
-        }
-        return shifts;
-    }*/
-
     // Save shifts to file
 	public boolean saveShifts(List<Shift> shifts) {
     	FileOperations fOps = new FileOperations();
@@ -68,19 +41,6 @@ public class ShiftManager {
         	
         	return fOps.saveData(SHIFT_FILE, shifts, formatter);
 }
-    
-    /*public void saveShifts(List<Shift> shifts) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(SHIFT_FILE))) {
-            for (Shift shift : shifts) {
-                writer.println(shift.getShiftId() + "," + shift.getEmployeeId() + "," +
-                        shift.getDate() + "," + shift.getSession() + "," +
-                        shift.getStartTime() + "," + shift.getEndTime() + "," +
-                        shift.getNotes());
-            }
-        } catch (IOException e) {
-            System.out.println("Error saving shifts: " + e.getMessage());
-        }
-    }*/
 
     // Assign shift to employee
     public boolean assignShift(int employeeId, String date, String session, String notes, StaffManager staffManager) {
@@ -233,18 +193,7 @@ public class ShiftManager {
         }
     }
 
-    protected int getSessionOrder(String session) {
-        switch (session) {
-            case MORNING_SESSION:
-                return 1;
-            case AFTERNOON_SESSION:
-                return 2;
-            case NIGHT_SESSION:
-                return 3;
-            default:
-                return 4;
-        }
-    }
+
 
     private int generateShiftId(List<Shift> shifts) {
         int maxId = INITIAL_SHIFT_ID;

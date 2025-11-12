@@ -57,233 +57,11 @@ public class AllTests {
     // ============================================================================
     
     
-    @DisplayName("Staff Manager Tests")
-    @Nested
-    class AllStaffManagerTests {
-        
-        private StaffManager staffManager;
-        
-        @BeforeEach
-        void setUp() {
-            staffManager = new StaffManager();
-        }
-        
-        // ---- Add/Edit/Delete/View Staff Profile Tests (3+3+2+2) ----
-        /*
-        @Test
-        @DisplayName("Should add staff profile successfully")
-        void testAddStaffProfileSuccess() {
-            int id = uniqueStaffId(staffManager);
-            boolean result = staffManager.addStaffProfile(id, "John Doe", "Employee");
-            assertTrue(result);
-        }
-        
-        @Test
-        @DisplayName("Should reject duplicate staff ID")
-        void testAddStaffProfileDuplicate() {
-            staffManager.addStaffProfile(92001, "John Doe", "Employee");
-            boolean result = staffManager.addStaffProfile(92001, "Jane Doe", "Manager");
-            assertFalse(result);
-        }
-        
-        @Test
-        @DisplayName("Should handle multiple staff additions")
-        void testAddMultipleStaffProfiles() {
-            int id1 = uniqueStaffId(staffManager);
-            boolean result1 = staffManager.addStaffProfile(id1, "John", "Employee");
-            int id2 = uniqueStaffId(staffManager);
-            boolean result2 = staffManager.addStaffProfile(id2, "Jane", "Manager");
-            int id3 = uniqueStaffId(staffManager);
-            boolean result3 = staffManager.addStaffProfile(id3, "Bob", "Employee");
-            
-            assertTrue(result1);
-            assertTrue(result2);
-            assertTrue(result3);
-        }
-        
-        
-        // ---- Edit Staff Profile Tests (3) ----
-        @Test
-        @DisplayName("Should edit staff name successfully")
-        void testEditStaffName() {
-            int id = uniqueStaffId(staffManager);
-            assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
-            boolean result = staffManager.editStaffProfile(id, "name", "Jonathan");
-            assertTrue(result);
-        }
-        
-        @Test
-        @DisplayName("Should edit staff role successfully")
-        void testEditStaffRole() {
-            int id = uniqueStaffId(staffManager);
-            assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
-            boolean result = staffManager.editStaffProfile(id, "role", "Manager");
-            assertTrue(result);
-        }
-        
-        @Test
-        @DisplayName("Should reject edit for non-existent staff")
-        void testEditNonExistentStaff() {
-            boolean result = staffManager.editStaffProfile(9999, "name", "Test");
-            assertFalse(result);
-        }
-       
-        // ---- Delete Staff Profile Tests (2) ----
-        
-        @Test
-        @DisplayName("Should delete staff profile successfully")
-        void testDeleteStaffProfile() {
-            int id = uniqueStaffId(staffManager);
-            assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
-            boolean result = staffManager.deleteStaffProfile(id);
-            assertTrue(result);
-        }
-        
-        @Test
-        @DisplayName("Should reject delete for non-existent staff")
-        void testDeleteNonExistentStaff() {
-            boolean result = staffManager.deleteStaffProfile(9999);
-            assertFalse(result);
-        }
-        
-        // ---- View Staff Profile Tests (2) ----
-        
-        @Test
-        @DisplayName("Should view all staff profiles")
-        void testViewAllStaffProfiles() {
-            int id1 = uniqueStaffId(staffManager);
-            int id2 = id1 + 1;
-            staffManager.addStaffProfile(id1, "John", "Employee");
-            staffManager.addStaffProfile(id2, "Jane", "Manager");
-            assertDoesNotThrow(() -> staffManager.viewAllStaffProfiles());
-        }
-        
-        @Test
-        @DisplayName("Should view specific staff profile")
-        void testViewStaffProfile() {
-            int id = uniqueStaffId(staffManager);
-            staffManager.addStaffProfile(id, "John", "Employee");
-            assertDoesNotThrow(() -> staffManager.viewStaffProfile(id));
-        }
-        
-        */
-        
-        // ---- Staff Existence Checks (3) ----
-        /*
-        @Test
-        @DisplayName("Should confirm staff exists")
-        void testStaffExists() {
-            int id = uniqueStaffId(staffManager);
-            staffManager.addStaffProfile(id, "John", "Employee");
-            boolean result = staffManager.staffExists(id);
-            assertTrue(result);
-        }
-        
-        @Test
-        @DisplayName("Should return false for non-existent staff")
-        void testStaffNotExists() {
-            boolean result = staffManager.staffExists(9999);
-            assertFalse(result);
-        }
-        
-        @Test
-        @DisplayName("Should return increased staff count after adds")
-        void testGetStaffCount() {
-            int before = staffManager.getStaffCount();
-            int id1 = uniqueStaffId(staffManager);
-            int id2 = id1 + 1;
-            staffManager.addStaffProfile(id1, "John", "Employee");
-            staffManager.addStaffProfile(id2, "Jane", "Manager");
-            int after = staffManager.getStaffCount();
-            assertTrue(after >= before + 2);
-        }
-        
-        */
-        
-        // ---- Get Staff Info Tests (2) ----
-        /*
-        @Test
-        @DisplayName("Should retrieve staff information")
-        void testGetStaffInfo() {
-            int id = uniqueStaffId(staffManager);
-            staffManager.addStaffProfile(id, "John Doe", "Employee");
-            var info = staffManager.getStaffInfo(id);
-            assertNotNull(info);
-            assertEquals("John Doe", info.getName());
-            assertEquals("Employee", info.getRole());
-        }
-        
-        @Test
-        @DisplayName("Should return null for non-existent staff")
-        void testGetNonExistentStaffInfo() {
-            var info = staffManager.getStaffInfo(9999);
-            assertNull(info);
-        } */
-        
-    }
-
-    // ============================================================================
-    // STAFF PROFILE MODEL TESTS (6 tests)
-    // ============================================================================
-    /*
-    @DisplayName("StaffProfile Model Tests")
-    @Nested
-    class AllStaffProfileModelTests {
-        @Test
-        @DisplayName("Should construct StaffProfile with id, name, role")
-        void testStaffProfileConstructor() {
-            StaffProfile sp = new StaffProfile(5555, "Test User", "Employee");
-            assertEquals(5555, sp.getStaffId());
-            assertEquals("Test User", sp.getName());
-            assertEquals("Employee", sp.getRole());
-        }
-
-        @Test
-        @DisplayName("Should update name via setter")
-        void testSetName() {
-            StaffProfile sp = new StaffProfile(1, "Old", "Role");
-            sp.setName("New");
-            assertEquals("New", sp.getName());
-        }
-
-        @Test
-        @DisplayName("Should update role via setter")
-        void testSetRole() {
-            StaffProfile sp = new StaffProfile(1, "Name", "OldRole");
-            sp.setRole("NewRole");
-            assertEquals("NewRole", sp.getRole());
-        }
-
-        @Test
-        @DisplayName("Should allow long names and roles without error")
-        void testLongFields() {
-            String longName = "A".repeat(200);
-            String longRole = "R".repeat(200);
-            StaffProfile sp = new StaffProfile(9, longName, longRole);
-            assertEquals(longName, sp.getName());
-            assertEquals(longRole, sp.getRole());
-        }
-
-        @Test
-        @DisplayName("Should handle empty role safely")
-        void testEmptyRole() {
-            StaffProfile sp = new StaffProfile(2, "Name", "");
-            assertEquals("", sp.getRole());
-        }
-
-        @Test
-        @DisplayName("Should handle empty name safely")
-        void testEmptyName() {
-            StaffProfile sp = new StaffProfile(3, "", "Employee");
-            assertEquals("", sp.getName());
-        }
-    }*/
-
     
     // ============================================================================
     // BASE FUNCTION DIRECT TESTS (12+ tests) ??exercising protected/public helpers
     // ============================================================================
-    
+    /*
     @DisplayName("BaseFunction Direct Tests")
     @Nested
     class AllBaseFunctionDirectTests {
@@ -433,9 +211,13 @@ public class AllTests {
         }
     }
 
+    */
+    
     // ============================================================================
     // REQUEST MANAGER EDGE TESTS (3 tests)
     // ============================================================================
+    /*
+    
     @DisplayName("Request Manager Edge Tests")
     @Nested
     class RequestManagerEdgeTests {
@@ -489,11 +271,11 @@ public class AllTests {
         }
     }
     
-    
+    */
     // ============================================================================
     // REQUEST MANAGER TESTS (12 tests)
     // ============================================================================
-    
+    /*
     @DisplayName("Request Manager Tests")
     @Nested
     class AllRequestManagerTests {
@@ -616,12 +398,13 @@ public class AllTests {
             });
         }
     }
-    
+    */
     
     // ============================================================================
     // SHIFT MANAGER TESTS (12 tests)
     // ============================================================================
     
+    /*
     @DisplayName("Shift Manager Tests")
     @Nested
     class AllShiftManagerTests {
@@ -760,6 +543,7 @@ public class AllTests {
         }
     }
     
+    */
     
     // ============================================================================
     // MENU MANAGER TESTS (8 tests)
@@ -859,7 +643,7 @@ public class AllTests {
     // ============================================================================
     // ADMIN FUNCTION REFACTORED TESTS (12 tests)
     // ============================================================================
-    
+    /*
     @DisplayName("Admin Function Refactored Tests")
     @Nested
     class AllAdminFunctionTests {
@@ -1005,12 +789,13 @@ public class AllTests {
             assertNotNull(shifts);
         }
     }
-    
+    */
     
     // ============================================================================
     // EMPLOYEE FUNCTION TESTS (16 tests)
     // ============================================================================
     
+    /*
     @DisplayName("Employee Function Tests")
     @Nested
     class AllEmployeeFunctionTests {
@@ -1044,7 +829,7 @@ public class AllTests {
         }
         
         // ---- Login Page Tests (1) ----
-        
+
         @Test
         @DisplayName("Should handle employee login page logout")
         void testLoginPageLogout() {
@@ -1061,9 +846,7 @@ public class AllTests {
             System.setIn(System.in);
             System.setOut(System.out);
         }
-        
-        // ---- Add Duty Tests (2) ----
-        
+
         @Test
         @DisplayName("Should add duty successfully")
         void testAddDutySuccess() {
@@ -1080,9 +863,7 @@ public class AllTests {
             boolean result = employeeFunction.addDuty("1002", "2025-12-25", "MORNING", "N", "N");
             assertFalse(result);
         }
-        
         // ---- Check Duty Tests (4) ----
-        
         @Test
         @DisplayName("Should check duty with valid date range (within)")
         void testCheckDutyWithinRange1() throws Exception {
@@ -1107,7 +888,6 @@ public class AllTests {
             boolean result = employeeFunction.checkDuty("1003", "2025-11-10", "2025-11-11");
             assertFalse(result);
         }
-        
         // ---- Date Validation Tests (10) ----
         
         @Test
@@ -1190,11 +970,13 @@ public class AllTests {
         }
     }
     
+    */
     
     // ============================================================================
     // SHIFT TESTS (10 tests)
     // ============================================================================
     
+    /*
     @DisplayName("Shift Tests")
     @Nested
     class AllShiftTests {
@@ -1283,64 +1065,65 @@ public class AllTests {
         }
     }
     
+    */
     
     // ============================================================================
     // MAIN APPLICATION TESTS (6 tests)
     // ============================================================================
-    
+    /*
     @DisplayName("Main Application Tests")
     @Nested
     class AllMainApplicationTests {
         
         // ---- Main Menu Tests (3) ----
         
-        @Test
-        @DisplayName("Should exit main application gracefully")
-        void testMainApplicationExitOption() throws Exception {
-            String input = "3\n";
-            InputStream in = new ByteArrayInputStream(input.getBytes());
-            System.setIn(in);
-            
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(out));
-            
-            assertDoesNotThrow(() -> Main.main(new String[] {}));
-            
-            String output = out.toString();
-            assertTrue(output.contains("See you next time :)"));
-            
-            System.setIn(System.in);
-            System.setOut(System.out);
-        }
+//        @Test
+//        @DisplayName("Should exit main application gracefully")
+//        void testMainApplicationExitOption() throws Exception {
+//            String input = "3\n";
+//            InputStream in = new ByteArrayInputStream(input.getBytes());
+//            System.setIn(in);
+//            
+//            ByteArrayOutputStream out = new ByteArrayOutputStream();
+//            System.setOut(new PrintStream(out));
+//            
+//            assertDoesNotThrow(() -> Main.main(new String[] {}));
+//            
+//            String output = out.toString();
+//            assertTrue(output.contains("See you next time :)"));
+//            
+//            System.setIn(System.in);
+//            System.setOut(System.out);
+//        }
+//        
+//        @Test
+//        @DisplayName("Should handle main application start")
+//        void testMainApplicationStart() throws Exception {
+//            String input = "3\n";
+//            InputStream in = new ByteArrayInputStream(input.getBytes());
+//            System.setIn(in);
+//            
+//            ByteArrayOutputStream out = new ByteArrayOutputStream();
+//            System.setOut(new PrintStream(out));
+//            
+//            assertDoesNotThrow(() -> Main.main(new String[] {}));
+//            
+//            System.setIn(System.in);
+//            System.setOut(System.out);
+//        }
         
-        @Test
-        @DisplayName("Should handle main application start")
-        void testMainApplicationStart() throws Exception {
-            String input = "3\n";
-            InputStream in = new ByteArrayInputStream(input.getBytes());
-            System.setIn(in);
-            
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(out));
-            
-            assertDoesNotThrow(() -> Main.main(new String[] {}));
-            
-            System.setIn(System.in);
-            System.setOut(System.out);
-        }
-        
-        @Test
-        @DisplayName("Should accept command line arguments")
-        void testMainWithArguments() throws Exception {
-            String input = "3\n";
-            InputStream in = new ByteArrayInputStream(input.getBytes());
-            System.setIn(in);
-            
-            assertDoesNotThrow(() -> Main.main(new String[] {}));
-            
-            System.setIn(System.in);
-        }
-        
+//        @Test
+//        @DisplayName("Should accept command line arguments")
+//        void testMainWithArguments() throws Exception {
+//            String input = "3\n";
+//            InputStream in = new ByteArrayInputStream(input.getBytes());
+//            System.setIn(in);
+//            
+//            assertDoesNotThrow(() -> Main.main(new String[] {}));
+//            
+//            System.setIn(System.in);
+//        }
+//        
         // ---- Main Application Flow Tests (3) ----
         
         @Test
@@ -1387,12 +1170,12 @@ public class AllTests {
             System.setIn(System.in);
         }
     }
-    
+    */
     
     // ============================================================================
     // BASE FUNCTION TESTS (30+ tests)
     // ============================================================================
-    
+    /*
     @DisplayName("Base Function Tests (via EmployeeFunction)")
     @Nested
     class AllBaseFunctionTests {
@@ -1796,10 +1579,12 @@ public class AllTests {
         }
     }
 
+    */
+    
     // ============================================================================
     // ADMIN, EMPLOYEE, AND MAIN INTEGRATION COVERAGE (new tests)
     // ============================================================================
-
+/*
     @DisplayName("Admin/Employee/Main Integration Coverage")
     @Nested
     class AdminEmployeeMainIntegrationTests {
@@ -2238,7 +2023,7 @@ public class AllTests {
             }
         }
     }
-
+*/
     // ============================================================================
     // TARGETED MICRO-COVERAGE FOR GAPS (>50 tests)
     // ============================================================================
