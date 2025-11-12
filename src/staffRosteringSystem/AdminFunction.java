@@ -16,14 +16,14 @@ import java.util.*;
  * - ShiftManager: handles shift scheduling operations
  * - MenuManager: handles menu display and user interaction
  */
-public class AdminFunctionRefactored extends BaseFunction {
+public class AdminFunction extends BaseFunction {
     private StaffManager staffManager;
     private RequestManager requestManager;
     private ShiftManager shiftManager;
     private MenuManager menuManager;
     private Scanner scanner;
 
-    public AdminFunctionRefactored(int userId, String username, String password) {
+    public AdminFunction(int userId, String username, String password) {
         super(userId, username, password);
         this.scanner = new Scanner(System.in);
         

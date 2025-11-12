@@ -100,32 +100,50 @@ public class RequestManager {
     } */
 
     // Load duty requests
-	public List<DutyRequest> loadDutyRequests() {
-    	File duty = new File(DUTY_REQUEST_FILE);
-		try (Scanner filescanner = new Scanner(duty)) {
-			List<DutyRequest> requests = new ArrayList<>();
-			while (filescanner.hasNextLine()) {
-				String line = filescanner.nextLine();
-				if (!line.trim().isEmpty()) {
-					String[] parts = line.split(",");
-					if (parts.length >= 5) {
-						int employeeId = Integer.parseInt(parts[1].trim());
-						int requestId = Integer.parseInt(parts[0].trim());
-						String requestDate = parts[2].trim();
-						String section = parts[3].trim();
-						String dutyType = parts[4].trim();
-						String dutyDescription = parts[5].trim();
-						requests.add(new DutyRequest(employeeId, requestId, section, requestDate, dutyType, dutyDescription));
-					}
-				}
-			}
-			return requests;
-    		
-    	} catch (Exception e) {
-    		System.out.println("Error loading duty requests: " + e.getMessage());
-    	}
-		return null;
-	}
+    public List<DutyRequest> loadDutyRequests() {
+        List<DutyRequest> requests = new ArrayList<>();
+        File duty = new File(DUTY_REQUEST_FILE);
+        if (!duty.exists()) {
+            return requests; // empty list if file missing
+        }
+        try (Scanner filescanner = new Scanner(duty)) {
+            while (filescanner.hasNextLine()) {
+                String line = filescanner.nextLine();
+                if (!line.trim().isEmpty()) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 6) {
+                        try {
+                            int requestId = Integer.parseInt(parts[0].trim());
+                            int employeeId = Integer.parseInt(parts[1].trim());
+                            String requestDate = parts[2].trim();
+                            String section = parts[3].trim();
+                            String dutyType = parts[4].trim();
+                            String dutyDescription = parts[5].trim();
+                            requests.add(new DutyRequest(employeeId, requestId, requestDate, section, dutyType, dutyDescription));
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Error parsing duty request data: " + nfe.getMessage());
+                        }
+                    } else if (parts.length >= 5) {
+                        // Backward-compatibility: old format without section stored as employeeId,requestId,date,dutyType,description
+                        try {
+                            int employeeId = Integer.parseInt(parts[0].trim());
+                            int requestId = Integer.parseInt(parts[1].trim());
+                            String requestDate = parts[2].trim();
+                            String section = ""; // unknown
+                            String dutyType = parts[3].trim();
+                            String dutyDescription = parts[4].trim();
+                            requests.add(new DutyRequest(employeeId, requestId, requestDate, section, dutyType, dutyDescription));
+                        } catch (NumberFormatException nfe) {
+                            System.out.println("Error parsing legacy duty request data: " + nfe.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error loading duty requests: " + e.getMessage());
+        }
+        return requests;
+    }
     
     /*public List<DutyRequest> loadDutyRequests() {
         List<DutyRequest> requests = new ArrayList<>();
@@ -173,12 +191,13 @@ public class RequestManager {
     }*/
 
     // Save duty requests
-	public boolean saveDutyRequests(List<DutyRequest> requests) {
-		FileOperations fOps = new FileOperations();
-		Function<DutyRequest, String> formatter = req -> req.getEmployeeId() + "," + req.getRequestId() + ","
-				+ req.getRequestDate() + "," + req.getDutyType() + "," + req.getDutyDescription();
-		return fOps.saveData(DUTY_REQUEST_FILE, requests, formatter);
-	}
+    public boolean saveDutyRequests(List<DutyRequest> requests) {
+        FileOperations fOps = new FileOperations();
+        // Persist as: requestId,employeeId,requestDate,Section,dutyType,dutyDescription
+        Function<DutyRequest, String> formatter = req -> req.getRequestId() + "," + req.getEmployeeId() + ","
+                + req.getRequestDate() + "," + req.getSection() + "," + req.getDutyType() + "," + req.getDutyDescription();
+        return fOps.saveData(DUTY_REQUEST_FILE, requests, formatter);
+    }
 	
 //    public void saveDutyRequests(List<DutyRequest> requests) {
 //        try (PrintWriter writer = new PrintWriter(new FileWriter(DUTY_REQUEST_FILE))) {
@@ -325,58 +344,59 @@ public class RequestManager {
     }
 
     // Request leave
-    // public void requestLeave(int employeeId, Scanner scanner, StaffManager staffManager) {
-    //     if (!staffManager.staffExists(employeeId)) {
-    //         System.out.println("Error: Employee ID " + employeeId + " not found!");
-    //         return;
-    //     }
+    public void requestLeave(int employeeId, Scanner scanner, StaffManager staffManager) {
+        if (!staffManager.staffExists(employeeId)) {
+            System.out.println("Error: Employee ID " + employeeId + " not found!");
+            return;
+        }
 
-    //     System.out.print("Enter leave type (e.g., Sick, Annual, Unpaid): ");
-    //     String leaveType = scanner.nextLine().trim();
-    //     System.out.print("Enter reason: ");
-    //     String reason = scanner.nextLine().trim();
-    //     System.out.print("Enter date (YYYY-MM-DD): ");
-    //     String date = scanner.nextLine().trim();
+        System.out.print("Enter leave type (e.g., Sick, Annual, Unpaid): ");
+        String leaveType = scanner.nextLine().trim();
+        System.out.print("Enter reason: ");
+        String reason = scanner.nextLine().trim();
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
 
-    //     List<LeaveRequest> requests = loadLeaveRequests();
-    //     int newRequestId = generateRequestId(requests);
+        List<LeaveRequest> requests = loadLeaveRequests();
+        int newRequestId = generateRequestId(requests);
         
-    //     requests.add(new LeaveRequest(employeeId, newRequestId, date, leaveType, reason));
-    //     saveLeaveRequests(requests);
+        requests.add(new LeaveRequest(employeeId, newRequestId, date, leaveType, reason));
+        saveLeaveRequests(requests);
 
-    //     System.out.println("Leave request submitted successfully!");
-    //     System.out.println("  Request ID: " + newRequestId);
-    //     System.out.println("  Type: " + leaveType);
-    //     System.out.println("  Date: " + date);
-    // }
+        System.out.println("Leave request submitted successfully!");
+        System.out.println("  Request ID: " + newRequestId);
+        System.out.println("  Type: " + leaveType);
+        System.out.println("  Date: " + date);
+    }
 
     // Request duty
-    // public void requestDuty(int employeeId, Scanner scanner, StaffManager staffManager) {
-    //     if (!staffManager.staffExists(employeeId)) {
-    //         System.out.println("Error: Employee ID " + employeeId + " not found!");
-    //         return;
-    //     }
+    public void requestDuty(int employeeId, Scanner scanner, StaffManager staffManager) {
+        if (!staffManager.staffExists(employeeId)) {
+            System.out.println("Error: Employee ID " + employeeId + " not found!");
+            return;
+        }
 
-    //     System.out.print("Enter duty type (e.g., Training, Audit, Meeting): ");
-    //     String dutyType = scanner.nextLine().trim();
-    //     System.out.print("Enter duty description: ");
-    //     String dutyDescription = scanner.nextLine().trim();
-    //     System.out.print("Enter date (YYYY-MM-DD): ");
-    //     String date = scanner.nextLine().trim();
-    //     System.out.println("Enter Section: ");
-    //     String Section = scanner.nextLine().trim();
+        System.out.print("Enter duty type (e.g., Training, Audit, Meeting): ");
+        String dutyType = scanner.nextLine().trim();
+        System.out.print("Enter duty description: ");
+        String dutyDescription = scanner.nextLine().trim();
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        String date = scanner.nextLine().trim();
+        System.out.print("Enter Section: ");
+        String Section = scanner.nextLine().trim();
 
-    //     List<DutyRequest> requests = loadDutyRequests();
-    //     int newRequestId = generateRequestId(requests);
+        List<DutyRequest> requests = loadDutyRequests();
+        if (requests == null) requests = new ArrayList<>();
+        int newRequestId = generateRequestId(requests);
         
-    //     requests.add(new DutyRequest(employeeId, newRequestId, date, Section, dutyType, dutyDescription));
-    //     saveDutyRequests(requests);
+        requests.add(new DutyRequest(employeeId, newRequestId, date, Section, dutyType, dutyDescription));
+        saveDutyRequests(requests);
 
-    //     System.out.println("Duty request submitted successfully!");
-    //     System.out.println("  Request ID: " + newRequestId);
-    //     System.out.println("  Type: " + dutyType);
-    //     System.out.println("  Date: " + date);
-    // }
+        System.out.println("Duty request submitted successfully!");
+        System.out.println("  Request ID: " + newRequestId);
+        System.out.println("  Type: " + dutyType);
+        System.out.println("  Date: " + date);
+    }
 
     // Helper method to generate request ID
     private int generateRequestId(List<? extends Request> requests) {

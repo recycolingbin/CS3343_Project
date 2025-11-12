@@ -46,10 +46,13 @@ public class Main {
                         System.out.print("Enter Password: ");
                         String AdminPassword = scanner.nextLine();
 
-                        AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, AdminUsername, AdminPassword);
+                        // Use known admin credentials for validation, not the user input
+                        // so that login() actually validates against expected values.
+                        AdminFunction admin = new AdminFunction(2001, "admin", "admin123");
                         if (admin.login(AdminUsername, AdminPassword)) {
                             System.out.println("Administrator login successful.");
-                            admin.getMenuManager().loginPage();
+                            // Delegate to admin's login entry which opens the menu
+                            admin.login();
                         } else {
                             System.out.println("Invalid username or password. Please try again :(");
                         }

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
-import staffRosteringSystem.AdminFunctionRefactored;
+import staffRosteringSystem.AdminFunction;
 import staffRosteringSystem.BaseFunction;
 import staffRosteringSystem.DutyRequest;
 import staffRosteringSystem.EmployeeFunction;
@@ -281,7 +281,7 @@ public class AllTests {
 
     
     // ============================================================================
-    // BASE FUNCTION DIRECT TESTS (12+ tests) — exercising protected/public helpers
+    // BASE FUNCTION DIRECT TESTS (12+ tests) ??exercising protected/public helpers
     // ============================================================================
     
     @DisplayName("BaseFunction Direct Tests")
@@ -864,17 +864,17 @@ public class AllTests {
     @Nested
     class AllAdminFunctionTests {
         
-        private AdminFunctionRefactored adminFunction;
+        private AdminFunction adminFunction;
         
         @BeforeEach
         void setUp() {
-            adminFunction = new AdminFunctionRefactored(1001, "admin", "admin123");
+            adminFunction = new AdminFunction(1001, "admin", "admin123");
         }
         
-        // ---- AdminFunctionRefactored Initialization Tests (1) ----
+        // ---- AdminFunction Initialization Tests (1) ----
         
         @Test
-        @DisplayName("Should initialize AdminFunctionRefactored without error")
+        @DisplayName("Should initialize AdminFunction without error")
         void testAdminFunctionInitialization() {
             assertNotNull(adminFunction);
         }
@@ -947,8 +947,8 @@ public class AllTests {
         @Test
         @DisplayName("Should handle multiple coordinator instances independently")
         void testMultipleInstances() {
-            AdminFunctionRefactored admin1 = new AdminFunctionRefactored(1001, "admin1", "pass1");
-            AdminFunctionRefactored admin2 = new AdminFunctionRefactored(1002, "admin2", "pass2");
+            AdminFunction admin1 = new AdminFunction(1001, "admin1", "pass1");
+            AdminFunction admin2 = new AdminFunction(1002, "admin2", "pass2");
             
             StaffManager manager1 = admin1.getStaffManager();
             StaffManager manager2 = admin2.getStaffManager();
@@ -1830,8 +1830,8 @@ public class AllTests {
                 System.setOut(new PrintStream(out));
 
                 // Construct after setting System.in so the internal Scanner binds to our stream
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "admin123");
-                // Cover AdminFunctionRefactored.login() delegating to menu manager
+                AdminFunction admin = new AdminFunction(2001, "admin", "admin123");
+                // Cover AdminFunction.login() delegating to menu manager
                 
                 admin.login();
 
@@ -1872,7 +1872,7 @@ public class AllTests {
         @Test
         @DisplayName("Admin delegation wrappers: add/edit/view/delete staff")
         void testAdminDelegationWrappersForStaff() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "admin123");
+            AdminFunction admin = new AdminFunction(3001, "admin", "admin123");
             int id = uniqueStaffId(admin.getStaffManager());
 
             // add -> edit -> view -> viewAll -> delete
@@ -1909,7 +1909,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(3002, "admin", "admin123");
+                AdminFunction admin = new AdminFunction(3002, "admin", "admin123");
                 admin.login();
                 String output = out.toString();
                 assertTrue(output.contains("Roster Preparation"));
@@ -1923,7 +1923,7 @@ public class AllTests {
         @Test
         @DisplayName("RequestManager full flow: request/approve/reject leave and duty")
         void testRequestManagerEndToEndFlows() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3003, "admin", "admin123");
+            AdminFunction admin = new AdminFunction(3003, "admin", "admin123");
             StaffManager sm = admin.getStaffManager();
             RequestManager rm = admin.getRequestManager();
             rm.initializeRequestFiles(null);
@@ -2089,7 +2089,7 @@ public class AllTests {
             int id = uniqueStaffId(sm);
             assertTrue(sm.addStaffProfile(id, "ShiftEmp", "Employee"));
 
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "admin123");
+            AdminFunction admin = new AdminFunction(2001, "admin", "admin123");
             boolean assigned = admin.assignShift(id, "2025-12-20", "MORNING", "Note");
             assertTrue(assigned);
 
@@ -2128,7 +2128,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "admin123");
+                AdminFunction admin = new AdminFunction(2001, "admin", "admin123");
                 admin.login();
                 String output = out.toString();
                 assertTrue(output.contains("Staff Management"));
@@ -2197,7 +2197,7 @@ public class AllTests {
                 System.setOut(new PrintStream(out));
                 assertDoesNotThrow(() -> Main.main(new String[]{}));
                 String output = out.toString();
-                // Given Main constructs AdminFunctionRefactored with typed credentials,
+                // Given Main constructs AdminFunction with typed credentials,
                 // the login check succeeds by design; verify menu and exit appear.
                 assertTrue(output.contains("Administrator Main Menu") || output.contains("Administrator login successful"));
                 assertTrue(output.contains("See you next time"));
@@ -2228,7 +2228,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "admin123");
+                AdminFunction admin = new AdminFunction(2001, "admin", "admin123");
                 admin.login();
                 String output = out.toString();
                 assertTrue(output.contains("Invalid input!"));
@@ -2912,41 +2912,41 @@ public class AllTests {
 
         // ---- AdminFunction error paths ----
         @Test
-        @DisplayName("AdminFunctionRefactored.approveLeaveRequest delegation")
+        @DisplayName("AdminFunction.approveLeaveRequest delegation")
         void testAdminApproveLeaveRequestDelegation() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "pass");
+            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
             boolean result = admin.approveLeaveRequest(999);
             assertFalse(result);
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.rejectLeaveRequest delegation")
+        @DisplayName("AdminFunction.rejectLeaveRequest delegation")
         void testAdminRejectLeaveRequestDelegation() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "pass");
+            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
             boolean result = admin.rejectLeaveRequest(999);
             assertFalse(result);
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.approveDutyRequest delegation")
+        @DisplayName("AdminFunction.approveDutyRequest delegation")
         void testAdminApproveDutyRequestDelegation() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "pass");
+            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
             boolean result = admin.approveDutyRequest(999);
             assertFalse(result);
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.rejectDutyRequest delegation")
+        @DisplayName("AdminFunction.rejectDutyRequest delegation")
         void testAdminRejectDutyRequestDelegation() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "pass");
+            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
             boolean result = admin.rejectDutyRequest(999);
             assertFalse(result);
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.deleteShift delegation")
+        @DisplayName("AdminFunction.deleteShift delegation")
         void testAdminDeleteShiftDelegation() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(3001, "admin", "pass");
+            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
             boolean result = admin.deleteShift(999);
             assertFalse(result);
         }
@@ -2980,7 +2980,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(5001, "admin", "pass");
+                AdminFunction admin = new AdminFunction(5001, "admin", "pass");
                 admin.login();
                 String output = out.toString();
                 assertNotNull(output);
@@ -3066,7 +3066,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(5002, "admin", "pass");
+                AdminFunction admin = new AdminFunction(5002, "admin", "pass");
                 admin.login();
                 String output = out.toString();
                 assertTrue(output.contains("Administrator Main Menu"));
@@ -3096,7 +3096,7 @@ public class AllTests {
             try {
                 System.setIn(new ByteArrayInputStream(input.getBytes()));
                 System.setOut(new PrintStream(out));
-                AdminFunctionRefactored admin = new AdminFunctionRefactored(5003, "admin", "pass");
+                AdminFunction admin = new AdminFunction(5003, "admin", "pass");
                 admin.login();
                 String output = out.toString();
                 assertTrue(output.contains("Administrator Main Menu"));
@@ -3662,18 +3662,18 @@ public class AllTests {
             }
         }
 
-        // ============ AdminFunctionRefactored login ============
+        // ============ AdminFunction login ============
         @Test
-        @DisplayName("AdminFunctionRefactored.login with valid credentials")
+        @DisplayName("AdminFunction.login with valid credentials")
         void testAdminFunctionLoginValid() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "password");
+            AdminFunction admin = new AdminFunction(2001, "admin", "password");
             assertTrue(admin.login("admin", "password"));
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.login with invalid credentials")
+        @DisplayName("AdminFunction.login with invalid credentials")
         void testAdminFunctionLoginInvalid() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "password");
+            AdminFunction admin = new AdminFunction(2001, "admin", "password");
             assertFalse(admin.login("wronguser", "wrongpass"));
         }
 
@@ -3900,9 +3900,9 @@ public class AllTests {
         }
 
         @Test
-        @DisplayName("AdminFunctionRefactored.getMenuManager")
+        @DisplayName("AdminFunction.getMenuManager")
         void testAdminGetMenuManager() {
-            AdminFunctionRefactored admin = new AdminFunctionRefactored(2001, "admin", "password");
+            AdminFunction admin = new AdminFunction(2001, "admin", "password");
             MenuManager mm = admin.getMenuManager();
             assertNotNull(mm);
         }

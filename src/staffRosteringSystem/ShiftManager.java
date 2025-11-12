@@ -1,8 +1,8 @@
 package staffRosteringSystem;
 
-import java.io.*;
 import java.util.*;
 import java.util.function.Function;
+import java.io.*;
 
 /**
  * ShiftManager handles all shift operations.
@@ -22,29 +22,10 @@ public class ShiftManager {
     protected static final String NIGHT_SESSION = "NIGHT";
 
     // Load shifts from file
-    // public List<Shift> loadShifts() {
-    // 	FileOperations fOps = new FileOperations();
-	// 	Function<String, Shift> parser = line -> {
-	// 		String[] parts = line.split(",");
-	// 		if (parts.length >= 7) {
-	// 			try {
-	// 				int shiftId = Integer.parseInt(parts[0].trim());
-	// 				int employeeId = Integer.parseInt(parts[1].trim());
-	// 				String date = parts[2].trim();
-	// 				String session = parts[3].trim();
-	// 				String startTime = parts[4].trim();
-	// 				String endTime = parts[5].trim();
-	// 				String notes = parts[6].trim();
-	// 				return new Shift(shiftId, employeeId, date, session, startTime, endTime, notes);
-	// 			} catch (NumberFormatException e) {
-	// 				System.out.println("Error parsing shift data: " + e.getMessage());
-	// 			}
-	// 		}
-	// 		return null;
-	// 	};
-	// 	return fOps.loadData(SHIFT_FILE, parser);
-    	
-    // }
+    public List<Shift> loadShifts() {
+        // Delegate to BaseFunction static loader to keep single parsing logic
+        return BaseFunction.loadShifts();
+    }
     
     /*public List<Shift> loadShifts() {
         List<Shift> shifts = new ArrayList<>();
@@ -202,33 +183,34 @@ public class ShiftManager {
     }
 
     // Remove shifts for a specific employee and date range
-    // public void removeShiftsForLeave(int employeeId) {
-    //     List<String> lines = new ArrayList<>();
-        
-    //     try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-    //         String line;
-    //         while ((line = reader.readLine()) != null) {
-    //             if (!line.trim().isEmpty()) {
-    //                 String[] parts = line.split(",");
-    //                 if (parts.length >= 4 && !parts[0].trim().equals(String.valueOf(employeeId))) {
-    //                     lines.add(line);
-    //                 }
-    //                 // For simplicity, removing all shifts for this employee
-    //             }
-    //         }
-    //     } catch (IOException e) {
-    //         System.err.println("Error reading shifts: " + e.getMessage());
-    //         return;
-    //     }
-        
-    //     try (FileWriter writer = new FileWriter(SHIFT_FILE)) {
-    //         for (String line : lines) {
-    //             writer.write(line + "\n");
-    //         }
-    //     } catch (IOException e) {
-    //         System.err.println("Error updating shifts: " + e.getMessage());
-    //     }
-    // }
+    public void removeShiftsForLeave(int employeeId) {
+        List<String> remaining = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty() && !line.startsWith("#")) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 2) {
+                        int empId = Integer.parseInt(parts[1].trim());
+                        if (empId != employeeId) {
+                            remaining.add(line);
+                        }
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error reading shifts: " + e.getMessage());
+            return;
+        }
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(SHIFT_FILE))) {
+            for (String l : remaining) {
+                writer.println(l);
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating shifts: " + e.getMessage());
+        }
+    }
 
     // Helper methods
     protected boolean isValidSession(String session) {
