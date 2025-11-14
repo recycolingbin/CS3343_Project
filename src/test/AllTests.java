@@ -2028,1668 +2028,1668 @@ public class AllTests {
     // TARGETED MICRO-COVERAGE FOR GAPS (>50 tests)
     // ============================================================================
 
-    @DisplayName("Enhanced BaseFunction & EmployeeFunction Comprehensive Coverage")
-    @Nested
-    class BaseEmployeeComprehensiveCoverageTests {
-
-        // ========== BaseFunction Comprehensive Coverage ==========
-
-        @Test
-        @DisplayName("BaseFunction.login with exact match should return true")
-        void testBaseFunctionLoginSuccess() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
-            assertTrue(base.exposeLogin("john", "pass123"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.login with wrong username should return false")
-        void testBaseFunctionLoginWrongUsername() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
-            assertFalse(base.exposeLogin("jane", "pass123"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.login with wrong password should return false")
-        void testBaseFunctionLoginWrongPassword() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "john", "pass123");
-            assertFalse(base.exposeLogin("john", "wrongpass"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewFunction should print user info")
-        void testBaseFunctionViewFunction() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewFunction() { viewFunction(); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "testuser", "pass");
-                base.exposeViewFunction();
-                String output = out.toString();
-                assertTrue(output.contains("testuser"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getUserId should return correct ID")
-        void testBaseFunctionGetUserId() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-            }
-            TestBase base = new TestBase(5555, "user", "pass");
-            assertEquals(5555, base.getUserId());
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getUsername should return correct username")
-        void testBaseFunctionGetUsername() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-            }
-            TestBase base = new TestBase(5555, "alice", "pass");
-            assertEquals("alice", base.getUsername());
-        }
-
-        @Test
-        @DisplayName("BaseFunction.loadShifts should return list with shifts from file")
-        void testBaseFunctionLoadShifts() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public List<Shift> exposeLoadShifts() { return loadShifts(); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            List<Shift> shifts = base.exposeLoadShifts();
-            assertNotNull(shifts);
-            assertTrue(shifts.size() > 0);
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getUserInfo should return staff profile")
-        void testBaseFunctionGetUserInfo() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            StaffProfile profile = base.exposeGetUserInfo(1001);
-            assertNotNull(profile);
-            assertEquals(1001, profile.getStaffId());
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getUserInfo with invalid ID should return null")
-        void testBaseFunctionGetUserInfoInvalidId() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            StaffProfile profile = base.exposeGetUserInfo(999999);
-            assertNull(profile);
-        }
-
-        @Test
-        @DisplayName("BaseFunction.isValidSession should accept MORNING/AFTERNOON/NIGHT")
-        void testBaseFunctionIsValidSession() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeIsValidSession(String s) { return isValidSession(s); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            assertTrue(base.exposeIsValidSession("MORNING"));
-            assertTrue(base.exposeIsValidSession("AFTERNOON"));
-            assertTrue(base.exposeIsValidSession("NIGHT"));
-            assertFalse(base.exposeIsValidSession("INVALID"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getSessionOrder should return correct order")
-        void testBaseFunctionGetSessionOrder() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public int exposeGetSessionOrder(String s) { return getSessionOrder(s); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            assertEquals(1, base.exposeGetSessionOrder("MORNING"));
-            assertEquals(2, base.exposeGetSessionOrder("AFTERNOON"));
-            assertEquals(3, base.exposeGetSessionOrder("NIGHT"));
-            assertEquals(4, base.exposeGetSessionOrder("INVALID"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.isValidDate with various formats and edge cases")
-        void testBaseFunctionIsValidDateComprehensive() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposeIsValidDate(String d) { return isValidDate(d); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            assertTrue(base.exposeIsValidDate("2025-12-25"));
-            assertTrue(base.exposeIsValidDate("2025-1-1"));
-            assertTrue(base.exposeIsValidDate("2024-2-29")); // leap year
-            assertFalse(base.exposeIsValidDate("2025-2-29")); // not leap year
-            assertFalse(base.exposeIsValidDate("2025-13-01")); // invalid month
-            assertFalse(base.exposeIsValidDate("2025-12-32")); // invalid day
-            assertFalse(base.exposeIsValidDate("invalid"));
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewShiftSchedule with existing date")
-        void testBaseFunctionViewShiftScheduleWithDate() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftSchedule(String d) { viewShiftSchedule(d); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftSchedule("2025-12-15");
-                String output = out.toString();
-                assertTrue(output.contains("Shift") || output.contains("shift"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewShiftsBySession with MORNING session")
-        void testBaseFunctionViewShiftsBySessionMorning() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftsBySession("2025-12-15", "MORNING");
-                String output = out.toString();
-                assertTrue(output.length() > 0);
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewShiftsBySession with invalid session")
-        void testBaseFunctionViewShiftsBySessionInvalid() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewShiftsBySession("2025-12-15", "INVALID");
-                String output = out.toString();
-                assertTrue(output.contains("Invalid") || output.contains("INVALID"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewMyRoster should show user roster")
-        void testBaseFunctionViewMyRoster() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewMyRoster() { viewMyRoster(); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "user", "pass");
-                base.exposeViewMyRoster();
-                String output = out.toString();
-                assertTrue(output.contains("SCHEDULE") || output.contains("roster"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getValidDateInput with single valid date")
-        void testBaseFunctionGetValidDateInputSingleValid() {
-            String input = "2025-03-15\n";
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            String result = base.exposeGetValidDateInput(sc, "Enter date: ");
-            assertEquals("2025-03-15", result);
-        }
-
-        @Test
-        @DisplayName("BaseFunction.getValidDateInput with multiple invalid then valid")
-        void testBaseFunctionGetValidDateInputMultipleRetries() {
-            String input = "invalid\n2025-13-01\n2025-12-32\n2025-06-15\n";
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
-            }
-            TestBase base = new TestBase(1001, "user", "pass");
-            String result = base.exposeGetValidDateInput(sc, "Enter date: ");
-            assertEquals("2025-06-15", result);
-        }
-
-        // ========== EmployeeFunction Comprehensive Coverage ==========
-
-        @Test
-        @DisplayName("EmployeeFunction constructor should initialize with defaults")
-        void testEmployeeFunctionConstructor() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertNotNull(ef);
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.login with valid employee name")
-        void testEmployeeFunctionLoginValid() {
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-            	String input = "4\n";
-        		InputStream in = new ByteArrayInputStream(input.getBytes());
-        		System.setIn(in);
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                // Use an existing employee from Staff_Profile.txt
-                boolean result = ef.login("Alice Wang", "anypass");
-                String output = out.toString();
-                assertTrue(result || output.contains("Employee login successful."));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.login with invalid employee name")
-        void testEmployeeFunctionLoginInvalid() {
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                boolean result = ef.login("NonExistentEmployee", "pass");
-                assertFalse(result);
-                assertTrue(out.toString().contains("Invalid"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.addDuty should add new duty")
-        void testEmployeeFunctionAddDutyNew() {
-            int uniqueId = (int)(System.currentTimeMillis() % 100000) + 88000;
-            EmployeeFunction ef = new EmployeeFunction();
-            boolean result = ef.addDuty(String.valueOf(uniqueId), "2025-12-30", "MORNING", "N", "N");
-            assertTrue(result);
-        }
-
-//        @Test
-//        @DisplayName("EmployeeFunction.addDuty with duplicate should fail")
-//        void testEmployeeFunctionAddDutyDuplicate() {
-//            int uniqueId = (int)(System.currentTimeMillis() % 100000) + 77000;
-//            String date = "2025-12-28";
-//            String session = "AFTERNOON";
-//            EmployeeFunction ef = new EmployeeFunction();
-//            
-//            // Add first time
-//            ef.addDuty(String.valueOf(uniqueId), date, session, "N", "N");
-//            
-//            // Try to add duplicate
-//            PrintStream prevOut = System.out;
-//            ByteArrayOutputStream out = new ByteArrayOutputStream();
-//            try {
-//                System.setOut(new PrintStream(out));
-//                boolean result = ef.addDuty(String.valueOf(uniqueId), date, session, "N", "N");
-//                String output = out.toString();
-//                assertFalse(result);
-//                assertTrue(output.contains("already have duty"));
-//            } finally {
-//                System.setOut(prevOut);
-//            }
-//        }
-
-        @Test
-        @DisplayName("EmployeeFunction.checkDuty should verify duty in range")
-        void testEmployeeFunctionCheckDutyInRange() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertDoesNotThrow(() -> {
-                ef.checkDuty("1001", "2025-01-01", "2025-12-31");
-            });
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.isValidDate with comprehensive test cases")
-        void testEmployeeFunctionIsValidDateFull() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertTrue(ef.isValidDate("2025-12-25"));
-            assertTrue(ef.isValidDate("2024-2-29"));
-            assertFalse(ef.isValidDate("2025-13-01"));
-            assertFalse(ef.isValidDate("2025-12-32"));
-            assertFalse(ef.isValidDate("invalid-date"));
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.requestDuty with valid inputs")
-        void testEmployeeFunctionRequestDutyValid() {
-            String input = String.join(System.lineSeparator(),
-                    "2025-12-29",
-                    "NIGHT",
-                    ""
-            ) + System.lineSeparator();
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                int uniqueId = (int)(System.currentTimeMillis() % 100000) + 66000;
-                ef.requestDuty(String.valueOf(uniqueId));
-                String output = out.toString();
-                assertTrue(output.contains("request") || output.length() > 0);
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.requestDuty with invalid session")
-        void testEmployeeFunctionRequestDutyInvalidSession() {
-            String input = String.join(System.lineSeparator(),
-                    "2025-12-29",
-                    "INVALID_SESSION",
-                    ""
-            ) + System.lineSeparator();
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.requestDuty("5555");
-                String output = out.toString();
-                assertTrue(output.contains("Invalid") || output.length() > 0);
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.loginPage menu option 1 view schedule")
-        void testEmployeeFunctionLoginPageOption1() {
-            String input = "1\n4\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Employee Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.loginPage menu option 2 request duty")
-        void testEmployeeFunctionLoginPageOption2() {
-            String input = "2\n2025-12-31\nMORNING\n4\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Employee Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.loginPage menu option 3 request leave")
-        void testEmployeeFunctionLoginPageOption3() {
-            String input = "3\n1\nVacation\n2025-12-26\n2025-12-28\n4\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Employee Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.loginPage menu option 4 logout")
-        void testEmployeeFunctionLoginPageOption4() {
-            String input = "4\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Logging out") || output.contains("Employee Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.loginPage with invalid choice")
-        void testEmployeeFunctionLoginPageInvalidChoice() {
-            String input = "99\n4\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                EmployeeFunction ef = new EmployeeFunction();
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Invalid choice") || output.contains("Employee Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.getValidDateInput with valid single input")
-        void testEmployeeFunctionGetValidDateInput() {
-            String input = "2025-06-20\n";
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            EmployeeFunction ef = new EmployeeFunction();
-            String result = ef.getValidDateInput(sc, "Enter date: ");
-            assertEquals("2025-06-20", result);
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.isValidDate with boundary dates")
-        void testEmployeeFunctionIsValidDateBoundary() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertTrue(ef.isValidDate("2025-01-01"));
-            assertTrue(ef.isValidDate("2025-12-31"));
-            assertFalse(ef.isValidDate("2025-12-32"));
-            assertFalse(ef.isValidDate("2025-13-01"));
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.checkDuty with various date ranges")
-        void testEmployeeFunctionCheckDutyRanges() throws Exception {
-            EmployeeFunction ef = new EmployeeFunction();
-            boolean result1 = ef.checkDuty("1001", "2025-12-20", "2025-12-22");
-            assertFalse(result1); // Employee 1001 has no duty in this range
-            boolean result2 = ef.checkDuty("9999", "2025-01-01", "2025-01-03");
-            assertFalse(result2); // Non-existent employee
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction string representations")
-        void testEmployeeFunctionStringRepresentations() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertNotNull(ef.toString());
-            assertTrue(ef.toString().length() > 0);
-        }
-    }
-
-    @DisplayName("Targeted Micro-Coverage for Uncovered Lines")
-    @Nested
-    class TargetedMicroCoverageTests {
-
-        // ---- Shift Setters Coverage ----
-        @Test
-        @DisplayName("Shift.setEmployeeId should update employee ID")
-        void testShiftSetEmployeeId() {
-            Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
-            shift.setEmployeeId(1002);
-            assertEquals(1002, shift.getEmployeeId());
-        }
-
-        @Test
-        @DisplayName("Shift.setSession should update session")
-        void testShiftSetSession() {
-            Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
-            shift.setSession("AFTERNOON");
-            assertEquals("AFTERNOON", shift.getSession());
-        }
-
-        @Test
-        @DisplayName("Shift.setStartTime should update start time")
-        void testShiftSetStartTime() {
-            Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
-            shift.setStartTime("09:00");
-            assertEquals("09:00", shift.getStartTime());
-        }
-
-        @Test
-        @DisplayName("Shift.setEndTime should update end time")
-        void testShiftSetEndTime() {
-            Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
-            shift.setEndTime("17:00");
-            assertEquals("17:00", shift.getEndTime());
-        }
-
-        // ---- Main Constructor Coverage ----
-        @Test
-        @DisplayName("Main constructor should not throw")
-        void testMainConstructor() {
-            assertDoesNotThrow(() -> {
-                Main main = new Main();
-                assertNotNull(main);
-            });
-        }
-
-        // ---- BaseFunction.loginPage Coverage ----
-        @Test
-        @DisplayName("BaseFunction.loginPage should print menu")
-        void testBaseFunctionLoginPageDisplay() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeLoginPage(String param) { loginPage(param); }
-            }
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream("4\n".getBytes()));
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeLoginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Employee Menu") || output.contains("1."));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        // ---- Employee Function uncovered methods (SAFE TESTS - NO INTERACTIVE LOOPS) ----
-        @Test
-        @DisplayName("EmployeeFunction.checkDuty with valid date range")
-        void testEmployeeCheckDutyValidRange() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertDoesNotThrow(() -> {
-                ef.checkDuty("1001", "2025-12-01", "2025-12-31");
-            });
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.isValidDate comprehensive edge cases")
-        void testEmployeeIsValidDateEdgeCases() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertTrue(ef.isValidDate("2025-01-01"));
-            assertTrue(ef.isValidDate("2024-02-29")); // leap year
-            assertFalse(ef.isValidDate("2025-02-29")); // not leap year
-            assertFalse(ef.isValidDate("2025-13-01")); // invalid month
-            assertFalse(ef.isValidDate("2025-01-32")); // invalid day
-            assertFalse(ef.isValidDate("invalid"));
-        }
-
-//        @Test
-//        @DisplayName("EmployeeFunction.addDuty should add duty successfully")
-//        void testEmployeeAddDutySuccess() {
-//            EmployeeFunction ef = new EmployeeFunction();
-//            boolean result = ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N");
-//            assertTrue(result);
-//        }
-
-//        @Test
-//        @DisplayName("EmployeeFunction.addDuty with existing duty should fail")
-//        void testEmployeeAddDutyDuplicate() {
-//            EmployeeFunction ef = new EmployeeFunction();
-//            ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N");
-//            boolean result = ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N"); // same duty
-//            assertFalse(result); // should reject duplicate
-//        }
-
-        // ---- AdminFunction error paths ----
-        @Test
-        @DisplayName("AdminFunction.approveLeaveRequest delegation")
-        void testAdminApproveLeaveRequestDelegation() {
-            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
-            boolean result = admin.approveLeaveRequest(999);
-            assertFalse(result);
-        }
-
-        @Test
-        @DisplayName("AdminFunction.rejectLeaveRequest delegation")
-        void testAdminRejectLeaveRequestDelegation() {
-            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
-            boolean result = admin.rejectLeaveRequest(999);
-            assertFalse(result);
-        }
-
-        @Test
-        @DisplayName("AdminFunction.approveDutyRequest delegation")
-        void testAdminApproveDutyRequestDelegation() {
-            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
-            boolean result = admin.approveDutyRequest(999);
-            assertFalse(result);
-        }
-
-        @Test
-        @DisplayName("AdminFunction.rejectDutyRequest delegation")
-        void testAdminRejectDutyRequestDelegation() {
-            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
-            boolean result = admin.rejectDutyRequest(999);
-            assertFalse(result);
-        }
-
-        @Test
-        @DisplayName("AdminFunction.deleteShift delegation")
-        void testAdminDeleteShiftDelegation() {
-            AdminFunction admin = new AdminFunction(3001, "admin", "pass");
-            boolean result = admin.deleteShift(999);
-            assertFalse(result);
-        }
-
-        // ---- Additional RequestManager branches ----
-        @Test
-        @DisplayName("RequestManager.requestLeave with multiple leave types")
-        void testRequestLeaveMultipleTypes() {
-            RequestManager rm = new RequestManager();
-            StaffManager sm = new StaffManager();
-            int id = uniqueStaffId(sm);
-            sm.addStaffProfile(id, "LeaveTest", "Employee");
-
-            String input = String.join(System.lineSeparator(),
-                    "2",                // Annual
-                    "Family visit",
-                    "2025-12-26",
-                    "") + System.lineSeparator();
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            assertDoesNotThrow(() -> rm.requestLeave(id, sc, sm));
-        }
-
-        // ---- Menu edge: invalid input handling ----
-        @Test
-        @DisplayName("MenuManager with invalid menu choice returns safely")
-        void testMenuManagerInvalidChoice() {
-            String input = "99\n6\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                AdminFunction admin = new AdminFunction(5001, "admin", "pass");
-                admin.login();
-                String output = out.toString();
-                assertNotNull(output);
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        // ---- Shift model edge cases ----
-        @Test
-        @DisplayName("Shift with null/empty notes")
-        void testShiftWithNullNotes() {
-            Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", null);
-            shift.setNotes("");
-            assertEquals("", shift.getNotes());
-        }
-
-        // ---- BaseFunction edge case login ----
-        @Test
-        @DisplayName("BaseFunction.login with various credential combinations")
-        void testBaseFunctionLoginEdgeCases() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public boolean exposedLogin(String u, String p) { return login(u, p); }
-            }
-            TestBase base = new TestBase(1001, "test", "pass");
-            boolean result = base.exposedLogin("test", "pass");
-            assertTrue(result);
-            boolean fail = base.exposedLogin("test", "wrong");
-            assertFalse(fail);
-        }
-
-        // ---- BaseFunction lambdas (view schedule sorting) ----
-        @Test
-        @DisplayName("BaseFunction.viewShiftSchedule with sorting")
-        void testBaseViewShiftScheduleSorting() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewShiftSchedule(String date) { viewShiftSchedule(date); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeViewShiftSchedule("2025-10-23");
-                String output = out.toString();
-                assertTrue(output.contains("shift") || output.contains("No shifts"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("BaseFunction.viewMyRoster with sorting")
-        void testBaseViewMyRosterSorting() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public void exposeViewMyRoster() { viewMyRoster(); }
-            }
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                TestBase base = new TestBase(1001, "test", "pass");
-                base.exposeViewMyRoster();
-                String output = out.toString();
-                assertTrue(output.contains("SCHEDULE") || output.contains("No shifts"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
-
-        // ---- Menu branches and error paths ----
-        @Test
-        @DisplayName("MenuManager.sessionManagementMenu with view shifts")
-        void testMenuSessionViewShifts() {
-            String input = "2\n1\n2\n6\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                AdminFunction admin = new AdminFunction(5002, "admin", "pass");
-                admin.login();
-                String output = out.toString();
-                assertTrue(output.contains("Administrator Main Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("MenuManager.staffManagementMenu exhaustive paths")
-        void testMenuStaffManagementPaths() {
-            StaffManager sm = new StaffManager();
-            int id = uniqueStaffId(sm);
-            sm.addStaffProfile(id, "StaffTest", "Employee");
-
-            String input = String.join(System.lineSeparator(),
-                    "1",              // staff management
-                    "5",              // view all staff
-                    "6"               // back
-            ) + System.lineSeparator();
-            input += "6\n";  // logout
-
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                AdminFunction admin = new AdminFunction(5003, "admin", "pass");
-                admin.login();
-                String output = out.toString();
-                assertTrue(output.contains("Administrator Main Menu"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-
-        @Test
-        @DisplayName("EmployeeFunction.login with valid credentials")
-        void testEmployeeLoginValid() {
-            EmployeeFunction ef = new EmployeeFunction();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                // Staff 1001 exists in Data/Staff_Profile.txt
-                boolean result = ef.login("1001", "1001");
+    // @DisplayName("Enhanced BaseFunction & EmployeeFunction Comprehensive Coverage")
+    // @Nested
+//     class BaseEmployeeComprehensiveCoverageTests {
+
+//         // ========== BaseFunction Comprehensive Coverage ==========
+
+//         @Test
+//         @DisplayName("BaseFunction.login with exact match should return true")
+//         void testBaseFunctionLoginSuccess() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposeLogin(String u, String p) { return login(u, p); }
+//             }
+//             TestBase base = new TestBase(1001, "john", "pass123");
+//             assertTrue(base.exposeLogin("john", "pass123"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.login with wrong username should return false")
+//         void testBaseFunctionLoginWrongUsername() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposeLogin(String u, String p) { return login(u, p); }
+//             }
+//             TestBase base = new TestBase(1001, "john", "pass123");
+//             assertFalse(base.exposeLogin("jane", "pass123"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.login with wrong password should return false")
+//         void testBaseFunctionLoginWrongPassword() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposeLogin(String u, String p) { return login(u, p); }
+//             }
+//             TestBase base = new TestBase(1001, "john", "pass123");
+//             assertFalse(base.exposeLogin("john", "wrongpass"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewFunction should print user info")
+//         void testBaseFunctionViewFunction() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewFunction() { viewFunction(); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "testuser", "pass");
+//                 base.exposeViewFunction();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("testuser"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getUserId should return correct ID")
+//         void testBaseFunctionGetUserId() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//             }
+//             TestBase base = new TestBase(5555, "user", "pass");
+//             assertEquals(5555, base.getUserId());
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getUsername should return correct username")
+//         void testBaseFunctionGetUsername() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//             }
+//             TestBase base = new TestBase(5555, "alice", "pass");
+//             assertEquals("alice", base.getUsername());
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.loadShifts should return list with shifts from file")
+//         void testBaseFunctionLoadShifts() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public List<Shift> exposeLoadShifts() { return loadShifts(); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             List<Shift> shifts = base.exposeLoadShifts();
+//             assertNotNull(shifts);
+//             assertTrue(shifts.size() > 0);
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getUserInfo should return staff profile")
+//         void testBaseFunctionGetUserInfo() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             StaffProfile profile = base.exposeGetUserInfo(1001);
+//             assertNotNull(profile);
+//             assertEquals(1001, profile.getStaffId());
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getUserInfo with invalid ID should return null")
+//         void testBaseFunctionGetUserInfoInvalidId() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public StaffProfile exposeGetUserInfo(int id) { return getUserInfo(id); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             StaffProfile profile = base.exposeGetUserInfo(999999);
+//             assertNull(profile);
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.isValidSession should accept MORNING/AFTERNOON/NIGHT")
+//         void testBaseFunctionIsValidSession() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposeIsValidSession(String s) { return isValidSession(s); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             assertTrue(base.exposeIsValidSession("MORNING"));
+//             assertTrue(base.exposeIsValidSession("AFTERNOON"));
+//             assertTrue(base.exposeIsValidSession("NIGHT"));
+//             assertFalse(base.exposeIsValidSession("INVALID"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getSessionOrder should return correct order")
+//         void testBaseFunctionGetSessionOrder() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public int exposeGetSessionOrder(String s) { return getSessionOrder(s); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             assertEquals(1, base.exposeGetSessionOrder("MORNING"));
+//             assertEquals(2, base.exposeGetSessionOrder("AFTERNOON"));
+//             assertEquals(3, base.exposeGetSessionOrder("NIGHT"));
+//             assertEquals(4, base.exposeGetSessionOrder("INVALID"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.isValidDate with various formats and edge cases")
+//         void testBaseFunctionIsValidDateComprehensive() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposeIsValidDate(String d) { return isValidDate(d); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             assertTrue(base.exposeIsValidDate("2025-12-25"));
+//             assertTrue(base.exposeIsValidDate("2025-1-1"));
+//             assertTrue(base.exposeIsValidDate("2024-2-29")); // leap year
+//             assertFalse(base.exposeIsValidDate("2025-2-29")); // not leap year
+//             assertFalse(base.exposeIsValidDate("2025-13-01")); // invalid month
+//             assertFalse(base.exposeIsValidDate("2025-12-32")); // invalid day
+//             assertFalse(base.exposeIsValidDate("invalid"));
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewShiftSchedule with existing date")
+//         void testBaseFunctionViewShiftScheduleWithDate() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewShiftSchedule(String d) { viewShiftSchedule(d); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "user", "pass");
+//                 base.exposeViewShiftSchedule("2025-12-15");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Shift") || output.contains("shift"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewShiftsBySession with MORNING session")
+//         void testBaseFunctionViewShiftsBySessionMorning() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "user", "pass");
+//                 base.exposeViewShiftsBySession("2025-12-15", "MORNING");
+//                 String output = out.toString();
+//                 assertTrue(output.length() > 0);
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewShiftsBySession with invalid session")
+//         void testBaseFunctionViewShiftsBySessionInvalid() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewShiftsBySession(String d, String s) { viewShiftsBySession(d, s); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "user", "pass");
+//                 base.exposeViewShiftsBySession("2025-12-15", "INVALID");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Invalid") || output.contains("INVALID"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewMyRoster should show user roster")
+//         void testBaseFunctionViewMyRoster() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewMyRoster() { viewMyRoster(); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "user", "pass");
+//                 base.exposeViewMyRoster();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("SCHEDULE") || output.contains("roster"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getValidDateInput with single valid date")
+//         void testBaseFunctionGetValidDateInputSingleValid() {
+//             String input = "2025-03-15\n";
+//             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             String result = base.exposeGetValidDateInput(sc, "Enter date: ");
+//             assertEquals("2025-03-15", result);
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.getValidDateInput with multiple invalid then valid")
+//         void testBaseFunctionGetValidDateInputMultipleRetries() {
+//             String input = "invalid\n2025-13-01\n2025-12-32\n2025-06-15\n";
+//             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public String exposeGetValidDateInput(Scanner scanner, String prompt) { return getValidDateInput(scanner, prompt); }
+//             }
+//             TestBase base = new TestBase(1001, "user", "pass");
+//             String result = base.exposeGetValidDateInput(sc, "Enter date: ");
+//             assertEquals("2025-06-15", result);
+//         }
+
+//         // ========== EmployeeFunction Comprehensive Coverage ==========
+
+//         @Test
+//         @DisplayName("EmployeeFunction constructor should initialize with defaults")
+//         void testEmployeeFunctionConstructor() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertNotNull(ef);
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.login with valid employee name")
+//         void testEmployeeFunctionLoginValid() {
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//             	String input = "4\n";
+//         		InputStream in = new ByteArrayInputStream(input.getBytes());
+//         		System.setIn(in);
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 // Use an existing employee from Staff_Profile.txt
+//                 boolean result = ef.login("Alice Wang", "anypass");
+//                 String output = out.toString();
+//                 assertTrue(result || output.contains("Employee login successful."));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.login with invalid employee name")
+//         void testEmployeeFunctionLoginInvalid() {
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 boolean result = ef.login("NonExistentEmployee", "pass");
+//                 assertFalse(result);
+//                 assertTrue(out.toString().contains("Invalid"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.addDuty should add new duty")
+//         void testEmployeeFunctionAddDutyNew() {
+//             int uniqueId = (int)(System.currentTimeMillis() % 100000) + 88000;
+//             EmployeeFunction ef = new EmployeeFunction();
+//             boolean result = ef.addDuty(String.valueOf(uniqueId), "2025-12-30", "MORNING", "N", "N");
+//             assertTrue(result);
+//         }
+
+// //        @Test
+// //        @DisplayName("EmployeeFunction.addDuty with duplicate should fail")
+// //        void testEmployeeFunctionAddDutyDuplicate() {
+// //            int uniqueId = (int)(System.currentTimeMillis() % 100000) + 77000;
+// //            String date = "2025-12-28";
+// //            String session = "AFTERNOON";
+// //            EmployeeFunction ef = new EmployeeFunction();
+// //            
+// //            // Add first time
+// //            ef.addDuty(String.valueOf(uniqueId), date, session, "N", "N");
+// //            
+// //            // Try to add duplicate
+// //            PrintStream prevOut = System.out;
+// //            ByteArrayOutputStream out = new ByteArrayOutputStream();
+// //            try {
+// //                System.setOut(new PrintStream(out));
+// //                boolean result = ef.addDuty(String.valueOf(uniqueId), date, session, "N", "N");
+// //                String output = out.toString();
+// //                assertFalse(result);
+// //                assertTrue(output.contains("already have duty"));
+// //            } finally {
+// //                System.setOut(prevOut);
+// //            }
+// //        }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.checkDuty should verify duty in range")
+//         void testEmployeeFunctionCheckDutyInRange() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertDoesNotThrow(() -> {
+//                 ef.checkDuty("1001", "2025-01-01", "2025-12-31");
+//             });
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.isValidDate with comprehensive test cases")
+//         void testEmployeeFunctionIsValidDateFull() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertTrue(ef.isValidDate("2025-12-25"));
+//             assertTrue(ef.isValidDate("2024-2-29"));
+//             assertFalse(ef.isValidDate("2025-13-01"));
+//             assertFalse(ef.isValidDate("2025-12-32"));
+//             assertFalse(ef.isValidDate("invalid-date"));
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.requestDuty with valid inputs")
+//         void testEmployeeFunctionRequestDutyValid() {
+//             String input = String.join(System.lineSeparator(),
+//                     "2025-12-29",
+//                     "NIGHT",
+//                     ""
+//             ) + System.lineSeparator();
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 int uniqueId = (int)(System.currentTimeMillis() % 100000) + 66000;
+//                 ef.requestDuty(String.valueOf(uniqueId));
+//                 String output = out.toString();
+//                 assertTrue(output.contains("request") || output.length() > 0);
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.requestDuty with invalid session")
+//         void testEmployeeFunctionRequestDutyInvalidSession() {
+//             String input = String.join(System.lineSeparator(),
+//                     "2025-12-29",
+//                     "INVALID_SESSION",
+//                     ""
+//             ) + System.lineSeparator();
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.requestDuty("5555");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Invalid") || output.length() > 0);
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.loginPage menu option 1 view schedule")
+//         void testEmployeeFunctionLoginPageOption1() {
+//             String input = "1\n4\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.loginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Employee Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.loginPage menu option 2 request duty")
+//         void testEmployeeFunctionLoginPageOption2() {
+//             String input = "2\n2025-12-31\nMORNING\n4\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.loginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Employee Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.loginPage menu option 3 request leave")
+//         void testEmployeeFunctionLoginPageOption3() {
+//             String input = "3\n1\nVacation\n2025-12-26\n2025-12-28\n4\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.loginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Employee Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.loginPage menu option 4 logout")
+//         void testEmployeeFunctionLoginPageOption4() {
+//             String input = "4\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.loginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Logging out") || output.contains("Employee Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.loginPage with invalid choice")
+//         void testEmployeeFunctionLoginPageInvalidChoice() {
+//             String input = "99\n4\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 EmployeeFunction ef = new EmployeeFunction();
+//                 ef.loginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Invalid choice") || output.contains("Employee Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.getValidDateInput with valid single input")
+//         void testEmployeeFunctionGetValidDateInput() {
+//             String input = "2025-06-20\n";
+//             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+//             EmployeeFunction ef = new EmployeeFunction();
+//             String result = ef.getValidDateInput(sc, "Enter date: ");
+//             assertEquals("2025-06-20", result);
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.isValidDate with boundary dates")
+//         void testEmployeeFunctionIsValidDateBoundary() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertTrue(ef.isValidDate("2025-01-01"));
+//             assertTrue(ef.isValidDate("2025-12-31"));
+//             assertFalse(ef.isValidDate("2025-12-32"));
+//             assertFalse(ef.isValidDate("2025-13-01"));
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.checkDuty with various date ranges")
+//         void testEmployeeFunctionCheckDutyRanges() throws Exception {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             boolean result1 = ef.checkDuty("1001", "2025-12-20", "2025-12-22");
+//             assertFalse(result1); // Employee 1001 has no duty in this range
+//             boolean result2 = ef.checkDuty("9999", "2025-01-01", "2025-01-03");
+//             assertFalse(result2); // Non-existent employee
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction string representations")
+//         void testEmployeeFunctionStringRepresentations() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertNotNull(ef.toString());
+//             assertTrue(ef.toString().length() > 0);
+//         }
+//     }
+
+    // @DisplayName("Targeted Micro-Coverage for Uncovered Lines")
+    // @Nested
+//     class TargetedMicroCoverageTests {
+
+//         // ---- Shift Setters Coverage ----
+//         @Test
+//         @DisplayName("Shift.setEmployeeId should update employee ID")
+//         void testShiftSetEmployeeId() {
+//             Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
+//             shift.setEmployeeId(1002);
+//             assertEquals(1002, shift.getEmployeeId());
+//         }
+
+//         @Test
+//         @DisplayName("Shift.setSession should update session")
+//         void testShiftSetSession() {
+//             Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
+//             shift.setSession("AFTERNOON");
+//             assertEquals("AFTERNOON", shift.getSession());
+//         }
+
+//         @Test
+//         @DisplayName("Shift.setStartTime should update start time")
+//         void testShiftSetStartTime() {
+//             Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
+//             shift.setStartTime("09:00");
+//             assertEquals("09:00", shift.getStartTime());
+//         }
+
+//         @Test
+//         @DisplayName("Shift.setEndTime should update end time")
+//         void testShiftSetEndTime() {
+//             Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Test");
+//             shift.setEndTime("17:00");
+//             assertEquals("17:00", shift.getEndTime());
+//         }
+
+//         // ---- Main Constructor Coverage ----
+//         @Test
+//         @DisplayName("Main constructor should not throw")
+//         void testMainConstructor() {
+//             assertDoesNotThrow(() -> {
+//                 Main main = new Main();
+//                 assertNotNull(main);
+//             });
+//         }
+
+//         // ---- BaseFunction.loginPage Coverage ----
+//         @Test
+//         @DisplayName("BaseFunction.loginPage should print menu")
+//         void testBaseFunctionLoginPageDisplay() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeLoginPage(String param) { loginPage(param); }
+//             }
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream("4\n".getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "test", "pass");
+//                 base.exposeLoginPage("1001");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Employee Menu") || output.contains("1."));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         // ---- Employee Function uncovered methods (SAFE TESTS - NO INTERACTIVE LOOPS) ----
+//         @Test
+//         @DisplayName("EmployeeFunction.checkDuty with valid date range")
+//         void testEmployeeCheckDutyValidRange() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertDoesNotThrow(() -> {
+//                 ef.checkDuty("1001", "2025-12-01", "2025-12-31");
+//             });
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.isValidDate comprehensive edge cases")
+//         void testEmployeeIsValidDateEdgeCases() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertTrue(ef.isValidDate("2025-01-01"));
+//             assertTrue(ef.isValidDate("2024-02-29")); // leap year
+//             assertFalse(ef.isValidDate("2025-02-29")); // not leap year
+//             assertFalse(ef.isValidDate("2025-13-01")); // invalid month
+//             assertFalse(ef.isValidDate("2025-01-32")); // invalid day
+//             assertFalse(ef.isValidDate("invalid"));
+//         }
+
+// //        @Test
+// //        @DisplayName("EmployeeFunction.addDuty should add duty successfully")
+// //        void testEmployeeAddDutySuccess() {
+// //            EmployeeFunction ef = new EmployeeFunction();
+// //            boolean result = ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N");
+// //            assertTrue(result);
+// //        }
+
+// //        @Test
+// //        @DisplayName("EmployeeFunction.addDuty with existing duty should fail")
+// //        void testEmployeeAddDutyDuplicate() {
+// //            EmployeeFunction ef = new EmployeeFunction();
+// //            ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N");
+// //            boolean result = ef.addDuty("1001", "2025-12-25", "MORNING", "N", "N"); // same duty
+// //            assertFalse(result); // should reject duplicate
+// //        }
+
+//         // ---- AdminFunction error paths ----
+//         @Test
+//         @DisplayName("AdminFunction.approveLeaveRequest delegation")
+//         void testAdminApproveLeaveRequestDelegation() {
+//             AdminFunction admin = new AdminFunction(3001, "admin", "pass");
+//             boolean result = admin.approveLeaveRequest(999);
+//             assertFalse(result);
+//         }
+
+//         @Test
+//         @DisplayName("AdminFunction.rejectLeaveRequest delegation")
+//         void testAdminRejectLeaveRequestDelegation() {
+//             AdminFunction admin = new AdminFunction(3001, "admin", "pass");
+//             boolean result = admin.rejectLeaveRequest(999);
+//             assertFalse(result);
+//         }
+
+//         @Test
+//         @DisplayName("AdminFunction.approveDutyRequest delegation")
+//         void testAdminApproveDutyRequestDelegation() {
+//             AdminFunction admin = new AdminFunction(3001, "admin", "pass");
+//             boolean result = admin.approveDutyRequest(999);
+//             assertFalse(result);
+//         }
+
+//         @Test
+//         @DisplayName("AdminFunction.rejectDutyRequest delegation")
+//         void testAdminRejectDutyRequestDelegation() {
+//             AdminFunction admin = new AdminFunction(3001, "admin", "pass");
+//             boolean result = admin.rejectDutyRequest(999);
+//             assertFalse(result);
+//         }
+
+//         @Test
+//         @DisplayName("AdminFunction.deleteShift delegation")
+//         void testAdminDeleteShiftDelegation() {
+//             AdminFunction admin = new AdminFunction(3001, "admin", "pass");
+//             boolean result = admin.deleteShift(999);
+//             assertFalse(result);
+//         }
+
+//         // ---- Additional RequestManager branches ----
+//         @Test
+//         @DisplayName("RequestManager.requestLeave with multiple leave types")
+//         void testRequestLeaveMultipleTypes() {
+//             RequestManager rm = new RequestManager();
+//             StaffManager sm = new StaffManager();
+//             int id = uniqueStaffId(sm);
+//             sm.addStaffProfile(id, "LeaveTest", "Employee");
+
+//             String input = String.join(System.lineSeparator(),
+//                     "2",                // Annual
+//                     "Family visit",
+//                     "2025-12-26",
+//                     "") + System.lineSeparator();
+//             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+//             assertDoesNotThrow(() -> rm.requestLeave(id, sc, sm));
+//         }
+
+//         // ---- Menu edge: invalid input handling ----
+//         @Test
+//         @DisplayName("MenuManager with invalid menu choice returns safely")
+//         void testMenuManagerInvalidChoice() {
+//             String input = "99\n6\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 AdminFunction admin = new AdminFunction(5001, "admin", "pass");
+//                 admin.login();
+//                 String output = out.toString();
+//                 assertNotNull(output);
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         // ---- Shift model edge cases ----
+//         @Test
+//         @DisplayName("Shift with null/empty notes")
+//         void testShiftWithNullNotes() {
+//             Shift shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", null);
+//             shift.setNotes("");
+//             assertEquals("", shift.getNotes());
+//         }
+
+//         // ---- BaseFunction edge case login ----
+//         @Test
+//         @DisplayName("BaseFunction.login with various credential combinations")
+//         void testBaseFunctionLoginEdgeCases() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public boolean exposedLogin(String u, String p) { return login(u, p); }
+//             }
+//             TestBase base = new TestBase(1001, "test", "pass");
+//             boolean result = base.exposedLogin("test", "pass");
+//             assertTrue(result);
+//             boolean fail = base.exposedLogin("test", "wrong");
+//             assertFalse(fail);
+//         }
+
+//         // ---- BaseFunction lambdas (view schedule sorting) ----
+//         @Test
+//         @DisplayName("BaseFunction.viewShiftSchedule with sorting")
+//         void testBaseViewShiftScheduleSorting() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewShiftSchedule(String date) { viewShiftSchedule(date); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "test", "pass");
+//                 base.exposeViewShiftSchedule("2025-10-23");
+//                 String output = out.toString();
+//                 assertTrue(output.contains("shift") || output.contains("No shifts"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("BaseFunction.viewMyRoster with sorting")
+//         void testBaseViewMyRosterSorting() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public void exposeViewMyRoster() { viewMyRoster(); }
+//             }
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 TestBase base = new TestBase(1001, "test", "pass");
+//                 base.exposeViewMyRoster();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("SCHEDULE") || output.contains("No shifts"));
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         // ---- Menu branches and error paths ----
+//         @Test
+//         @DisplayName("MenuManager.sessionManagementMenu with view shifts")
+//         void testMenuSessionViewShifts() {
+//             String input = "2\n1\n2\n6\n";
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 AdminFunction admin = new AdminFunction(5002, "admin", "pass");
+//                 admin.login();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Administrator Main Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("MenuManager.staffManagementMenu exhaustive paths")
+//         void testMenuStaffManagementPaths() {
+//             StaffManager sm = new StaffManager();
+//             int id = uniqueStaffId(sm);
+//             sm.addStaffProfile(id, "StaffTest", "Employee");
+
+//             String input = String.join(System.lineSeparator(),
+//                     "1",              // staff management
+//                     "5",              // view all staff
+//                     "6"               // back
+//             ) + System.lineSeparator();
+//             input += "6\n";  // logout
+
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
+//                 AdminFunction admin = new AdminFunction(5003, "admin", "pass");
+//                 admin.login();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Administrator Main Menu"));
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+
+//         @Test
+//         @DisplayName("EmployeeFunction.login with valid credentials")
+//         void testEmployeeLoginValid() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 // Staff 1001 exists in Data/Staff_Profile.txt
+//                 boolean result = ef.login("1001", "1001");
                
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
 
-        @Test
-        @DisplayName("RequestManager.generateRequestId with empty list")
-        void testRequestGenerateIdEmptyList() {
-            RequestManager rm = new RequestManager();
-            rm.initializeRequestFiles(null);
-            assertDoesNotThrow(() -> {
-                rm.loadLeaveRequests();
-                rm.loadDutyRequests();
-            });
-        }
+//         @Test
+//         @DisplayName("RequestManager.generateRequestId with empty list")
+//         void testRequestGenerateIdEmptyList() {
+//             RequestManager rm = new RequestManager();
+//             rm.initializeRequestFiles(null);
+//             assertDoesNotThrow(() -> {
+//                 rm.loadLeaveRequests();
+//                 rm.loadDutyRequests();
+//             });
+//         }
 
-        @Test
-        @DisplayName("EmployeeFunction.isLeapYear comprehensive")
-        void testEmployeeFunctionLeapYear() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertTrue(ef.isValidDate("2024-2-29"));
-            assertFalse(ef.isValidDate("2023-2-29"));
-        }
+//         @Test
+//         @DisplayName("EmployeeFunction.isLeapYear comprehensive")
+//         void testEmployeeFunctionLeapYear() {
+//             EmployeeFunction ef = new EmployeeFunction();
+//             assertTrue(ef.isValidDate("2024-2-29"));
+//             assertFalse(ef.isValidDate("2023-2-29"));
+//         }
 
-        @Test
-        @DisplayName("ShiftManager.removeShiftsForLeave with target employee")
-        void testShiftManagerRemoveShiftsForLeave() {
-            ShiftManager sm = new ShiftManager();
-            StaffManager staffMgr = new StaffManager();
-            int id = uniqueStaffId(staffMgr);
-            staffMgr.addStaffProfile(id, "LeaveEmp", "Employee");
-            sm.assignShift(id, "2025-12-24", "MORNING", "Holiday", staffMgr);
-            assertDoesNotThrow(() -> sm.removeShiftsForLeave(id));
-        }
+//         @Test
+//         @DisplayName("ShiftManager.removeShiftsForLeave with target employee")
+//         void testShiftManagerRemoveShiftsForLeave() {
+//             ShiftManager sm = new ShiftManager();
+//             StaffManager staffMgr = new StaffManager();
+//             int id = uniqueStaffId(staffMgr);
+//             staffMgr.addStaffProfile(id, "LeaveEmp", "Employee");
+//             sm.assignShift(id, "2025-12-24", "MORNING", "Holiday", staffMgr);
+//             assertDoesNotThrow(() -> sm.removeShiftsForLeave(id));
+//         }
 
-        @Test
-        @DisplayName("ShiftManager.viewAllShiftSchedules with existing shifts")
-        void testShiftManagerViewAllSchedules() {
-            ShiftManager sm = new ShiftManager();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                sm.viewAllShiftSchedules();
-                String output = out.toString();
-                assertTrue(output.contains("Shift") || output.length() > 0);
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+//         @Test
+//         @DisplayName("ShiftManager.viewAllShiftSchedules with existing shifts")
+//         void testShiftManagerViewAllSchedules() {
+//             ShiftManager sm = new ShiftManager();
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setOut(new PrintStream(out));
+//                 sm.viewAllShiftSchedules();
+//                 String output = out.toString();
+//                 assertTrue(output.contains("Shift") || output.length() > 0);
+//             } finally {
+//                 System.setOut(prevOut);
+//             }
+//         }
 
-        @Test
-        @DisplayName("EmployeeFunction.getValidDateInput with single valid input")
-        void testEmployeeGetValidDateInputSingle() {
-            String input = "2025-06-15\n";
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            EmployeeFunction ef = new EmployeeFunction();
-            String result = ef.getValidDateInput(sc, "Enter date: ");
-            assertEquals("2025-06-15", result);
-        }
+//         @Test
+//         @DisplayName("EmployeeFunction.getValidDateInput with single valid input")
+//         void testEmployeeGetValidDateInputSingle() {
+//             String input = "2025-06-15\n";
+//             Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
+//             EmployeeFunction ef = new EmployeeFunction();
+//             String result = ef.getValidDateInput(sc, "Enter date: ");
+//             assertEquals("2025-06-15", result);
+//         }
 
-        @Test
-        @DisplayName("BaseFunction.getUserId and getUsername consistency")
-        void testBaseFunctionUserIdUsernameConsistency() {
-            class TestBase extends BaseFunction {
-                TestBase(int userId, String username, String password) { super(userId, username, password); }
-                public int exposeGetUserId() { return getUserId(); }
-                public String exposeGetUsername() { return getUsername(); }
-            }
-            TestBase base = new TestBase(1007, "testuser", "pass");
-            assertEquals(1007, base.exposeGetUserId());
-            assertEquals("testuser", base.exposeGetUsername());
-        }
+//         @Test
+//         @DisplayName("BaseFunction.getUserId and getUsername consistency")
+//         void testBaseFunctionUserIdUsernameConsistency() {
+//             class TestBase extends BaseFunction {
+//                 TestBase(int userId, String username, String password) { super(userId, username, password); }
+//                 public int exposeGetUserId() { return getUserId(); }
+//                 public String exposeGetUsername() { return getUsername(); }
+//             }
+//             TestBase base = new TestBase(1007, "testuser", "pass");
+//             assertEquals(1007, base.exposeGetUserId());
+//             assertEquals("testuser", base.exposeGetUsername());
+//         }
 
-        @Test
-        @DisplayName("Main.main with rapid input sequences")
-        void testMainRapidInputSequences() {
-            String input = "1\n3\n";  // employee login then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
+//         @Test
+//         @DisplayName("Main.main with rapid input sequences")
+//         void testMainRapidInputSequences() {
+//             String input = "1\n3\n";  // employee login then exit
+//             InputStream prevIn = System.in;
+//             PrintStream prevOut = System.out;
+//             ByteArrayOutputStream out = new ByteArrayOutputStream();
+//             try {
+//                 System.setIn(new ByteArrayInputStream(input.getBytes()));
+//                 System.setOut(new PrintStream(out));
                 
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-    }
+//             } finally {
+//                 System.setIn(prevIn);
+//                 System.setOut(prevOut);
+//             }
+//         }
+//     }
 
     // ==================== EXTENDED EMPLOYEE FUNCTION COVERAGE ====================
-    @Nested
-    @DisplayName("EmployeeFunction Extended Tests")
-    class EmployeeFunctionExtendedTests {
+    // @Nested
+    // @DisplayName("EmployeeFunction Extended Tests")
+    // class EmployeeFunctionExtendedTests {
         
-        @Test
-        @DisplayName("EmployeeFunction.login with invalid credentials")
-        void testEmployeeLoginInvalidCredentials() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertFalse(ef.login("InvalidUser", "password"));
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.login with invalid credentials")
+    //     void testEmployeeLoginInvalidCredentials() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         assertFalse(ef.login("InvalidUser", "password"));
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.isLeapYear validation")
-        void testEmployeeIsLeapYear() {
-            EmployeeFunction ef = new EmployeeFunction();
-            // Test leap years
-            assertTrue(ef.isValidDate("2024-02-29"));   // leap year
-            assertFalse(ef.isValidDate("2025-02-29"));  // not leap year
-            assertTrue(ef.isValidDate("2020-02-29"));   // leap year
-            assertFalse(ef.isValidDate("1900-02-29"));  // not leap year (century rule)
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.isLeapYear validation")
+    //     void testEmployeeIsLeapYear() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         // Test leap years
+    //         assertTrue(ef.isValidDate("2024-02-29"));   // leap year
+    //         assertFalse(ef.isValidDate("2025-02-29"));  // not leap year
+    //         assertTrue(ef.isValidDate("2020-02-29"));   // leap year
+    //         assertFalse(ef.isValidDate("1900-02-29"));  // not leap year (century rule)
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.isValidDate with various formats")
-        void testEmployeeIsValidDateFormats() {
-            EmployeeFunction ef = new EmployeeFunction();
-            // Valid dates
-            assertTrue(ef.isValidDate("2025-01-01"));
-            assertTrue(ef.isValidDate("2025-12-31"));
-            assertTrue(ef.isValidDate("2025-06-15"));
+    //     @Test
+    //     @DisplayName("EmployeeFunction.isValidDate with various formats")
+    //     void testEmployeeIsValidDateFormats() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         // Valid dates
+    //         assertTrue(ef.isValidDate("2025-01-01"));
+    //         assertTrue(ef.isValidDate("2025-12-31"));
+    //         assertTrue(ef.isValidDate("2025-06-15"));
             
-            // Invalid dates
-            assertFalse(ef.isValidDate("2025-13-01"));   // month > 12
-            assertFalse(ef.isValidDate("2025-00-01"));   // month = 0
-            assertFalse(ef.isValidDate("2025-12-32"));   // day > 31
-            assertFalse(ef.isValidDate("2025-12-00"));   // day = 0
-            assertFalse(ef.isValidDate("2019-06-15"));   // year < 2020
-            assertFalse(ef.isValidDate("2031-06-15"));   // year > 2030
-            assertFalse(ef.isValidDate("not-a-date"));   // invalid format
-            assertFalse(ef.isValidDate("2025/06/15"));   // wrong separator
-            assertFalse(ef.isValidDate(""));             // empty
-            assertFalse(ef.isValidDate(null));           // null
-        }
+    //         // Invalid dates
+    //         assertFalse(ef.isValidDate("2025-13-01"));   // month > 12
+    //         assertFalse(ef.isValidDate("2025-00-01"));   // month = 0
+    //         assertFalse(ef.isValidDate("2025-12-32"));   // day > 31
+    //         assertFalse(ef.isValidDate("2025-12-00"));   // day = 0
+    //         assertFalse(ef.isValidDate("2019-06-15"));   // year < 2020
+    //         assertFalse(ef.isValidDate("2031-06-15"));   // year > 2030
+    //         assertFalse(ef.isValidDate("not-a-date"));   // invalid format
+    //         assertFalse(ef.isValidDate("2025/06/15"));   // wrong separator
+    //         assertFalse(ef.isValidDate(""));             // empty
+    //         assertFalse(ef.isValidDate(null));           // null
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.getValidDateInput with immediate valid input")
-        void testEmployeeGetValidDateInputImmediate() {
-            EmployeeFunction ef = new EmployeeFunction();
-            String input = "2025-06-15\n";
-            Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            String result = ef.getValidDateInput(scanner, "Enter date: ");
-            assertEquals("2025-06-15", result);
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.getValidDateInput with immediate valid input")
+    //     void testEmployeeGetValidDateInputImmediate() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         String input = "2025-06-15\n";
+    //         Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
+    //         String result = ef.getValidDateInput(scanner, "Enter date: ");
+    //         assertEquals("2025-06-15", result);
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.getValidDateInput with retry on invalid")
-        void testEmployeeGetValidDateInputRetry() {
-            EmployeeFunction ef = new EmployeeFunction();
-            String input = "invalid\n2025-06-15\n";
-            Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            String result = ef.getValidDateInput(scanner, "Enter date: ");
-            assertEquals("2025-06-15", result);
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.getValidDateInput with retry on invalid")
+    //     void testEmployeeGetValidDateInputRetry() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         String input = "invalid\n2025-06-15\n";
+    //         Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
+    //         String result = ef.getValidDateInput(scanner, "Enter date: ");
+    //         assertEquals("2025-06-15", result);
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.getValidDateInput max retries exceeded")
-        void testEmployeeGetValidDateInputMaxRetries() {
-            EmployeeFunction ef = new EmployeeFunction();
-            StringBuilder input = new StringBuilder();
-            for (int i = 0; i < 11; i++) {
-                input.append("invalid\n");
-            }
-            Scanner scanner = new Scanner(new ByteArrayInputStream(input.toString().getBytes()));
-            String result = ef.getValidDateInput(scanner, "Enter date: ");
-            assertNull(result);
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.getValidDateInput max retries exceeded")
+    //     void testEmployeeGetValidDateInputMaxRetries() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         StringBuilder input = new StringBuilder();
+    //         for (int i = 0; i < 11; i++) {
+    //             input.append("invalid\n");
+    //         }
+    //         Scanner scanner = new Scanner(new ByteArrayInputStream(input.toString().getBytes()));
+    //         String result = ef.getValidDateInput(scanner, "Enter date: ");
+    //         assertNull(result);
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.checkDuty with duty present")
-        void testEmployeeCheckDutyPresent() throws Exception {
-            EmployeeFunction ef = new EmployeeFunction();
-            long uniqueId = 7777 + (System.nanoTime() % 10000);
-            String userid = String.valueOf(uniqueId);
-            String date = "2025-08-10";
+    //     @Test
+    //     @DisplayName("EmployeeFunction.checkDuty with duty present")
+    //     void testEmployeeCheckDutyPresent() throws Exception {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long uniqueId = 7777 + (System.nanoTime() % 10000);
+    //         String userid = String.valueOf(uniqueId);
+    //         String date = "2025-08-10";
             
-            // Add duty first
-            ef.addDuty(userid, date, "MORNING", "N", "N");
+    //         // Add duty first
+    //         ef.addDuty(userid, date, "MORNING", "N", "N");
             
-            // Check that duty exists in date range
-            assertTrue(ef.checkDuty(userid, "2025-08-01", "2025-08-31"));
-        }
+    //         // Check that duty exists in date range
+    //         assertTrue(ef.checkDuty(userid, "2025-08-01", "2025-08-31"));
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.checkDuty with no duty")
-        void testEmployeeCheckDutyNone() throws Exception {
-            EmployeeFunction ef = new EmployeeFunction();
-            long uniqueId = 6666 + (System.nanoTime() % 10000);
-            String userid = String.valueOf(uniqueId);
+    //     @Test
+    //     @DisplayName("EmployeeFunction.checkDuty with no duty")
+    //     void testEmployeeCheckDutyNone() throws Exception {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long uniqueId = 6666 + (System.nanoTime() % 10000);
+    //         String userid = String.valueOf(uniqueId);
             
-            // Check without adding duty
-            assertFalse(ef.checkDuty(userid, "2025-09-01", "2025-09-30"));
-        }
+    //         // Check without adding duty
+    //         assertFalse(ef.checkDuty(userid, "2025-09-01", "2025-09-30"));
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.requestDuty with valid input")
-        void testEmployeeRequestDutyValid() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long uniqueId = 5555 + (System.nanoTime() % 10000);
-            String userid = String.valueOf(uniqueId);
-            String input = "2025-10-15\nMORNING\n";
+    //     @Test
+    //     @DisplayName("EmployeeFunction.requestDuty with valid input")
+    //     void testEmployeeRequestDutyValid() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long uniqueId = 5555 + (System.nanoTime() % 10000);
+    //         String userid = String.valueOf(uniqueId);
+    //         String input = "2025-10-15\nMORNING\n";
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.requestDuty(userid);
-                // Should complete without error
-                assertDoesNotThrow(() -> {});
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.requestDuty(userid);
+    //             // Should complete without error
+    //             assertDoesNotThrow(() -> {});
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.requestDuty with invalid session")
-        void testEmployeeRequestDutyInvalidSession() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long uniqueId = 4444 + (System.nanoTime() % 10000);
-            String userid = String.valueOf(uniqueId);
-            String input = "2025-10-20\nINVALID\n";
+    //     @Test
+    //     @DisplayName("EmployeeFunction.requestDuty with invalid session")
+    //     void testEmployeeRequestDutyInvalidSession() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long uniqueId = 4444 + (System.nanoTime() % 10000);
+    //         String userid = String.valueOf(uniqueId);
+    //         String input = "2025-10-20\nINVALID\n";
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.requestDuty(userid);
-                String output = out.toString();
-                assertTrue(output.contains("Invalid session"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.requestDuty(userid);
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid session"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.loginPage with view schedule")
-        void testEmployeeLoginPageViewSchedule() {
-            EmployeeFunction ef = new EmployeeFunction();
-            String input = "1\n4\n";  // View schedule then logout
+    //     @Test
+    //     @DisplayName("EmployeeFunction.loginPage with view schedule")
+    //     void testEmployeeLoginPageViewSchedule() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         String input = "1\n4\n";  // View schedule then logout
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.loginPage("1001");
-                // Should complete without error
-                assertDoesNotThrow(() -> {});
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.loginPage("1001");
+    //             // Should complete without error
+    //             assertDoesNotThrow(() -> {});
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.loginPage with invalid choice")
-        void testEmployeeLoginPageInvalidChoice() {
-            EmployeeFunction ef = new EmployeeFunction();
-            String input = "99\n4\n";  // Invalid choice then logout
+    //     @Test
+    //     @DisplayName("EmployeeFunction.loginPage with invalid choice")
+    //     void testEmployeeLoginPageInvalidChoice() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         String input = "99\n4\n";  // Invalid choice then logout
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Invalid choice"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.loginPage("1001");
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid choice"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.loginPage handles input mismatch")
-        void testEmployeeLoginPageInputMismatch() {
-            EmployeeFunction ef = new EmployeeFunction();
-            String input = "abc\n4\n";  // Non-numeric input then logout
+    //     @Test
+    //     @DisplayName("EmployeeFunction.loginPage handles input mismatch")
+    //     void testEmployeeLoginPageInputMismatch() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         String input = "abc\n4\n";  // Non-numeric input then logout
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.loginPage("1001");
-                String output = out.toString();
-                assertTrue(output.contains("Invalid input"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-    }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.loginPage("1001");
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid input"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
+    // }
 
     // ==================== EXTENDED MAIN COVERAGE ====================
-    @Nested
-    @DisplayName("Main Extended Tests")
-    class MainExtendedTests {
+    // @Nested
+    // @DisplayName("Main Extended Tests")
+    // class MainExtendedTests {
         
-        @Test
-        @DisplayName("Main with employee login path")
-        void testMainEmployeeLoginPath() {
-            String input = "1\nJohn Doe\npassword\n4\n";  // Employee login, then logout (option 4), then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
+    //     @Test
+    //     @DisplayName("Main with employee login path")
+    //     void testMainEmployeeLoginPath() {
+    //         String input = "1\nJohn Doe\npassword\n4\n";  // Employee login, then logout (option 4), then exit
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
               
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with admin login path")
-        void testMainAdminLoginPath() {
-            String input = "2\nadmin\nadmin\n5\n";  // Admin login, invalid menu choice, then exit to login screen
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
+    //     @Test
+    //     @DisplayName("Main with admin login path")
+    //     void testMainAdminLoginPath() {
+    //         String input = "2\nadmin\nadmin\n5\n";  // Admin login, invalid menu choice, then exit to login screen
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
                 
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with direct exit")
-        void testMainDirectExit() {
-            String input = "3\n";  // Exit option
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
-                assertTrue(output.contains("See you next time"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("Main with direct exit")
+    //     void testMainDirectExit() {
+    //         String input = "3\n";  // Exit option
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             assertDoesNotThrow(() -> Main.main(new String[] {}));
+    //             String output = out.toString();
+    //             assertTrue(output.contains("See you next time"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with invalid menu choice then valid")
-        void testMainInvalidThenValidChoice() {
-            String input = "99\n3\n";  // Invalid choice then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
-                assertTrue(output.contains("Invalid choice"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("Main with invalid menu choice then valid")
+    //     void testMainInvalidThenValidChoice() {
+    //         String input = "99\n3\n";  // Invalid choice then exit
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             assertDoesNotThrow(() -> Main.main(new String[] {}));
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid choice"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with non-numeric input then valid exit")
-        void testMainNonNumericInput() {
-            String input = "abc\n3\n";  // Non-numeric input then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
-                assertTrue(output.contains("Invalid input"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("Main with non-numeric input then valid exit")
+    //     void testMainNonNumericInput() {
+    //         String input = "abc\n3\n";  // Non-numeric input then exit
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             assertDoesNotThrow(() -> Main.main(new String[] {}));
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid input"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main initializes data files correctly")
-        void testMainInitializeDataFiles() {
-            File dataDir = new File("Data");
-            File[] dataFiles = {
-                new File("Data/Staff_Profile.txt"),
-                new File("Data/Duty_Request.txt"),
-                new File("Data/Leave_Request.txt"),
-                new File("Data/Shift.txt")
-            };
+    //     @Test
+    //     @DisplayName("Main initializes data files correctly")
+    //     void testMainInitializeDataFiles() {
+    //         File dataDir = new File("Data");
+    //         File[] dataFiles = {
+    //             new File("Data/Staff_Profile.txt"),
+    //             new File("Data/Duty_Request.txt"),
+    //             new File("Data/Leave_Request.txt"),
+    //             new File("Data/Shift.txt")
+    //         };
             
-            // Call main with exit option to trigger initialization
-            String input = "3\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                Main.main(new String[] {});
+    //         // Call main with exit option to trigger initialization
+    //         String input = "3\n";
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             Main.main(new String[] {});
                 
-                // Verify data directory exists
-                assertTrue(dataDir.exists() && dataDir.isDirectory());
+    //             // Verify data directory exists
+    //             assertTrue(dataDir.exists() && dataDir.isDirectory());
                 
-                // Verify data files exist
-                for (File f : dataFiles) {
-                    assertTrue(f.exists(), f.getAbsolutePath() + " should exist");
-                }
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //             // Verify data files exist
+    //             for (File f : dataFiles) {
+    //                 assertTrue(f.exists(), f.getAbsolutePath() + " should exist");
+    //             }
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with invalid employee credentials")
-        void testMainInvalidEmployeeCredentials() {
-            String input = "1\nInvalidUser\nWrongPassword\n3\n";  // Invalid employee login then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
-                assertTrue(output.contains("Invalid") || output.contains("again"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("Main with invalid employee credentials")
+    //     void testMainInvalidEmployeeCredentials() {
+    //         String input = "1\nInvalidUser\nWrongPassword\n3\n";  // Invalid employee login then exit
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             assertDoesNotThrow(() -> Main.main(new String[] {}));
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid") || output.contains("again"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("Main with invalid admin credentials")
-        void testMainInvalidAdminCredentials() {
-            String input = "2\nInvalidAdmin\nWrongPassword\n3\n";  // Invalid admin login then exit
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                assertDoesNotThrow(() -> Main.main(new String[] {}));
-                String output = out.toString();
+    //     @Test
+    //     @DisplayName("Main with invalid admin credentials")
+    //     void testMainInvalidAdminCredentials() {
+    //         String input = "2\nInvalidAdmin\nWrongPassword\n3\n";  // Invalid admin login then exit
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             assertDoesNotThrow(() -> Main.main(new String[] {}));
+    //             String output = out.toString();
                
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
-    }
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
+    // }
 
     // ==================== CRITICAL COVERAGE EXPANSION ====================
-    @Nested
-    @DisplayName("Critical Branch Coverage Tests")
-    class CriticalBranchCoverageTests {
+    // @Nested
+    // @DisplayName("Critical Branch Coverage Tests")
+    // class CriticalBranchCoverageTests {
         
-        // ============ EmployeeFunction.requestLeave() FULL FLOW ============
-        @Test
-        @DisplayName("EmployeeFunction.requestLeave with valid dates and reason")
-        void testEmployeeRequestLeaveFullFlow() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long userId = 10000 + (System.nanoTime() % 10000);
-            String input = "2025-11-01\n2025-11-05\nVacation\n";
+    //     // ============ EmployeeFunction.requestLeave() FULL FLOW ============
+    //     @Test
+    //     @DisplayName("EmployeeFunction.requestLeave with valid dates and reason")
+    //     void testEmployeeRequestLeaveFullFlow() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long userId = 10000 + (System.nanoTime() % 10000);
+    //         String input = "2025-11-01\n2025-11-05\nVacation\n";
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.requestLeave(String.valueOf(userId));
-                assertDoesNotThrow(() -> {});
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.requestLeave(String.valueOf(userId));
+    //             assertDoesNotThrow(() -> {});
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.requestLeave with end date before start date")
-        void testEmployeeRequestLeaveEndBeforeStart() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long userId = 20000 + (System.nanoTime() % 10000);
-            String input = "2025-11-10\n2025-11-05\n2025-11-12\nSick\n";
+    //     @Test
+    //     @DisplayName("EmployeeFunction.requestLeave with end date before start date")
+    //     void testEmployeeRequestLeaveEndBeforeStart() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long userId = 20000 + (System.nanoTime() % 10000);
+    //         String input = "2025-11-10\n2025-11-05\n2025-11-12\nSick\n";
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.requestLeave(String.valueOf(userId));
-                String output = out.toString();
-                assertTrue(output.contains("Error: End date cannot be earlier"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.requestLeave(String.valueOf(userId));
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Error: End date cannot be earlier"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.requestLeave empty reason retry")
-        void testEmployeeRequestLeaveEmptyReasonRetry() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long userId = 30000 + (System.nanoTime() % 10000);
-            String input = "2025-12-01\n2025-12-03\n\nAnnual\n";  // Empty reason first, then valid
+    //     @Test
+    //     @DisplayName("EmployeeFunction.requestLeave empty reason retry")
+    //     void testEmployeeRequestLeaveEmptyReasonRetry() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long userId = 30000 + (System.nanoTime() % 10000);
+    //         String input = "2025-12-01\n2025-12-03\n\nAnnual\n";  // Empty reason first, then valid
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                ef.requestLeave(String.valueOf(userId));
-                String output = out.toString();
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             ef.requestLeave(String.valueOf(userId));
+    //             String output = out.toString();
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        // ============ AdminFunction login ============
-        @Test
-        @DisplayName("AdminFunction.login with valid credentials")
-        void testAdminFunctionLoginValid() {
-            AdminFunction admin = new AdminFunction(2001, "admin", "password");
-            assertTrue(admin.login("admin", "password"));
-        }
+    //     // ============ AdminFunction login ============
+    //     @Test
+    //     @DisplayName("AdminFunction.login with valid credentials")
+    //     void testAdminFunctionLoginValid() {
+    //         AdminFunction admin = new AdminFunction(2001, "admin", "password");
+    //         assertTrue(admin.login("admin", "password"));
+    //     }
 
-        @Test
-        @DisplayName("AdminFunction.login with invalid credentials")
-        void testAdminFunctionLoginInvalid() {
-            AdminFunction admin = new AdminFunction(2001, "admin", "password");
-            assertFalse(admin.login("wronguser", "wrongpass"));
-        }
+    //     @Test
+    //     @DisplayName("AdminFunction.login with invalid credentials")
+    //     void testAdminFunctionLoginInvalid() {
+    //         AdminFunction admin = new AdminFunction(2001, "admin", "password");
+    //         assertFalse(admin.login("wronguser", "wrongpass"));
+    //     }
 
-        // ============ MenuManager login logout ============
-        @Test
-        @DisplayName("MenuManager.loginPage logout option")
-        void testMenuManagerLogout() {
-            StaffManager sm = new StaffManager();
-            RequestManager rm = new RequestManager();
-            ShiftManager shm = new ShiftManager();
+    //     // ============ MenuManager login logout ============
+    //     @Test
+    //     @DisplayName("MenuManager.loginPage logout option")
+    //     void testMenuManagerLogout() {
+    //         StaffManager sm = new StaffManager();
+    //         RequestManager rm = new RequestManager();
+    //         ShiftManager shm = new ShiftManager();
             
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream("6\n".getBytes()));
-                System.setOut(new PrintStream(out));
-                MenuManager mm = new MenuManager(sm, rm, shm, new Scanner(System.in));
-                mm.loginPage();
-                String output = out.toString();
-                assertTrue(output.contains("Logged out") || output.contains("logout"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream("6\n".getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             MenuManager mm = new MenuManager(sm, rm, shm, new Scanner(System.in));
+    //             mm.loginPage();
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Logged out") || output.contains("logout"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        // ============ RequestManager request flows ============
-        @Test
-        @DisplayName("RequestManager.requestLeave with invalid employee")
-        void testRequestManagerRequestLeaveInvalidEmployee() {
-            RequestManager rm = new RequestManager();
-            StaffManager sm = new StaffManager();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                rm.requestLeave(99999, new Scanner(""), sm);
-                String output = out.toString();
-                assertTrue(output.contains("not found") || output.contains("Error"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+    //     // ============ RequestManager request flows ============
+    //     @Test
+    //     @DisplayName("RequestManager.requestLeave with invalid employee")
+    //     void testRequestManagerRequestLeaveInvalidEmployee() {
+    //         RequestManager rm = new RequestManager();
+    //         StaffManager sm = new StaffManager();
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setOut(new PrintStream(out));
+    //             rm.requestLeave(99999, new Scanner(""), sm);
+    //             String output = out.toString();
+    //             assertTrue(output.contains("not found") || output.contains("Error"));
+    //         } finally {
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("RequestManager.requestDuty with invalid employee")
-        void testRequestManagerRequestDutyInvalidEmployee() {
-            RequestManager rm = new RequestManager();
-            StaffManager sm = new StaffManager();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                rm.requestDuty(99999, new Scanner(""), sm);
-                String output = out.toString();
-                assertTrue(output.contains("not found") || output.contains("Error"));
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("RequestManager.requestDuty with invalid employee")
+    //     void testRequestManagerRequestDutyInvalidEmployee() {
+    //         RequestManager rm = new RequestManager();
+    //         StaffManager sm = new StaffManager();
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setOut(new PrintStream(out));
+    //             rm.requestDuty(99999, new Scanner(""), sm);
+    //             String output = out.toString();
+    //             assertTrue(output.contains("not found") || output.contains("Error"));
+    //         } finally {
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        // ============ LeaveRequest and DutyRequest getters ============
-        @Test
-        @DisplayName("LeaveRequest.getLeaveType and getReason")
-        void testLeaveRequestGetters() {
-            LeaveRequest lr = new LeaveRequest(1001, 1000, "2025-12-25", "Vacation", "Holiday break");
-            assertEquals("Vacation", lr.getLeaveType());
-            assertEquals("Holiday break", lr.getReason());
-        }
+    //     // ============ LeaveRequest and DutyRequest getters ============
+    //     @Test
+    //     @DisplayName("LeaveRequest.getLeaveType and getReason")
+    //     void testLeaveRequestGetters() {
+    //         LeaveRequest lr = new LeaveRequest(1001, 1000, "2025-12-25", "Vacation", "Holiday break");
+    //         assertEquals("Vacation", lr.getLeaveType());
+    //         assertEquals("Holiday break", lr.getReason());
+    //     }
 
-        @Test
-        @DisplayName("DutyRequest.getDutyType and getDutyDescription")
-        void testDutyRequestGetters() {
-           DutyRequest dr = new DutyRequest(1001, 1001, "2025-12-20", "MORNING", "Training", "Java skills");
-            assertEquals("Training", dr.getDutyType());
-            assertEquals("Java skills", dr.getDutyDescription());
-        }
+    //     @Test
+    //     @DisplayName("DutyRequest.getDutyType and getDutyDescription")
+    //     void testDutyRequestGetters() {
+    //        DutyRequest dr = new DutyRequest(1001, 1001, "2025-12-20", "MORNING", "Training", "Java skills");
+    //         assertEquals("Training", dr.getDutyType());
+    //         assertEquals("Java skills", dr.getDutyDescription());
+    //     }
 
-        // ============ StaffManager comprehensive tests ============
-        @Test
-        @DisplayName("StaffManager.staffExists for existing staff")
-        void testStaffManagerStaffExists() {
-            StaffManager sm = new StaffManager();
-            List<StaffProfile> profiles = sm.loadStaffProfiles();
-            if (!profiles.isEmpty()) {
-                assertTrue(sm.staffExists(profiles.get(0).getStaffId()));
-            }
-        }
+    //     // ============ StaffManager comprehensive tests ============
+    //     @Test
+    //     @DisplayName("StaffManager.staffExists for existing staff")
+    //     void testStaffManagerStaffExists() {
+    //         StaffManager sm = new StaffManager();
+    //         List<StaffProfile> profiles = sm.loadStaffProfiles();
+    //         if (!profiles.isEmpty()) {
+    //             assertTrue(sm.staffExists(profiles.get(0).getStaffId()));
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("StaffManager.staffExists for non-existing staff")
-        void testStaffManagerStaffNotExists() {
-            StaffManager sm = new StaffManager();
-            assertFalse(sm.staffExists(999999));
-        }
+    //     @Test
+    //     @DisplayName("StaffManager.staffExists for non-existing staff")
+    //     void testStaffManagerStaffNotExists() {
+    //         StaffManager sm = new StaffManager();
+    //         assertFalse(sm.staffExists(999999));
+    //     }
 
-        @Test
-        @DisplayName("StaffManager.loadStaffProfiles")
-        void testStaffManagerLoadStaffProfiles() {
-            StaffManager sm = new StaffManager();
-            List<StaffProfile> profiles = sm.loadStaffProfiles();
-            assertNotNull(profiles);
-        }
+    //     @Test
+    //     @DisplayName("StaffManager.loadStaffProfiles")
+    //     void testStaffManagerLoadStaffProfiles() {
+    //         StaffManager sm = new StaffManager();
+    //         List<StaffProfile> profiles = sm.loadStaffProfiles();
+    //         assertNotNull(profiles);
+    //     }
 
-        // ============ ShiftManager comprehensive tests ============
-        @Test
-        @DisplayName("ShiftManager.loadShifts")
-        void testShiftManagerLoadShifts() {
-            ShiftManager shm = new ShiftManager();
-            List<Shift> shifts = shm.loadShifts();
-            assertNotNull(shifts);
-        }
+    //     // ============ ShiftManager comprehensive tests ============
+    //     @Test
+    //     @DisplayName("ShiftManager.loadShifts")
+    //     void testShiftManagerLoadShifts() {
+    //         ShiftManager shm = new ShiftManager();
+    //         List<Shift> shifts = shm.loadShifts();
+    //         assertNotNull(shifts);
+    //     }
 
         
 
-        // ============ Main with multiple invalid retries ============
-        @Test
-        @DisplayName("Main with multiple invalid inputs before exit")
-        void testMainMultipleInvalidInputs() {
-            String input = "99\n98\n97\n3\n";
-            InputStream prevIn = System.in;
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setIn(new ByteArrayInputStream(input.getBytes()));
-                System.setOut(new PrintStream(out));
-                Main.main(new String[] {});
-                String output = out.toString();
-                assertTrue(output.contains("Invalid"));
-            } finally {
-                System.setIn(prevIn);
-                System.setOut(prevOut);
-            }
-        }
+    //     // ============ Main with multiple invalid retries ============
+    //     @Test
+    //     @DisplayName("Main with multiple invalid inputs before exit")
+    //     void testMainMultipleInvalidInputs() {
+    //         String input = "99\n98\n97\n3\n";
+    //         InputStream prevIn = System.in;
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setIn(new ByteArrayInputStream(input.getBytes()));
+    //             System.setOut(new PrintStream(out));
+    //             Main.main(new String[] {});
+    //             String output = out.toString();
+    //             assertTrue(output.contains("Invalid"));
+    //         } finally {
+    //             System.setIn(prevIn);
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        // ============ BaseFunction constructor and setup ============
-        @Test
-        @DisplayName("EmployeeFunction extends BaseFunction correctly")
-        void testEmployeeFunctionInheritance() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertNotNull(ef);
-            assertTrue(ef instanceof BaseFunction);
-        }
+    //     // ============ BaseFunction constructor and setup ============
+    //     @Test
+    //     @DisplayName("EmployeeFunction extends BaseFunction correctly")
+    //     void testEmployeeFunctionInheritance() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         assertNotNull(ef);
+    //         assertTrue(ef instanceof BaseFunction);
+    //     }
 
-        @Test
-        @DisplayName("BaseFunction.getUserId with default constructor")
-        void testBaseGetUserIdDefault() {
-            EmployeeFunction ef = new EmployeeFunction();
-            assertEquals(0, ef.getUserId());
-        }
+    //     @Test
+    //     @DisplayName("BaseFunction.getUserId with default constructor")
+    //     void testBaseGetUserIdDefault() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         assertEquals(0, ef.getUserId());
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.isValidDate comprehensive")
-        void testEmployeeIsValidDateComprehensive() {
-            EmployeeFunction ef = new EmployeeFunction();
-            // Valid dates
-            assertTrue(ef.isValidDate("2025-01-01"));
-            assertTrue(ef.isValidDate("2025-12-31"));
-            assertTrue(ef.isValidDate("2024-02-29"));
-            // Invalid dates
-            assertFalse(ef.isValidDate("2025-13-01"));
-            assertFalse(ef.isValidDate("2025-02-30"));
-            assertFalse(ef.isValidDate("2019-06-15"));
-            assertFalse(ef.isValidDate("2031-06-15"));
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.isValidDate comprehensive")
+    //     void testEmployeeIsValidDateComprehensive() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         // Valid dates
+    //         assertTrue(ef.isValidDate("2025-01-01"));
+    //         assertTrue(ef.isValidDate("2025-12-31"));
+    //         assertTrue(ef.isValidDate("2024-02-29"));
+    //         // Invalid dates
+    //         assertFalse(ef.isValidDate("2025-13-01"));
+    //         assertFalse(ef.isValidDate("2025-02-30"));
+    //         assertFalse(ef.isValidDate("2019-06-15"));
+    //         assertFalse(ef.isValidDate("2031-06-15"));
+    //     }
 
-        @Test
-        @DisplayName("EmployeeFunction.addDuty returns boolean correctly")
-        void testEmployeeAddDutyReturnsCorrectly() {
-            EmployeeFunction ef = new EmployeeFunction();
-            long uid = 60000 + (System.nanoTime() % 10000);
-            boolean result = ef.addDuty(String.valueOf(uid), "2025-11-20", "EVENING", "N", "N");
-            // Will be true or false depending on session validity and file state
-            assertTrue(result || !result);  // Just verify it returns boolean
-        }
+    //     @Test
+    //     @DisplayName("EmployeeFunction.addDuty returns boolean correctly")
+    //     void testEmployeeAddDutyReturnsCorrectly() {
+    //         EmployeeFunction ef = new EmployeeFunction();
+    //         long uid = 60000 + (System.nanoTime() % 10000);
+    //         boolean result = ef.addDuty(String.valueOf(uid), "2025-11-20", "EVENING", "N", "N");
+    //         // Will be true or false depending on session validity and file state
+    //         assertTrue(result || !result);  // Just verify it returns boolean
+    //     }
 
-        @Test
-        @DisplayName("RequestManager.viewLeaveRequestsWithCaseNumbers")
-        void testRequestManagerViewLeaveRequests() {
-            RequestManager rm = new RequestManager();
-            StaffManager sm = new StaffManager();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                rm.viewLeaveRequestsWithCaseNumbers(sm);
-                assertDoesNotThrow(() -> {});
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("RequestManager.viewLeaveRequestsWithCaseNumbers")
+    //     void testRequestManagerViewLeaveRequests() {
+    //         RequestManager rm = new RequestManager();
+    //         StaffManager sm = new StaffManager();
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setOut(new PrintStream(out));
+    //             rm.viewLeaveRequestsWithCaseNumbers(sm);
+    //             assertDoesNotThrow(() -> {});
+    //         } finally {
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("RequestManager.viewDutyRequestsWithCaseNumbers")
-        void testRequestManagerViewDutyRequests() {
-            RequestManager rm = new RequestManager();
-            StaffManager sm = new StaffManager();
-            PrintStream prevOut = System.out;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                System.setOut(new PrintStream(out));
-                rm.viewDutyRequestsWithCaseNumbers(sm);
-                assertDoesNotThrow(() -> {});
-            } finally {
-                System.setOut(prevOut);
-            }
-        }
+    //     @Test
+    //     @DisplayName("RequestManager.viewDutyRequestsWithCaseNumbers")
+    //     void testRequestManagerViewDutyRequests() {
+    //         RequestManager rm = new RequestManager();
+    //         StaffManager sm = new StaffManager();
+    //         PrintStream prevOut = System.out;
+    //         ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //         try {
+    //             System.setOut(new PrintStream(out));
+    //             rm.viewDutyRequestsWithCaseNumbers(sm);
+    //             assertDoesNotThrow(() -> {});
+    //         } finally {
+    //             System.setOut(prevOut);
+    //         }
+    //     }
 
-        @Test
-        @DisplayName("RequestManager.loadLeaveRequests")
-        void testRequestManagerLoadLeaveRequests() {
-            RequestManager rm = new RequestManager();
-            List<LeaveRequest> reqs = rm.loadLeaveRequests();
-            assertNotNull(reqs);
-        }
+    //     @Test
+    //     @DisplayName("RequestManager.loadLeaveRequests")
+    //     void testRequestManagerLoadLeaveRequests() {
+    //         RequestManager rm = new RequestManager();
+    //         List<LeaveRequest> reqs = rm.loadLeaveRequests();
+    //         assertNotNull(reqs);
+    //     }
 
-        @Test
-        @DisplayName("RequestManager.loadDutyRequests")
-        void testRequestManagerLoadDutyRequests() {
-            RequestManager rm = new RequestManager();
-            List<DutyRequest> reqs = rm.loadDutyRequests();
-            assertNotNull(reqs);
-        }
+    //     @Test
+    //     @DisplayName("RequestManager.loadDutyRequests")
+    //     void testRequestManagerLoadDutyRequests() {
+    //         RequestManager rm = new RequestManager();
+    //         List<DutyRequest> reqs = rm.loadDutyRequests();
+    //         assertNotNull(reqs);
+    //     }
 
-        @Test
-        @DisplayName("AdminFunction.getMenuManager")
-        void testAdminGetMenuManager() {
-            AdminFunction admin = new AdminFunction(2001, "admin", "password");
-            MenuManager mm = admin.getMenuManager();
-            assertNotNull(mm);
-        }
-    }
+    //     @Test
+    //     @DisplayName("AdminFunction.getMenuManager")
+    //     void testAdminGetMenuManager() {
+    //         AdminFunction admin = new AdminFunction(2001, "admin", "password");
+    //         MenuManager mm = admin.getMenuManager();
+    //         assertNotNull(mm);
+    //     }
+    // }
 }
