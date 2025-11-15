@@ -1,167 +1,306 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.*;
 
 import staffRosteringSystem.BaseFunction;
-import staffRosteringSystem.Shift;
+import staffRosteringSystem.FileOperations;
+import staffRosteringSystem.ShiftManager;
+import staffRosteringSystem.ShiftSession;
 import staffRosteringSystem.StaffManager;
 import staffRosteringSystem.StaffProfile;
 
+import static org.junit.Assert.*;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
 public class BaseFunctionTest {
-		private static int uniqueStaffId(StaffManager sm) {
-	        List<staffRosteringSystem.StaffProfile> profiles = sm.loadStaffProfiles();
-	        Set<Integer> taken = new HashSet<>();
-	        for (staffRosteringSystem.StaffProfile p : profiles) taken.add(p.getStaffId());
-	        int id = 900000; // start high to avoid collisions with seeded data
-	        while (taken.contains(id)) id++;
-	        return id;
-	    }
-        // Simple concrete subclass to expose protected methods for testing
-        class TestBase extends BaseFunction {
-            TestBase(int userId, String username, String password) { super(userId, username, password); }
-            public List<Shift> callLoadShifts() { return loadShifts(); }
-            public staffRosteringSystem.StaffProfile callGetUserInfo(int id) { return getUserInfo(id); }
-            public boolean callIsValidSession(String s) { return isValidSession(s); }
-            public int callGetSessionOrder(String s) { return getSessionOrder(s); }
-        }
-
-        private TestBase base;
-
-        @BeforeEach
-        void setup() {
-            base = new TestBase(1001, "tester", "secret");
-        }
-
-        @Test
-        void testIsValidSessionVariants() {
-            assertTrue(base.callIsValidSession("MORNING"));
-            assertTrue(base.callIsValidSession("AFTERNOON"));
-            assertTrue(base.callIsValidSession("NIGHT"));
-            assertTrue(base.callIsValidSession("morning"));
-            assertFalse(base.callIsValidSession(null));
-            assertFalse(base.callIsValidSession("INVALID"));
-        }
-
-        @Test
-        void testGetSessionOrder() {
-            assertEquals(1, base.callGetSessionOrder("MORNING"));
-            assertEquals(2, base.callGetSessionOrder("AFTERNOON"));
-            assertEquals(3, base.callGetSessionOrder("NIGHT"));
-            assertEquals(4, base.callGetSessionOrder("X"));
-        }
-
-        @Test
-        void testViewShiftScheduleNoMatches() {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream prev = System.out;
-            System.setOut(new PrintStream(out));
-            base.viewShiftSchedule("2099-12-31");
-            System.setOut(prev);
-            String output = out.toString();
-            assertTrue(output.contains("No shifts scheduled for 2099-12-31"));
-        }
-
-        @Test
-        void testViewShiftsBySessionInvalid() {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream prev = System.out;
-            System.setOut(new PrintStream(out));
-            base.viewShiftsBySession("BAD", null);
-            System.setOut(prev);
-            assertTrue(out.toString().contains("Error: Invalid session!"));
-        }
-
-        @Test
-        void testViewShiftsBySessionHasData() {
-            // We know Data/Shift.txt contains a MORNING shift on 2025-10-23 for employee 1001
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream prev = System.out;
-            System.setOut(new PrintStream(out));
-            base.viewShiftsBySession("MORNING", "2025-10-23");
-            System.setOut(prev);
-            String output = out.toString();
-            assertTrue(output.contains("MORNING"));
-            assertTrue(output.contains("2025-10-23"));
-        }
-
-        @Test
-        void testViewMyRoster() {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream prev = System.out;
-            System.setOut(new PrintStream(out));
-            base.viewMyRoster();
-            System.setOut(prev);
-            String output = out.toString();
-            // Either shows schedule or states none, both paths covered
-            assertTrue(output.contains("MY SHIFT SCHEDULE") || output.contains("No shifts assigned"));
-        }
-
-        @Test
-        void testLoadShifts() {
-            List<Shift> list = base.callLoadShifts();
-            assertNotNull(list);
-            assertTrue(list.size() >= 0);
-        }
-
-        @Test
-        void testGetUserInfo() {
-            StaffManager sm = new StaffManager();
-            int id = uniqueStaffId(sm);
-            sm.addStaffProfile(id, "Temp User", "Employee");
-            StaffProfile sp = base.callGetUserInfo(id);
-            assertNotNull(sp);
-            assertEquals(id, sp.getStaffId());
-        }
-
-        @Test
-        void testBaseIsValidDate() {
-            assertTrue(base.isValidDate("2025-1-1"));
-            assertFalse(base.isValidDate("2019-1-1"));
-            assertFalse(base.isValidDate("2025-13-1"));
-            assertFalse(base.isValidDate("2025-1-32"));
-            assertTrue(base.isValidDate("2024-2-29"));
-            assertFalse(base.isValidDate("2025-2-29"));
-        }
-
-        @Test
-        void testGetValidDateInputValid() {
-            String input = String.join(System.lineSeparator(),
-                    "bad",
-                    "2025-02-29", // invalid
-                    "2025-02-28"   // valid
-            ) + System.lineSeparator();
-            Scanner sc = new Scanner(new ByteArrayInputStream(input.getBytes()));
-            String result = base.getValidDateInput(sc, "Enter date: ");
-            assertEquals("2025-02-28", result);
-        }
-
-        @Test
-        void testGetValidDateInputTooManyInvalid() {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 12; i++) sb.append("bad\n");
-            Scanner sc = new Scanner(new ByteArrayInputStream(sb.toString().getBytes()));
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            PrintStream prev = System.out;
-            System.setOut(new PrintStream(out));
-            String result = base.getValidDateInput(sc, "Enter date: ");
-            System.setOut(prev);
-            assertNull(result);
-            assertTrue(out.toString().contains("Too many invalid attempts"));
-        }
+    private static final String TEST_SHIFT_FILE = "test_data/Shift.txt";
+    private static final String TEST_STAFF_FILE = "test_data/Staff_Profile.txt";
+    
+    private TestableBaseFunction baseFunction;
+    private ShiftManager shiftManager;
+    private StaffManager staffManager;
+    
+    @BeforeClass
+    public static void setUpClass() throws IOException {
+        // Create test data directory
+        Files.createDirectories(Paths.get("test_data"));
+    }
+    
+    @Before
+    public void setUp() throws IOException {
+        // Create test files with sample data
+        createTestShiftFile();
+        createTestStaffFile();
+        
+        // Initialize managers with test file paths
+        FileOperations fileOps = new FileOperations();
+        staffManager = new StaffManager(TEST_STAFF_FILE, fileOps);
+        shiftManager = new ShiftManager(TEST_SHIFT_FILE, staffManager, fileOps);
+        
+        // Initialize base function with both managers
+        baseFunction = new TestableBaseFunction(1, "testuser", "password123", shiftManager, staffManager);
+    }
+    
+    @After
+    public void tearDown() throws IOException {
+        // Clean up test files
+        Files.deleteIfExists(Paths.get(TEST_SHIFT_FILE));
+        Files.deleteIfExists(Paths.get(TEST_STAFF_FILE));
+    }
+    
+    // ========== UTILITY METHOD TESTS ==========
+    
+    @Test
+    public void testIsValidSession_Valid() {
+        assertTrue(baseFunction.isValidSession("MORNING"));
+        assertTrue(baseFunction.isValidSession("AFTERNOON"));
+        assertTrue(baseFunction.isValidSession("NIGHT"));
+    }
+   
+    @Test
+    public void testIsValidSession_CaseInsensitive() {
+        assertTrue(baseFunction.isValidSession("morning"));
+        assertTrue(baseFunction.isValidSession("afternoon"));
+        assertTrue(baseFunction.isValidSession("night"));
+    }
+    
+    @Test
+    public void testIsValidSession_Invalid() {
+        assertFalse(baseFunction.isValidSession("INVALID"));
+        assertFalse(baseFunction.isValidSession(""));
+        assertFalse(baseFunction.isValidSession(null));
+    }
+    
+    @Test
+    public void testGetSessionOrder() {
+        assertEquals(1, baseFunction.getSessionOrder(ShiftSession.MORNING));
+        assertEquals(2, baseFunction.getSessionOrder(ShiftSession.AFTERNOON));
+        assertEquals(3, baseFunction.getSessionOrder(ShiftSession.NIGHT));
     }
 
+    
+    // ========== DATE VALIDATION TESTS ==========
+    
+    @Test
+    public void testIsValidDate_Valid() {
+        assertTrue(baseFunction.isValidDate("2025-11-15"));
+        assertTrue(baseFunction.isValidDate("2025-01-01"));
+        assertTrue(baseFunction.isValidDate("2025-12-31"));
+    }
+    
+    @Test
+    public void testIsValidDate_LeapYear() {
+        assertTrue(baseFunction.isValidDate("2024-02-29"));
+        assertFalse(baseFunction.isValidDate("2025-02-29"));
+    }
+    
+    @Test
+    public void testIsValidDate_InvalidFormat() {
+        assertFalse(baseFunction.isValidDate("15-11-2025"));
+        assertFalse(baseFunction.isValidDate("2025/11/15"));
+        assertFalse(baseFunction.isValidDate("2025-11"));
+    }
+    
+    @Test
+    public void testIsValidDate_InvalidMonth() {
+        assertFalse(baseFunction.isValidDate("2025-13-01"));
+        assertFalse(baseFunction.isValidDate("2025-00-01"));
+    }
+    
+    @Test
+    public void testIsValidDate_InvalidDay() {
+        assertFalse(baseFunction.isValidDate("2025-11-32"));
+        assertFalse(baseFunction.isValidDate("2025-04-31"));
+        assertFalse(baseFunction.isValidDate("2025-02-30"));
+    }
+    
+    @Test
+    public void testIsValidDate_InvalidYear() {
+        assertFalse(baseFunction.isValidDate("2019-11-15"));
+        assertFalse(baseFunction.isValidDate("2031-11-15"));
+    }
+    
+    @Test
+    public void testIsValidDate_NullOrEmpty() {
+        assertFalse(baseFunction.isValidDate(null));
+        assertFalse(baseFunction.isValidDate(""));
+        assertFalse(baseFunction.isValidDate("   "));
+    }
+    
+    @Test
+    public void testIsValidDate_NonNumeric() {
+        assertFalse(baseFunction.isValidDate("abcd-ef-gh"));
+        assertFalse(baseFunction.isValidDate("2025-ab-15"));
+    }
+    
+    // ========== LOGIN TESTS ==========
+    
+    @Test
+    public void testLogin_Success() {
+        assertTrue(baseFunction.login("testuser", "password123"));
+    }
+    
+    @Test
+    public void testLogin_WrongPassword() {
+        assertFalse(baseFunction.login("testuser", "123"));
+    }
+    
+    @Test
+    public void testLogin_WrongUsernameAndPassword() {
+        assertFalse(baseFunction.login("wronguser", "wrongpassword"));
+    }
+    
+    // ========== GETTER TESTS ==========
+    
+    @Test
+    public void testGetUserId() {
+        assertEquals(1, baseFunction.getUserId());
+    }
+    
+    @Test
+    public void testGetUsername() {
+        assertEquals("testuser", baseFunction.getUsername());
+    }
+    
+
+    // ========== VIEW SHIFT SCHEDULE TESTS ==========
+    
+    @Test
+    public void testViewShiftSchedule_WithShifts() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftSchedule("2025-11-15");
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("SHIFT SCHEDULE FOR 2025-11-15"));        
+        System.setOut(System.out);
+    }
+    
+    @Test
+    public void testViewShiftSchedule_NoShifts() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftSchedule("2025-12-25");
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("No shifts scheduled for 2025-12-25"));
+        
+        System.setOut(System.out);
+    }
+    
+    
+    // ========== VIEW SHIFTS BY SESSION TESTS ==========
+    
+    @Test
+    public void testViewShiftsBySession_ValidSession() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftsBySession("MORNING", "2025-11-15");
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("MORNING SHIFTS"));
+        
+        System.setOut(System.out);
+    }
+    
+    @Test
+    public void testViewShiftsBySession_InvalidSession() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftsBySession("INVALID", "2025-11-15");
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("Invalid session"));
+        
+        System.setOut(System.out);
+    }
+    
+    @Test
+    public void testViewShiftsBySession_NoDate() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftsBySession("AFTERNOON", null);
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("AFTERNOON SHIFTS"));
+        
+        System.setOut(System.out);
+    }
+    
+    @Test
+    public void testViewShiftsBySession_NoShiftsFound() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewShiftsBySession("NIGHT", "2025-12-25");
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("No NIGHT shifts found"));
+        
+        System.setOut(System.out);
+    }
+    
+    // ========== VIEW MY ROSTER TESTS ==========
+    
+    @Test
+    public void testViewMyRoster_WithShifts() {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        baseFunction.viewMyRoster();
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("MY SHIFT SCHEDULE"));
+        
+        System.setOut(System.out);
+    }
+    
+    @Test
+    public void testViewMyRoster_NoShifts() {
+        TestableBaseFunction emptyUser = new TestableBaseFunction(9999, "emptyuser", "pass", shiftManager, staffManager);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        
+        emptyUser.viewMyRoster();
+        
+        String output = outputStream.toString();
+        assertTrue(output.contains("No shifts assigned to you yet"));
+        
+        System.setOut(System.out);
+    }
+    
+    // ========== HELPER METHODS ==========
+    
+    private void createTestShiftFile() throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(TEST_SHIFT_FILE))) {
+            writer.println("1,1,2025-11-15,MORNING,08:00,16:00,Regular shift");
+            writer.println("2,2,2025-11-15,AFTERNOON,14:00,22:00,Regular shift");
+            writer.println("3,1,2025-11-16,MORNING,08:00,16:00,Regular shift");
+            writer.println("4,1,2025-11-16,AFTERNOON,14:00,22:00,Regular shift");
+        }
+    }
+    
+    private void createTestStaffFile() throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(TEST_STAFF_FILE))) {
+            writer.println("1,John Doe,Employee");
+            writer.println("2,Jane Smith,Manager");
+            writer.println("3,Bob Johnson,Employee");
+        }
+    }
+    
+    // ========== TESTABLE CONCRETE CLASS ==========
+    
+    private static class TestableBaseFunction extends BaseFunction {
+        public TestableBaseFunction(int userId, String username, String password, 
+                                   ShiftManager shiftManager, StaffManager staffManager) {
+            super(userId, username, password, shiftManager, staffManager);
+        }
+    }
+}

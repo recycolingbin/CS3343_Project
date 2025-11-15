@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // Initialize data directories and files
         initializeDataFiles();
 
         Scanner scanner = new Scanner(System.in);
@@ -32,9 +31,7 @@ public class Main {
                         String Password = scanner.nextLine();
 
                         EmployeeFunction employeeFunction = new EmployeeFunction();
-                        if (employeeFunction.login(Username, Password)) {
-                            employeeFunction.loginPage(Username);
-                        } else {
+                        if (!employeeFunction.login(Username, Password)) {
                             System.out.println("Invalid credentials. Please try again.");
                         }
                         break;

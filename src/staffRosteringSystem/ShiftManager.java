@@ -1,207 +1,141 @@
 package staffRosteringSystem;
-
 import java.util.*;
-import java.util.function.Function;
-import java.io.*;
-
-/**
- * ShiftManager handles all shift operations.
- * Responsibilities:
- * - Load/save shifts from/to file
- * - Assign and delete shifts
- * - View shift schedules
- * - Shift validation and generation
- */
 public class ShiftManager {
     private static final String SHIFT_FILE = "Data/Shift.txt";
     private static final int INITIAL_SHIFT_ID = 3000;
-    
-    // Session constants
-    protected static final String MORNING_SESSION = "MORNING";
-    protected static final String AFTERNOON_SESSION = "AFTERNOON";
-    protected static final String NIGHT_SESSION = "NIGHT";
 
-    // Load shifts from file
-    public List<Shift> loadShifts() {
-        // Delegate to BaseFunction static loader to keep single parsing logic
-        return BaseFunction.loadShifts();
+    private final FileOperations fileOps;
+    private final StaffManager staffManager;
+	private String shiftFilePath;
+	private List<Shift> shifts;
+
+    public ShiftManager(String shiftFilePath, StaffManager staffManager, FileOperations fileOps) {
+        this.shiftFilePath = shiftFilePath;
+        this.staffManager = Objects.requireNonNull(staffManager, "StaffManager cannot be null");
+        this.fileOps = fileOps;
+        this.shifts = loadShifts();
     }
-    
-    // Save shifts to file
-	public boolean saveShifts(List<Shift> shifts) {
-    	FileOperations fOps = new FileOperations();
-        Function<Shift, String> formatter = shift -> 
-        	shift.getShiftId() + "," + 
-        	shift.getEmployeeId() + "," +
-            shift.getDate() + "," + 
-        	shift.getSession() + "," +
-            shift.getStartTime() + "," + 
-        	shift.getEndTime() + "," +
-            shift.getNotes();
-        	
-        	return fOps.saveData(SHIFT_FILE, shifts, formatter);
-}
 
-    // Assign shift to employee
-    public boolean assignShift(int employeeId, String date, String session, String notes, StaffManager staffManager) {
+    public ShiftManager(StaffManager staffManager) {
+        this(SHIFT_FILE, staffManager, new FileOperations());
+    }
+    public ShiftManager() {
+    	this(SHIFT_FILE, new StaffManager(), new FileOperations());
+	}
+
+	public List<Shift> loadShifts() {
+        return fileOps.loadData(shiftFilePath, Shift::fromFileFormat); 
+    }
+
+    public boolean saveShifts(List<Shift> shifts) {
+        if (shifts == null) return false;
+        return fileOps.saveData(shiftFilePath, shifts, Shift::toFileFormat);
+    }
+
+    // Assign shift with full console feedback
+    public boolean assignShift(int employeeId, String date, String sessionInput, String notes) {
         if (!staffManager.staffExists(employeeId)) {
             System.out.println("Error: Employee ID " + employeeId + " not found!");
             return false;
         }
 
-        String upperSession = session.toUpperCase();
-        if (!isValidSession(upperSession)) {
-            System.out.println("Error: Invalid session! Vald sessions: MORNING, AFTERNOON, NIGHT");
+        ShiftSession session = ShiftSession.fromString(sessionInput);
+        if (session == null) {
+            System.out.println("Error: Invalid session! Valid: MORNING, AFTERNOON, NIGHT");
             return false;
         }
 
-        List<Shift> shifts = BaseFunction.loadShifts();
-        for (Shift shift : shifts) {
-            if (shift.getEmployeeId() == employeeId && shift.getDate().equals(date) && shift.getSession().equals(upperSession)) {
-                System.out.println("Error: Employee already assigned to " + upperSession + " session on " + date);
-                return false;
-            }
-        }
+        boolean conflict = shifts.stream().anyMatch(s ->
+                s.getEmployeeId() == employeeId &&
+                s.getDate().equals(date) &&
+                s.getSession() == session);
 
+        if (conflict) {
+            System.out.println("Error: Employee already assigned to " + session + " on " + date);
+            return false;
+        }
         int newShiftId = generateShiftId(shifts);
-        String[] times = getSessionTimes(upperSession);
-        String startTime = times[0];
-        String endTime = times[1];
-
-        Shift newShift = new Shift(newShiftId, employeeId, date, upperSession, startTime, endTime, notes);
+        Shift newShift = Shift.create(newShiftId, employeeId, date, session, notes);
         shifts.add(newShift);
-        saveShifts(shifts);
-
+        boolean saved = saveShifts(shifts);  // Add this line
         StaffProfile staff = staffManager.getStaffInfo(employeeId);
-        String employeeName = (staff != null) ? staff.getName() : "Unknown";
+        String name = staff.getName();
 
-        System.out.println("Shift assigned successfully:");
-        System.out.println("  Shift ID: " + newShiftId);
-        System.out.println("  Employee: " + employeeName + " (ID: " + employeeId + ")");
-        System.out.println("  Date: " + date);
-        System.out.println("  Session: " + session + " (" + startTime + " - " + endTime + ")");
-        if (notes != null && !notes.trim().isEmpty()) {
-            System.out.println("  Notes: " + notes);
-        }
-
-        return true;
-    }
-
-    // Delete shift
-    public boolean deleteShift(int shiftId, StaffManager staffManager) {
-        List<Shift> shifts = BaseFunction.loadShifts();
-        Shift targetShift = null;
-
-        for (Shift shift : shifts) {
-            if (shift.getShiftId() == shiftId) {
-                targetShift = shift;
-                break;
+        if (saved) {
+            System.out.println("Shift assigned successfully:");
+            System.out.println("  Shift ID : " + newShiftId);
+            System.out.println("  Employee : " + name + " (ID: " + employeeId + ")");
+            System.out.println("  Date     : " + date);
+            System.out.println("  Session  : " + session + " (" + session.getStartTime() + " - " + session.getEndTime() + ")");
+            if (!notes.isEmpty()) {
+                System.out.println("  Notes    : " + notes);
             }
+        } else {
+            System.out.println("Failed to save shift.");
         }
+        return saved;
+    }
+    // Delete shift with feedback
+    public boolean deleteShift(int shiftId) {
+        List<Shift> shifts = loadShifts();
+        Shift target = shifts.stream()
+                .filter(s -> s.getShiftId() == shiftId)
+                .findFirst()
+                .orElse(null);
 
-        if (targetShift == null) {
+        if (target == null) {
             System.out.println("Error: Shift ID " + shiftId + " not found!");
             return false;
         }
+        shifts.remove(target);
+        boolean saved = saveShifts(shifts);
+        StaffProfile staff = staffManager.getStaffInfo(target.getEmployeeId());
+        String name = staff != null ? staff.getName() : "ID:" + target.getEmployeeId();
 
-        shifts.remove(targetShift);
-        saveShifts(shifts);
-
-        StaffProfile staff = staffManager.getStaffInfo(targetShift.getEmployeeId());
-        String employeeName = (staff != null) ? staff.getName() : "Unknown";
-
-        System.out.println("Shift deleted successfully:");
-        System.out.println("  Shift ID: " + shiftId);
-        System.out.println("  Employee: " + employeeName);
-        System.out.println("  Date: " + targetShift.getDate());
-        System.out.println("  Session: " + targetShift.getSession());
-
-        return true;
+//        if (saved) {
+            System.out.println("Shift deleted successfully:");
+            System.out.println("  Shift ID : " + shiftId);
+            System.out.println("  Employee : " + name);
+            System.out.println("  Date     : " + target.getDate());
+            System.out.println("  Session  : " + target.getSession());
+//        } else {
+//            System.out.println("Failed to delete shift.");
+//        }
+        return saved;
     }
 
-    // View all shift schedules
+    // View all shifts with nice table
     public void viewAllShiftSchedules() {
-        List<Shift> shifts = BaseFunction.loadShifts();
+        List<Shift> shifts = loadShifts();
         if (shifts.isEmpty()) {
             System.out.println("No shifts scheduled.");
             return;
         }
-
-        System.out.println("\n=============== All Shift Schedules ===============");
-        System.out.printf("%-8s %-10s %-12s %-15s %-20s%n", "Shift ID", "Staff ID", "Date", "Session", "Notes");
+        System.out.println("\n=============== All Shift Schedules ==========================");
+        System.out.printf("%-8s %-12s %-12s %-15s %-20s%n",
+                "Shift ID", "Staff ID", "Name", "Date", "Session");
         System.out.println("================================================================");
-        
-        for (Shift shift : shifts) {
-            String truncatedNotes = shift.getNotes().length() > 20 ? 
-                                   shift.getNotes().substring(0, 17) + "..." : shift.getNotes();
-            
-            System.out.printf("%-8d %-10d %-12s %-15s %-20s%n", 
-                            shift.getShiftId(), shift.getEmployeeId(), shift.getDate(), 
-                            shift.getSession(), truncatedNotes);
+        for (Shift s : shifts) {
+            StaffProfile staff = staffManager.getStaffInfo(s.getEmployeeId());
+            String name = staff != null ? staff.getName() : "ID:" + s.getEmployeeId();
+            String truncatedNotes = s.getNotes().length() > 20
+                    ? s.getNotes().substring(0, 17) + "..."
+                    : s.getNotes();
+
+            System.out.printf("%-8d %-12d %-12s %-12s %-15s %-20s%n",
+                    s.getShiftId(),
+                    s.getEmployeeId(),
+                    name.length() > 10 ? name.substring(0, 10) + "." : name,
+                    s.getDate(),
+                    s.getSession() + " (" + s.getStartTime() + "-" + s.getEndTime() + ")",
+                    truncatedNotes);
         }
         System.out.println("================================================================");
     }
 
-    // Remove shifts for a specific employee and date range
-    public void removeShiftsForLeave(int employeeId) {
-        List<String> remaining = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty() && !line.startsWith("#")) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 2) {
-                        int empId = Integer.parseInt(parts[1].trim());
-                        if (empId != employeeId) {
-                            remaining.add(line);
-                        }
-                    }
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error reading shifts: " + e.getMessage());
-            return;
-        }
-
-        try (PrintWriter writer = new PrintWriter(new FileWriter(SHIFT_FILE))) {
-            for (String l : remaining) {
-                writer.println(l);
-            }
-        } catch (IOException e) {
-            System.err.println("Error updating shifts: " + e.getMessage());
-        }
-    }
-
-    // Helper methods
-    protected boolean isValidSession(String session) {
-        if (session == null) return false;
-        String upperSession = session.toUpperCase();
-        return MORNING_SESSION.equals(upperSession) || AFTERNOON_SESSION.equals(upperSession) || NIGHT_SESSION.equals(upperSession);
-    }
-
-    private String[] getSessionTimes(String session) {
-        String upperSession = session.toUpperCase();
-        switch (upperSession) {
-            case MORNING_SESSION:
-                return new String[] { "06:00", "14:00" };
-            case AFTERNOON_SESSION:
-                return new String[] { "14:00", "22:00" };
-            case NIGHT_SESSION:
-                return new String[] { "22:00", "06:00" };
-            default:
-                return new String[] { "00:00", "00:00" };
-        }
-    }
-
-
-
-    private int generateShiftId(List<Shift> shifts) {
-        int maxId = INITIAL_SHIFT_ID;
-        for (Shift shift : shifts) {
-            if (shift.getShiftId() > maxId) {
-                maxId = shift.getShiftId();
-            }
-        }
-        return maxId + 1;
+    private int generateShiftId(List<Shift> shifts) {return shifts.stream()
+                .mapToInt(Shift::getShiftId)
+                .max()
+                .orElse(INITIAL_SHIFT_ID - 1) + 1;
     }
 }

@@ -3,6 +3,9 @@ package test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import staffRosteringSystem.AdminFunction;
+import staffRosteringSystem.RequestManager;
+import staffRosteringSystem.ShiftManager;
 import staffRosteringSystem.StaffManager;
 import staffRosteringSystem.StaffProfile;
 
@@ -34,7 +37,9 @@ public class StaffManagerTest {
     void testAddStaffProfileSuccess() {
 		StaffManager staffManager = new StaffManager();
         int id = uniqueStaffId(staffManager);
-        boolean result = staffManager.addStaffProfile(id, "John Doe", "Employee");
+		AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
+        boolean result = adminFunction.addStaffProfile(id, "John Doe", "Employee");
         assertTrue(result);
     }
 	
@@ -65,10 +70,12 @@ public class StaffManagerTest {
     @Test
     void testEditStaffName() {
 		StaffManager staffManager = new StaffManager();
+		AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
         int id = uniqueStaffId(staffManager);
         assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
         
-        boolean result = staffManager.editStaffProfile(id, "name", "Jonathan");
+        boolean result = adminFunction.editStaffProfile(id, "name", "Jonathan");
         assertTrue(result);
         StaffProfile profile = staffManager.getStaffInfo(id);
         assertEquals("Jonathan", profile.getName());
@@ -78,9 +85,11 @@ public class StaffManagerTest {
     @Test
     void testEditStaffRole() {
         StaffManager staffManager = new StaffManager();
+        AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
         int id = uniqueStaffId(staffManager);
         assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
-        boolean result = staffManager.editStaffProfile(id, "role", "Manager");
+        boolean result = adminFunction.editStaffProfile(id, "role", "Manager");
         assertTrue(result);
         StaffProfile profile = staffManager.getStaffInfo(id);
         assertEquals("John", profile.getName()); 
@@ -107,9 +116,11 @@ public class StaffManagerTest {
     @Test
     void testDeleteStaffProfile() {
 		StaffManager staffManager = new StaffManager();
+		AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
         int id = uniqueStaffId(staffManager);
-        assertTrue(staffManager.addStaffProfile(id, "John", "Employee"));
-        boolean result = staffManager.deleteStaffProfile(id);
+        assertTrue(adminFunction.addStaffProfile(id, "John", "Employee"));
+        boolean result = adminFunction.deleteStaffProfile(id);
         assertTrue(result);
     }
     
@@ -124,9 +135,11 @@ public class StaffManagerTest {
     @Test
 	void testViewStaffProfile() {
 		StaffManager staffManager = new StaffManager();
+		AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
 		int id = uniqueStaffId(staffManager);
-		staffManager.addStaffProfile(id, "John Doe", "Employee");
-		String result = staffManager.viewStaffProfile(id);
+		adminFunction.addStaffProfile(id, "John Doe", "Employee");
+		String result = adminFunction.viewStaffProfile(id);
 		assertTrue(result.contains("Staff ID: " + id));
 		assertTrue(result.contains("John Doe"));
 		assertTrue(result.contains("Employee"));
@@ -143,10 +156,12 @@ public class StaffManagerTest {
     @Test
     void testViewAllStaffProfiles() {
     	StaffManager staffManager = new StaffManager();
+    	AdminFunction adminFunction = new AdminFunction(1, "admin", "password", staffManager, 
+				new RequestManager(),new ShiftManager(), new Scanner(""));
     	List<StaffProfile> profiles = new ArrayList<>();
     	profiles.add(new StaffProfile(1, "John", "Employee"));
     	profiles.add(new StaffProfile(2, "Jane", "Manager"));
-		String result = staffManager.viewAllStaffProfiles(profiles);
+		String result = adminFunction.viewAllStaffProfiles();
 		assertTrue(result.contains("John"));
 		assertTrue(result.contains("Employee"));
 		assertTrue(result.contains("Jane"));

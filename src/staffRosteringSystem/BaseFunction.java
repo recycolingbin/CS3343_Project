@@ -12,6 +12,10 @@ public abstract class BaseFunction {
     protected int userId;
     protected String username;
     protected String password;
+    
+    protected ShiftManager shiftManager;
+    protected StaffManager staffManager;
+    
     protected static final String SHIFT_FILE = "Data/Shift.txt";
     protected static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
     
@@ -19,23 +23,29 @@ public abstract class BaseFunction {
     public static final String AFTERNOON_SESSION = "AFTERNOON";
     public static final String NIGHT_SESSION = "NIGHT";
 
-    public BaseFunction(int userId, String username, String password) {
+    public BaseFunction(int userId, String username, String password, ShiftManager shiftManager, StaffManager staffManager) {
         this.userId = userId;
         this.username = username;
         this.password = password;
+        this.shiftManager = shiftManager;
+        this.staffManager = staffManager;
     }
-
+    
+    protected BaseFunction(int userId, String username, String password) {
+        this(userId, username, password, new ShiftManager(), new StaffManager());
+    }
+    
     public boolean login(String username, String password) {
         return this.username.equals(username) && this.password.equals(password);
     }
-
-    public void viewFunction() {
-        System.out.println("Viewing available functions for user: " + username);
-    }
     
-    public void loginPage(String userId) {
-        System.out.println("Login page for user: " + userId);
-    }
+//    public void viewFunction() {
+//        System.out.println("Viewing available functions for user: " + username);
+//    }
+    
+//    public void loginPage(String userId) {
+//        System.out.println("Login page for user: " + userId);
+//    }
     
     public int getUserId() {
         return userId;
@@ -46,6 +56,7 @@ public abstract class BaseFunction {
     }
 
     // Load shifts from Shift.txt
+    /*
     protected static List<Shift> loadShifts() {
         List<Shift> shifts = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(SHIFT_FILE))) {
@@ -57,14 +68,14 @@ public abstract class BaseFunction {
                         int shiftId = Integer.parseInt(parts[0].trim());
                         int employeeId = Integer.parseInt(parts[1].trim());
                         String date = parts[2].trim();
-                        String session = parts[3].trim();
+                        ShiftSession session = ShiftSession.fromString(parts[3].trim());
                         String startTime = parts[4].trim();
                         String endTime = parts[5].trim();
                         String notes = parts[6].trim();
-                        shifts.add(new Shift(shiftId, employeeId, date, session, startTime, endTime, notes));
-                    }
+                        shifts.add(Shift.create(shiftId, employeeId, date, session, notes));
                 }
             }
+        } 
         } catch (IOException e) {
             System.out.println("Error reading shifts: " + e.getMessage());
         } catch (NumberFormatException e) {
@@ -72,30 +83,16 @@ public abstract class BaseFunction {
         }
         return shifts;
     }
+    */
 
-    protected StaffProfile getUserInfo(int staffId) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(STAFF_PROFILE_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 3 && Integer.parseInt(parts[0].trim()) == staffId) {
-                        String name = parts[1].trim();
-                        String role = parts[2].trim();
-                        // Use simplified constructor for consistency
-                        return new StaffProfile(staffId, name, role);
-                    }
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            System.out.println("Error reading staff profile: " + e.getMessage());
-        }
-        return null;
+    public StaffProfile getUserInfo(int staffId) {
+    	return staffManager.getStaffInfo(staffId);
+
     }
-
+    
     // View shift schedule for a specific date
     public void viewShiftSchedule(String date) {
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = shiftManager.loadShifts();
         List<Shift> dayShifts = new ArrayList<>();
 
         for (Shift shift : shifts) {
@@ -140,11 +137,12 @@ public abstract class BaseFunction {
             return;
         }
 
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = shiftManager.loadShifts();
         List<Shift> sessionShifts = new ArrayList<>();
 
         for (Shift shift : shifts) {
-            if (shift.getSession().equalsIgnoreCase(session) && (date == null || shift.getDate().equals(date))) {
+        	ShiftSession sessionEnum = ShiftSession.fromString(session);
+            if (sessionEnum != null && shift.getSession() == sessionEnum && (date == null || shift.getDate().equals(date))) {
                 sessionShifts.add(shift);
             }
         }
@@ -175,7 +173,7 @@ public abstract class BaseFunction {
 
     // View personal roster for employees
     public void viewMyRoster() {
-        List<Shift> shifts = loadShifts();
+        List<Shift> shifts = shiftManager.loadShifts();
         List<Shift> myShifts = new ArrayList<>();
 
         for (Shift shift : shifts) {
@@ -210,19 +208,17 @@ public abstract class BaseFunction {
         System.out.println("========================================");
     }
 
-    protected boolean isValidSession(String session) {
-        if (session == null) return false;
-        String upperSession = session.toUpperCase();
-        return MORNING_SESSION.equals(upperSession) || AFTERNOON_SESSION.equals(upperSession) || NIGHT_SESSION.equals(upperSession);
+    public boolean isValidSession(String session) {
+        return ShiftSession.fromString(session) != null;
     }
 
-    protected int getSessionOrder(String session) {
+    public int getSessionOrder(ShiftSession session) {
         switch (session) {
-            case MORNING_SESSION:
+            case MORNING:
                 return 1;
-            case AFTERNOON_SESSION:
+            case AFTERNOON:
                 return 2;
-            case NIGHT_SESSION:
+            case NIGHT:
                 return 3;
             default:
                 return 4;

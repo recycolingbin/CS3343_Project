@@ -1,17 +1,17 @@
 package staffRosteringSystem;
 
 public class Shift {
-    private int shiftId;
-    private int employeeId;
-    private String date;
-    private String session; // MORNING, AFTERNOON, NIGHT
-    private String startTime;
-    private String endTime;
-    private String notes;
+    private final int shiftId;
+    private final int employeeId;
+    private final String date;
+    private final ShiftSession session;   // <-- enum
+    private final String startTime;
+    private final String endTime;
+    private final String notes;
 
-    public Shift(int shiftId, int employeeId, String date, String session,
-            String startTime, String endTime, String notes) {
-        this.shiftId = shiftId;
+    private Shift(int shiftId, int employeeId, String date, ShiftSession session,
+                  String startTime, String endTime, String notes) {
+                    this.shiftId = shiftId;
         this.employeeId = employeeId;
         this.date = date;
         this.session = session;
@@ -19,54 +19,32 @@ public class Shift {
         this.endTime = endTime;
         this.notes = notes;
     }
-
-    // Getters
-    public int getShiftId() {
-        return shiftId;
+     // ----- static factory -------------------------------------------------
+    public static Shift create(int shiftId, int employeeId, String date,
+                               ShiftSession session, String notes) {
+        return new Shift(shiftId, employeeId, date, session,
+                         session.getStartTime(), session.getEndTime(), notes);
     }
-
-    public int getEmployeeId() {
-        return employeeId;
+    // ----- file format helpers -------------------------------------------
+    public String toFileFormat() {
+        return String.format("%d,%d,%s,%s,%s,%s,%s",
+                shiftId, employeeId, date, session.name(),
+                startTime, endTime, notes);
     }
-
-    public String getDate() {
-        return date;
+    public static Shift fromFileFormat(String line) {
+        String[] p = line.split(",", 7);
+        int shiftId = Integer.parseInt(p[0].trim());
+        int empId   = Integer.parseInt(p[1].trim());
+        String date = p[2].trim();
+        ShiftSession sess = ShiftSession.fromString(p[3].trim());
+        return new Shift(shiftId, empId, date, sess, p[4].trim(), p[5].trim(), p[6].trim());
     }
-
-    public String getSession() {
-        return session;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    // Setters
-    public void setEmployeeId(int employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public void setSession(String session) {
-        this.session = session;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
+      // ----- getters -------------------------------------------------------
+    public int getShiftId()          { return shiftId; }
+    public int getEmployeeId()       { return employeeId; }
+    public String getDate()          { return date; }
+    public ShiftSession getSession() { return session; }
+    public String getStartTime()     { return startTime; }
+    public String getEndTime()       { return endTime; }
+    public String getNotes()         { return notes; }
 }

@@ -1,32 +1,32 @@
-package test;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-
-import staffRosteringSystem.AdminFunction;
-import staffRosteringSystem.BaseFunction;
-import staffRosteringSystem.DutyRequest;
-import staffRosteringSystem.EmployeeFunction;
-import staffRosteringSystem.LeaveRequest;
-import staffRosteringSystem.Main;
-import staffRosteringSystem.MenuManager;
-import staffRosteringSystem.RequestManager;
-import staffRosteringSystem.Shift;
-import staffRosteringSystem.ShiftManager;
-import staffRosteringSystem.StaffManager;
-import staffRosteringSystem.StaffProfile;
-//import staffRosteringSystem.Request;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+//package test;
+//
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.DisplayName;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Nested;
+//
+//import staffRosteringSystem.AdminFunction;
+//import staffRosteringSystem.BaseFunction;
+//import staffRosteringSystem.DutyRequest;
+//import staffRosteringSystem.EmployeeFunction;
+//import staffRosteringSystem.LeaveRequest;
+//import staffRosteringSystem.Main;
+//import staffRosteringSystem.MenuManager;
+//import staffRosteringSystem.RequestManager;
+//import staffRosteringSystem.Shift;
+//import staffRosteringSystem.ShiftManager;
+//import staffRosteringSystem.StaffManager;
+//import staffRosteringSystem.StaffProfile;
+////import staffRosteringSystem.Request;
+//
+//import java.io.ByteArrayInputStream;
+//import java.io.ByteArrayOutputStream;
+//import java.io.File;
+//import java.io.InputStream;
+//import java.io.PrintStream;
+//import java.util.*;
+//
+//import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Comprehensive Test Suite - All Tests Combined
@@ -41,16 +41,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * - AllMenuManagerTests (8 tests)
  * - AllAdminFunctionTests (12 tests)
  */
-public class AllTests {
-    // Helper to generate a unique staff ID that is not present in Data/Staff_Profile.txt
-    private static int uniqueStaffId(StaffManager sm) {
-        List<staffRosteringSystem.StaffProfile> profiles = sm.loadStaffProfiles();
-        Set<Integer> taken = new HashSet<>();
-        for (staffRosteringSystem.StaffProfile p : profiles) taken.add(p.getStaffId());
-        int id = 900000; // start high to avoid collisions with seeded data
-        while (taken.contains(id)) id++;
-        return id;
-    }
+//public class AllTests {
+//    // Helper to generate a unique staff ID that is not present in Data/Staff_Profile.txt
+//    private static int uniqueStaffId(StaffManager sm) {
+//        List<staffRosteringSystem.StaffProfile> profiles = sm.loadStaffProfiles();
+//        Set<Integer> taken = new HashSet<>();
+//        for (staffRosteringSystem.StaffProfile p : profiles) taken.add(p.getStaffId());
+//        int id = 900000; // start high to avoid collisions with seeded data
+//        while (taken.contains(id)) id++;
+//        return id;
+//    }
 
     // ============================================================================
     // STAFF MANAGER TESTS (15 tests)
@@ -3692,4 +3692,4 @@ public class AllTests {
     //         assertNotNull(mm);
     //     }
     // }
-}
+//}

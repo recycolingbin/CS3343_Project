@@ -1,98 +1,91 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
+import staffRosteringSystem.FileOperations;
 import staffRosteringSystem.Shift;
+import staffRosteringSystem.ShiftManager;
+import staffRosteringSystem.ShiftSession;
+import staffRosteringSystem.StaffManager;
+import staffRosteringSystem.StaffProfile;
 
-public class ShiftTest {
-        private Shift shift;
-        
-        @BeforeEach
-        void setUp() {
-            shift = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Regular shift");
-        }
-        
-        // ---- Shift Initialization Tests (2) ----
-        
-        @Test
-        @DisplayName("Should initialize shift with valid data")
-        void testShiftInitialization() {
-            assertNotNull(shift);
-            assertEquals(1, shift.getShiftId());
-            assertEquals(1001, shift.getEmployeeId());
-        }
-        
-        @Test
-        @DisplayName("Should get shift properties correctly")
-        void testShiftProperties() {
-            assertEquals("2025-12-15", shift.getDate());
-            assertEquals("MORNING", shift.getSession());
-            assertEquals("08:00", shift.getStartTime());
-            assertEquals("16:00", shift.getEndTime());
-            assertEquals("Regular shift", shift.getNotes());
-        }
-        
-        // ---- Shift Equality Tests (2) ----
-        
-        @Test
-        @DisplayName("Should identify equal shifts")
-        void testShiftEquality() {
-            Shift shift2 = new Shift(1, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Regular shift");
-            // Compare field-by-field since equals may not be overridden
-            assertEquals(shift.getShiftId(), shift2.getShiftId());
-            assertEquals(shift.getEmployeeId(), shift2.getEmployeeId());
-            assertEquals(shift.getDate(), shift2.getDate());
-            assertEquals(shift.getSession(), shift2.getSession());
-            assertEquals(shift.getStartTime(), shift2.getStartTime());
-            assertEquals(shift.getEndTime(), shift2.getEndTime());
-            assertEquals(shift.getNotes(), shift2.getNotes());
-        }
-        
-        @Test
-        @DisplayName("Should identify different shifts")
-        void testShiftInequality() {
-            Shift shift2 = new Shift(2, 1001, "2025-12-15", "MORNING", "08:00", "16:00", "Regular shift");
-            assertNotEquals(shift, shift2);
-        }
-        
-        // ---- Shift Modification Tests (2) ----
-        
-        @Test
-        @DisplayName("Should set notes on shift")
-        void testSetShiftNotes() {
-            shift.setNotes("Updated notes");
-            assertEquals("Updated notes", shift.getNotes());
-        }
-        
-        @Test
-        @DisplayName("Should preserve shift ID when modifying")
-        void testShiftIdPersistence() {
-            int originalId = shift.getShiftId();
-            shift.setNotes("New notes");
-            assertEquals(originalId, shift.getShiftId());
-        }
-        
-        // ---- Shift Session Tests (2) ----
-        
-        @Test
-        @DisplayName("Should handle morning session")
-        void testMorningSession() {
-            Shift morningShift = new Shift(2, 1002, "2025-12-15", "MORNING", "08:00", "16:00", "Morning");
-            assertEquals("MORNING", morningShift.getSession());
-        }
-        
-        @Test
-        @DisplayName("Should handle afternoon session")
-        void testAfternoonSession() {
-            Shift afternoonShift = new Shift(3, 1003, "2025-12-15", "AFTERNOON", "16:00", "00:00", "Afternoon");
-            assertEquals("AFTERNOON", afternoonShift.getSession());
-        }
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class ShiftTest {
+    
+    @Test
+    void testMorningShiftProperties() {
+        assertEquals("06:00", ShiftSession.MORNING.getStartTime());
+        assertEquals("14:00", ShiftSession.MORNING.getEndTime());
+        assertEquals("MORNING", ShiftSession.MORNING.toString());
     }
     
-
+    @Test
+    void testAfternoonShiftProperties() {
+        assertEquals("14:00", ShiftSession.AFTERNOON.getStartTime());
+        assertEquals("22:00", ShiftSession.AFTERNOON.getEndTime());
+        assertEquals("AFTERNOON", ShiftSession.AFTERNOON.toString());
+    }
+    
+    @Test
+    void testNightShiftProperties() {
+        assertEquals("22:00", ShiftSession.NIGHT.getStartTime());
+        assertEquals("06:00", ShiftSession.NIGHT.getEndTime());
+        assertEquals("NIGHT", ShiftSession.NIGHT.toString());
+    }
+    
+    @Test
+    void testFromStringValidUpperCase() {
+        assertEquals(ShiftSession.MORNING, ShiftSession.fromString("MORNING"));
+        assertEquals(ShiftSession.AFTERNOON, ShiftSession.fromString("AFTERNOON"));
+        assertEquals(ShiftSession.NIGHT, ShiftSession.fromString("NIGHT"));
+    }
+    
+    @Test
+    void testFromStringValidLowerCase() {
+        assertEquals(ShiftSession.MORNING, ShiftSession.fromString("morning"));
+        assertEquals(ShiftSession.AFTERNOON, ShiftSession.fromString("afternoon"));
+        assertEquals(ShiftSession.NIGHT, ShiftSession.fromString("night"));
+    }
+    
+    @Test
+    void testFromStringValidMixedCase() {
+        assertEquals(ShiftSession.MORNING, ShiftSession.fromString("MoRnInG"));
+        assertEquals(ShiftSession.AFTERNOON, ShiftSession.fromString("AfTeRnOoN"));
+    }
+    
+    @Test
+    void testFromStringWithWhitespace() {
+        assertEquals(ShiftSession.MORNING, ShiftSession.fromString("  MORNING  "));
+        assertEquals(ShiftSession.AFTERNOON, ShiftSession.fromString(" afternoon "));
+    }
+    
+    @Test
+    void testFromStringNull() {
+        assertNull(ShiftSession.fromString(null));
+    }
+    
+    @Test
+    void testFromStringEmpty() {
+        assertNull(ShiftSession.fromString(""));
+        assertNull(ShiftSession.fromString("   "));
+    }
+    
+    @Test
+    void testFromStringInvalid() {
+        assertNull(ShiftSession.fromString("INVALID"));
+        assertNull(ShiftSession.fromString("DAWN"));
+        assertNull(ShiftSession.fromString("123"));
+    }
+    
+    @Test
+    void testToString() {
+        assertEquals("MORNING", ShiftSession.MORNING.name());
+        assertEquals("AFTERNOON", ShiftSession.AFTERNOON.name());
+        assertEquals("NIGHT", ShiftSession.NIGHT.name());
+    }
+}

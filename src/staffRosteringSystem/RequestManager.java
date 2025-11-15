@@ -1,8 +1,8 @@
 package staffRosteringSystem;
 
-import java.io.*;
+//import java.io.*;
 import java.util.*;
-import java.util.function.Function;
+//import java.util.function.Function;
 
 /**
  * RequestManager handles all leave and duty request operations.
@@ -11,419 +11,439 @@ import java.util.function.Function;
  * - View, approve, and reject leave requests
  * - View, approve, and reject duty requests
  * - Submit new leave and duty requests
+ * RequestManager handles both business logic and presentation.
+ * Uses ArrayList for simple, straightforward data management.
  */
 public class RequestManager {
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
     private static final int INITIAL_REQUEST_ID = 1000;
 
-//    // Inner classes for request types
-//    public static class LeaveRequest extends Request {
-//        private String leaveType;
-//        private String reason;
-//
-//        public LeaveRequest(int employeeId, int requestId, String requestDate, String leaveType, String reason) {
-//            super(employeeId, requestId, requestDate);
-//            this.leaveType = leaveType;
-//            this.reason = reason;
-//        }
-//
-//        public String getLeaveType() { return leaveType; }
-//        public String getReason() { return reason; }
-//    }
-//
-//    public static class DutyRequest extends Request {
-//        private String dutyType;
-//        private String dutyDescription;
-//
-//        public DutyRequest(int employeeId, int requestId, String requestDate, String dutyType, String dutyDescription) {
-//            super(employeeId, requestId, requestDate);
-//            this.dutyType = dutyType;
-//            this.dutyDescription = dutyDescription;
-//        }
-//
-//        public String getDutyType() { return dutyType; }
-//        public String getDutyDescription() { return dutyDescription; }
-//    }
+    private final FileOperations fileOps;
+    private final StaffManager staffManager;
+    private final List<LeaveRequest> leaveRequests;
+    private final List<DutyRequest> dutyRequests;
 
-    //Initialize RequestFiles if not exists
-    public boolean initializeRequestFiles(String filePath) {
-        FileOperations fOps = new FileOperations();
-        return fOps.initializeFile(filePath);    
-    }
-    
-    // Load leave requests
-    public List<LeaveRequest> loadLeaveRequests() {
-    	FileOperations fOps = new FileOperations();
-		Function<String, LeaveRequest> parser = line -> {
-			String[] parts = line.split("\\|");
-			if (parts.length >= 5) {
-				try {
-					int employeeId = Integer.parseInt(parts[0].trim());
-					int requestId = Integer.parseInt(parts[1].trim());
-					String requestDate = parts[2].trim();
-					String leaveType = parts[3].trim();
-					String reason = parts[4].trim();
-					return new LeaveRequest(employeeId, requestId, requestDate, leaveType, reason);
-				} catch (NumberFormatException e) {
-					System.out.println("Error parsing leave request data: " + e.getMessage());
-				}
-			}
-			return null;
-		};
-		return fOps.loadData(LEAVE_REQUEST_FILE, parser);
-    }
-    
-    /*public List<LeaveRequest> loadLeaveRequests() {
-        List<LeaveRequest> requests = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(LEAVE_REQUEST_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 5) {
-                        int employeeId = Integer.parseInt(parts[0].trim());
-                        int requestId = Integer.parseInt(parts[1].trim());
-                        String requestDate = parts[2].trim();
-                        String leaveType = parts[3].trim();
-                        String reason = parts[4].trim();
-                        requests.add(new LeaveRequest(employeeId, requestId, requestDate, leaveType, reason));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            // File might not exist yet
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing leave request data: " + e.getMessage());
-        }
-        return requests;
-    } */
+    private final String leaveFilePath;
+    private final String dutyFilePath;
 
-    // Load duty requests
-    public List<DutyRequest> loadDutyRequests() {
-        List<DutyRequest> requests = new ArrayList<>();
-        File duty = new File(DUTY_REQUEST_FILE);
-        if (!duty.exists()) {
-            return requests; // empty list if file missing
-        }
-        try (Scanner filescanner = new Scanner(duty)) {
-            while (filescanner.hasNextLine()) {
-                String line = filescanner.nextLine();
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 6) {
-                        try {
-                            int requestId = Integer.parseInt(parts[0].trim());
-                            int employeeId = Integer.parseInt(parts[1].trim());
-                            String requestDate = parts[2].trim();
-                            String section = parts[3].trim();
-                            String dutyType = parts[4].trim();
-                            String dutyDescription = parts[5].trim();
-                            requests.add(new DutyRequest(employeeId, requestId, requestDate, section, dutyType, dutyDescription));
-                        } catch (NumberFormatException nfe) {
-                            System.out.println("Error parsing duty request data: " + nfe.getMessage());
-                        }
-                    } else if (parts.length >= 5) {
-                        // Backward-compatibility: old format without section stored as employeeId,requestId,date,dutyType,description
-                        try {
-                            int employeeId = Integer.parseInt(parts[0].trim());
-                            int requestId = Integer.parseInt(parts[1].trim());
-                            String requestDate = parts[2].trim();
-                            String section = ""; // unknown
-                            String dutyType = parts[3].trim();
-                            String dutyDescription = parts[4].trim();
-                            requests.add(new DutyRequest(employeeId, requestId, requestDate, section, dutyType, dutyDescription));
-                        } catch (NumberFormatException nfe) {
-                            System.out.println("Error parsing legacy duty request data: " + nfe.getMessage());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error loading duty requests: " + e.getMessage());
-        }
-        return requests;
+    /**
+     * Default constructor
+     */
+    public RequestManager() {
+        this(new StaffManager());
     }
-    
-    /*public List<DutyRequest> loadDutyRequests() {
-        List<DutyRequest> requests = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(DUTY_REQUEST_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    String[] parts = line.split(",");
-                    if (parts.length >= 5) {
-                        int employeeId = Integer.parseInt(parts[0].trim());
-                        int requestId = Integer.parseInt(parts[1].trim());
-                        String requestDate = parts[2].trim();
-                        String dutyType = parts[3].trim();
-                        String dutyDescription = parts[4].trim();
-                        requests.add(new DutyRequest(employeeId, requestId, requestDate, dutyType, dutyDescription));
-                    }
-                }
+
+    /**
+     * Constructor with dependency injection
+     */
+    public RequestManager(StaffManager staffManager) {
+        this("Data/Leave_Request.txt", "Data/Duty_Request.txt", 
+             staffManager, new FileOperations());
+    }
+
+    /**
+     * Constructor for testing
+     */
+    public RequestManager(String leaveFilePath, String dutyFilePath,
+                         StaffManager staffManager, FileOperations fileOps) {
+        this.leaveFilePath = leaveFilePath;
+        this.dutyFilePath = dutyFilePath;
+        this.staffManager = staffManager;
+        this.fileOps = fileOps;
+        
+        this.leaveRequests = new ArrayList<>();
+        this.dutyRequests = new ArrayList<>();
+        
+        initializeFiles();
+        loadAllRequests();
+    }
+
+    // ==================== Initialization ====================
+
+    private void initializeFiles() {
+        fileOps.initializeFile(leaveFilePath);
+        fileOps.initializeFile(dutyFilePath);
+    }
+
+    private void loadAllRequests() {
+        loadLeaveRequests();
+        loadDutyRequests();
+    }
+
+    private void loadLeaveRequests() {
+        List<LeaveRequest> requests = fileOps.loadData(leaveFilePath, LeaveRequest::fromFileFormat);
+        leaveRequests.clear();
+        leaveRequests.addAll(requests);
+    }
+
+    private void loadDutyRequests() {
+        List<DutyRequest> requests = fileOps.loadData(dutyFilePath, DutyRequest::fromFileFormat);
+        dutyRequests.clear();
+        dutyRequests.addAll(requests);
+    }
+
+    // ==================== Leave Request Operations ====================
+
+    /**
+     * Submit a new leave request
+     */
+    /*
+    public boolean submitLeaveRequest(int employeeId, String leaveType, String reason, String requestDate) {
+        try {
+            // Validate employee exists
+            if (!staffManager.staffExists(employeeId)) {
+                throw new IllegalArgumentException("Employee ID " + employeeId + " not found");
             }
-        } catch (IOException e) {
-            // File might not exist yet
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing duty request data: " + e.getMessage());
+
+            int newRequestId = getNextLeaveRequestId();
+            LeaveRequest request = new LeaveRequest(employeeId, newRequestId,requestDate, leaveType, reason);
+            leaveRequests.add(request);
+            saveLeaveRequests();
+            
+            System.out.println("\n✓ Leave request submitted successfully!");
+            System.out.println("  Request ID: " + request.getRequestId());
+            System.out.println("  Date: " + request.getRequestDate());
+            return true;
+            
+        } catch (IllegalArgumentException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
+            return false;
         }
-        return requests;
     }*/
 
-	public boolean saveLeaveRequests(List<LeaveRequest> requests) {
-		FileOperations fOps = new FileOperations();
-		Function<LeaveRequest, String> formatter = req -> req.getEmployeeId() + "|" + req.getRequestId() + "|"
-				+ req.getRequestDate() + "|" + req.getLeaveType() + "|" + req.getReason();
-		return fOps.saveData(LEAVE_REQUEST_FILE, requests, formatter);
+    public boolean submitLeaveRequest(int employeeId, String startDate, String endDate, String leaveType, String reason) {
+		try {
+		// Validate employee exists
+		if (!staffManager.staffExists(employeeId)) {
+		throw new IllegalArgumentException("Employee ID " + employeeId + " not found");
+		}
+		
+		int newRequestId = getNextLeaveRequestId();
+		LeaveRequest request = new LeaveRequest(employeeId, newRequestId, startDate, endDate, 
+		                           leaveType, reason);
+		leaveRequests.add(request);
+		saveLeaveRequests();
+		
+		System.out.println("\n✓ Leave request submitted successfully!");
+		System.out.println("  Request ID: " + request.getRequestId());
+		System.out.println("  Period: " + request.getStartDate() + " to " + request.getEndDate());
+		System.out.println("  Duration: " + request.getLeaveDuration() + " day(s)");
+		return true;
+		
+		} catch (IllegalArgumentException e) {
+		System.out.println("\n✗ Error: " + e.getMessage());
+		return false;
+		}
 	}
+
+	/**
+	* Legacy method - single day leave request
+	*/
+	public boolean submitLeaveRequest(int employeeId, String leaveType, String reason, String requestDate) {
+		return submitLeaveRequest(employeeId, requestDate, requestDate, leaveType, reason);
+	}
+    
+         /**
+     * View all pending leave requests with case numbers
+     */
+	/*
+    public void viewLeaveRequestsWithCaseNumbers() {
+        if (leaveRequests.isEmpty()) {
+            System.out.println("\nNo pending leave requests found.");
+            return;
+        }
+        System.out.println("\n=============== LEAVE REQUESTS ===============");
+        System.out.println(String.format("%-5s %-8s %-8s %-15s %-12s %-20s", 
+                  "Case", "Req ID", "Staff ID", "Type", "Date", "Reason"));
+        System.out.println("=======================================================================");
+
+        for (int i = 0; i < leaveRequests.size(); i++) {
+            LeaveRequest req = leaveRequests.get(i);
+            String truncatedReason = truncateString(req.getReason(), 20);
+
+            System.out.println(String.format("%-5d %-8d %-8d %-15s %-12s %-20s",
+                    i + 1, req.getRequestId(), req.getEmployeeId(),
+                    req.getLeaveType(), req.getRequestDate(), truncatedReason));
+            System.out.println("=======================================================================\n");
+        }
+        }
+    */
+    
+	public void viewLeaveRequestsWithCaseNumbers() {
+        if (leaveRequests.isEmpty()) {
+            System.out.println("\nNo pending leave requests found.");
+            return;
+        }
+        
+        System.out.println("\n======================= LEAVE REQUESTS =======================");
+        System.out.println(String.format("%-5s %-8s %-8s %-12s %-12s %-4s %-15s %-20s", 
+                  "Case", "Req ID", "Staff ID", "Start Date", "End Date", "Days", "Type", "Reason"));
+        System.out.println("===================================================================");
+
+        for (int i = 0; i < leaveRequests.size(); i++) {
+            LeaveRequest req = leaveRequests.get(i);
+            String truncatedReason = truncateString(req.getReason(), 20);
+
+            System.out.println(String.format("%-5d %-8d %-8d %-12s %-12s %-4d %-15s %-20s",
+                    i + 1, 
+                    req.getRequestId(), 
+                    req.getEmployeeId(),
+                    req.getStartDate(), 
+                    req.getEndDate(),
+                    req.getLeaveDuration(),
+                    req.getLeaveType(), 
+                    truncatedReason));
+        }
+        System.out.println("===================================================================\n");
+    }
 	
-	
-    // Save leave requests
-    /*public void saveLeaveRequests(List<LeaveRequest> requests) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(LEAVE_REQUEST_FILE))) {
-            for (LeaveRequest req : requests) {
-                writer.println(req.getEmployeeId() + "|" + req.getRequestId() + "|" +
-                        req.getRequestDate() + "|" + req.getLeaveType() + "|" + req.getReason());
+	public boolean approveLeaveRequestByCaseNumber(int caseNumber) {
+        if (caseNumber < 1 || caseNumber > leaveRequests.size()) {
+            System.out.println("\n✗ Error: Invalid case number!");
+            return false;
+        }
+        LeaveRequest request = leaveRequests.get(caseNumber - 1);
+        
+        // Remove from pending requests
+        leaveRequests.remove(caseNumber - 1);
+        saveLeaveRequests();
+        
+        System.out.println("\n✓ Leave request approved successfully!");
+        System.out.println("  Request ID: " + request.getRequestId());
+        System.out.println("  Employee ID: " + request.getEmployeeId());
+        System.out.println("  Date: " + request.getRequestDate());
+        
+        return true;
+    }
+
+        public boolean rejectLeaveRequestByCaseNumber(int caseNumber) {
+            if (caseNumber < 1 || caseNumber > leaveRequests.size()) {
+            System.out.println("\n Error: Invalid case number!");
+            return false;
+        }
+        LeaveRequest request = leaveRequests.get(caseNumber - 1);
+        
+        // Remove from pending requests
+        leaveRequests.remove(caseNumber - 1);
+        saveLeaveRequests();
+        
+        System.out.println("\n✓ Leave request rejected successfully!");
+        System.out.println("  Request ID: " + request.getRequestId());
+        System.out.println("  Employee ID: " + request.getEmployeeId());
+        
+        return true;
+    }
+
+    /**
+     * Find leave request by request ID
+     */
+    public LeaveRequest findLeaveRequestById(int requestId) {
+        for (LeaveRequest request : leaveRequests) {
+            if (request.getRequestId() == requestId) {
+                return request;
             }
-        } catch (IOException e) {
-            System.out.println("Error saving leave requests: " + e.getMessage());
         }
-    }*/
-
-    // Save duty requests
-    public boolean saveDutyRequests(List<DutyRequest> requests) {
-        FileOperations fOps = new FileOperations();
-        // Persist as: requestId,employeeId,requestDate,Section,dutyType,dutyDescription
-        Function<DutyRequest, String> formatter = req -> req.getRequestId() + "," + req.getEmployeeId() + ","
-                + req.getRequestDate() + "," + req.getSection() + "," + req.getDutyType() + "," + req.getDutyDescription();
-        return fOps.saveData(DUTY_REQUEST_FILE, requests, formatter);
-    }
-	
-//    public void saveDutyRequests(List<DutyRequest> requests) {
-//        try (PrintWriter writer = new PrintWriter(new FileWriter(DUTY_REQUEST_FILE))) {
-//            for (DutyRequest req : requests) {
-//                writer.println(req.getEmployeeId() + "," + req.getRequestId() + "," +
-//                        req.getRequestDate() + "," + req.getDutyType() + "," + req.getDutyDescription());
-//            }
-//        } catch (IOException e) {
-//            System.out.println("Error saving duty requests: " + e.getMessage());
-//        }
-//    }
-
-    // View leave requests with case numbers
-    public void viewLeaveRequestsWithCaseNumbers(StaffManager staffManager) {
-        List<LeaveRequest> requests = loadLeaveRequests();
-        if (requests.isEmpty()) {
-            System.out.println("No leave requests found.");
-            return;
-        }
-
-        System.out.println("\n=============== Leave Requests ===============");
-        System.out.printf("%-5s %-8s %-8s %-15s %-12s %-20s%n", "Case", "Req ID", "Staff ID", "Type", "Date", "Reason");
-        System.out.println("===========================================================================");
-
-        for (int i = 0; i < requests.size(); i++) {
-            LeaveRequest req = requests.get(i);
-            String truncatedReason = req.getReason().length() > 20 ? 
-                                     req.getReason().substring(0, 17) + "..." : req.getReason();
-            
-            System.out.printf("%-5d %-8d %-8d %-15s %-12s %-20s%n", 
-                            i + 1, req.getRequestId(), req.getEmployeeId(), 
-                            req.getLeaveType(), req.getRequestDate(), truncatedReason);
-        }
-        System.out.println("===========================================================================");
+        return null;
     }
 
-    // View duty requests with case numbers
-    public void viewDutyRequestsWithCaseNumbers(StaffManager staffManager) {
-        List<DutyRequest> requests = loadDutyRequests();
-        if (requests.isEmpty()) {
-            System.out.println("No duty requests found.");
-            return;
-        }
-
-        System.out.println("\n=============== Duty Requests ===============");
-        System.out.printf("%-5s %-8s %-8s %-12s %-12s %-20s%n", "Case", "Req ID", "Staff ID", "Type", "Date", "Description");
-        System.out.println("===========================================================================");
-
-        for (int i = 0; i < requests.size(); i++) {
-            DutyRequest req = requests.get(i);
-            String truncatedDesc = req.getDutyDescription().length() > 20 ? 
-                                   req.getDutyDescription().substring(0, 17) + "..." : req.getDutyDescription();
-            
-            System.out.printf("%-5d %-8d %-8d %-12s %-12s %-20s%n", 
-                            i + 1, req.getRequestId(), req.getEmployeeId(), 
-                            req.getDutyType(), req.getRequestDate(), truncatedDesc);
-        }
-        System.out.println("===========================================================================");
+    private void saveLeaveRequests() {
+        fileOps.saveData(leaveFilePath, leaveRequests, LeaveRequest::toFileFormat);
     }
 
-    // Approve leave request by case number
-    public boolean approveLeaveRequestByCaseNumber(int caseNumber) {
-        List<LeaveRequest> requests = loadLeaveRequests();
-        if (caseNumber < 1 || caseNumber > requests.size()) {
-            System.out.println("Error: Invalid case number!");
-            return false;
-        }
-
-        LeaveRequest req = requests.get(caseNumber - 1);
-        requests.remove(caseNumber - 1);
-        saveLeaveRequests(requests);
-
-        System.out.println("Leave request approved successfully!");
-        System.out.println("  Request ID: " + req.getRequestId());
-        System.out.println("  Employee ID: " + req.getEmployeeId());
-        System.out.println("  Leave Type: " + req.getLeaveType());
-        System.out.println("  Date: " + req.getRequestDate());
-
-        return true;
-    }
-
-    // Reject leave request by case number
-    public boolean rejectLeaveRequestByCaseNumber(int caseNumber) {
-        List<LeaveRequest> requests = loadLeaveRequests();
-        if (caseNumber < 1 || caseNumber > requests.size()) {
-            System.out.println("Error: Invalid case number!");
-            return false;
-        }
-
-        LeaveRequest req = requests.get(caseNumber - 1);
-        requests.remove(caseNumber - 1);
-        saveLeaveRequests(requests);
-
-        System.out.println("Leave request rejected successfully!");
-        System.out.println("  Request ID: " + req.getRequestId());
-        System.out.println("  Employee ID: " + req.getEmployeeId());
-        System.out.println("  Leave Type: " + req.getLeaveType());
-
-        return true;
-    }
-
-    // Approve duty request by case number
-    public boolean approveDutyRequestByCaseNumber(int caseNumber) {
-        List<DutyRequest> requests = loadDutyRequests();
-        if (caseNumber < 1 || caseNumber > requests.size()) {
-            System.out.println("Error: Invalid case number!");
-            return false;
-        }
-        
-        DutyRequest req = requests.get(caseNumber - 1);
-        if (req != null) {
-        	requests.remove(caseNumber - 1);
-	        saveDutyRequests(requests);
-	
-	        System.out.println("Duty request approved successfully!");
-	        System.out.println("  Request ID: " + req.getRequestId());
-	        System.out.println("  Employee ID: " + req.getEmployeeId());
-	        System.out.println("  Duty Type: " + req.getDutyType());
-	        System.out.println("  Date: " + req.getRequestDate());
-	
-	        return true;
-        }
-        return false;
-    }
-
-    // Reject duty request by case number
-    public boolean rejectDutyRequestByCaseNumber(int caseNumber) {
-        List<DutyRequest> requests = loadDutyRequests();
-        if (caseNumber < 1 || caseNumber > requests.size()) {
-            System.out.println("Error: Invalid case number!");
-            return false;
-        }
-
-        DutyRequest req = requests.get(caseNumber - 1);
-        requests.remove(caseNumber - 1);
-        saveDutyRequests(requests);
-
-        System.out.println("Duty request rejected successfully!");
-        System.out.println("  Request ID: " + req.getRequestId());
-        System.out.println("  Employee ID: " + req.getEmployeeId());
-        System.out.println("  Duty Type: " + req.getDutyType());
-
-        return true;
-    }
-
-    // Request leave
-    public void requestLeave(int employeeId, Scanner scanner, StaffManager staffManager) {
-        if (!staffManager.staffExists(employeeId)) {
-            System.out.println("Error: Employee ID " + employeeId + " not found!");
-            return;
-        }
-
-        System.out.print("Enter leave type (e.g., Sick, Annual, Unpaid): ");
-        String leaveType = scanner.nextLine().trim();
-        System.out.print("Enter reason: ");
-        String reason = scanner.nextLine().trim();
-        System.out.print("Enter date (YYYY-MM-DD): ");
-        String date = scanner.nextLine().trim();
-
-        List<LeaveRequest> requests = loadLeaveRequests();
-        int newRequestId = generateRequestId(requests);
-        
-        requests.add(new LeaveRequest(employeeId, newRequestId, date, leaveType, reason));
-        saveLeaveRequests(requests);
-
-        System.out.println("Leave request submitted successfully!");
-        System.out.println("  Request ID: " + newRequestId);
-        System.out.println("  Type: " + leaveType);
-        System.out.println("  Date: " + date);
-    }
-
-    // Request duty
-    public void requestDuty(int employeeId, Scanner scanner, StaffManager staffManager) {
-        if (!staffManager.staffExists(employeeId)) {
-            System.out.println("Error: Employee ID " + employeeId + " not found!");
-            return;
-        }
-
-        System.out.print("Enter duty type (e.g., Training, Audit, Meeting): ");
-        String dutyType = scanner.nextLine().trim();
-        System.out.print("Enter duty description: ");
-        String dutyDescription = scanner.nextLine().trim();
-        System.out.print("Enter date (YYYY-MM-DD): ");
-        String date = scanner.nextLine().trim();
-        System.out.print("Enter Section: ");
-        String Section = scanner.nextLine().trim();
-
-        List<DutyRequest> requests = loadDutyRequests();
-        if (requests == null) requests = new ArrayList<>();
-        int newRequestId = generateRequestId(requests);
-        
-        requests.add(new DutyRequest(employeeId, newRequestId, date, Section, dutyType, dutyDescription));
-        saveDutyRequests(requests);
-
-        System.out.println("Duty request submitted successfully!");
-        System.out.println("  Request ID: " + newRequestId);
-        System.out.println("  Type: " + dutyType);
-        System.out.println("  Date: " + date);
-    }
-
-    // Helper method to generate request ID
-    private int generateRequestId(List<? extends Request> requests) {
-        int maxId = INITIAL_REQUEST_ID;
-        for (Request req : requests) {
-            if (req.getRequestId() > maxId) {
-                maxId = req.getRequestId();
+    private int getNextLeaveRequestId() {
+        int maxId = 1000; // Starting ID for leave requests
+        for (LeaveRequest request : leaveRequests) {
+            if (request.getRequestId() > maxId) {
+                maxId = request.getRequestId();
             }
         }
         return maxId + 1;
     }
 
-    // Initialize files if they don't exist
-    public void initializeRequestFiles() {
-        initializeFile(LEAVE_REQUEST_FILE);
-        initializeFile(DUTY_REQUEST_FILE);
-    }
-
-    private void initializeFile(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            } catch (IOException e) {
-                System.out.println("Error creating file: " + filePath);
+    /**
+     * Submit a new duty request
+     */
+    public boolean submitDutyRequest(int employeeId, String section, String requestDate) {
+        try {
+            // Validate employee exists
+            if (!staffManager.staffExists(employeeId)) {
+                throw new IllegalArgumentException("Employee ID " + employeeId + " not found");
             }
+                   int newRequestId = getNextDutyRequestId();
+            DutyRequest request = new DutyRequest(employeeId, newRequestId, 
+                                                 requestDate, section);
+            
+            dutyRequests.add(request);
+            saveDutyRequests();
+            
+            System.out.println("\n✓ Duty request submitted successfully!");
+            System.out.println("  Request ID: " + request.getRequestId());
+            System.out.println("  Date: " + request.getRequestDate());
+            return true;
+            
+        } catch (IllegalArgumentException e) {
+            System.out.println("\n✗ Error: " + e.getMessage());
+            return false;
         }
     }
+
+    /**
+     * View all pending duty requests with case numbers
+     */
+    public void viewDutyRequestsWithCaseNumbers() {
+        if (dutyRequests.isEmpty()) {
+            System.out.println("\nNo pending duty requests found.");
+            return;
+        }
+         System.out.println("\n=============== DUTY REQUESTS ===============");
+        System.out.println(String.format("%-5s %-10s %-10s %-12s %-15s",
+                  "Case", "Req ID", "Employee", "Date", "Section"));
+        System.out.println("=======================================================================");
+         for (int i = 0; i < dutyRequests.size(); i++) {
+            DutyRequest req = dutyRequests.get(i);
+            
+            System.out.println(String.format("%-5d %-10d %-10d %-12s %-15s",
+                    i + 1, req.getRequestId(), req.getEmployeeId(),
+                    req.getRequestDate(), req.getSection()));
+        }
+        System.out.println("=======================================================================\n");
+    }
+
+    /**
+     * Approve duty request by case number
+     */
+    public boolean approveDutyRequestByCaseNumber(int caseNumber) {
+        if (caseNumber < 1 || caseNumber > dutyRequests.size()) {
+            System.out.println("\n✗ Error: Invalid case number!");
+            return false;
+        }
+        DutyRequest request = dutyRequests.get(caseNumber - 1);
+        
+        // Remove from pending requests
+        dutyRequests.remove(caseNumber - 1);
+        saveDutyRequests();
+        
+        System.out.println("\n✓ Duty request approved successfully!");
+        System.out.println("  Request ID: " + request.getRequestId());
+        System.out.println("  Employee ID: " + request.getEmployeeId());
+        System.out.println("  Date: " + request.getRequestDate());
+        
+        return true;
+    }
+     /**
+     * Reject duty request by case number
+     */
+    public boolean rejectDutyRequestByCaseNumber(int caseNumber) {
+        if (caseNumber < 1 || caseNumber > dutyRequests.size()) {
+            System.out.println("\n✗ Error: Invalid case number!");
+            return false;
+        }
+        DutyRequest request = dutyRequests.get(caseNumber - 1);
+        
+        // Remove from pending requests
+        dutyRequests.remove(caseNumber - 1);
+        saveDutyRequests();
+        
+        System.out.println("\n✓ Duty request rejected successfully!");
+        System.out.println("  Request ID: " + request.getRequestId());
+        System.out.println("  Employee ID: " + request.getEmployeeId());
+     return true;
+    }
+
+    /**
+     * Find duty request by request ID
+     */
+    public DutyRequest findDutyRequestById(int requestId) {
+        for (DutyRequest request : dutyRequests) {
+            if (request.getRequestId() == requestId) {
+                return request;
+            }
+        }
+        return null;
+    }
+
+    private void saveDutyRequests() {
+        fileOps.saveData(dutyFilePath, dutyRequests, DutyRequest::toFileFormat);
+    }
+
+    private int getNextDutyRequestId() {
+        int maxId = 2000; // Starting ID for duty requests
+        for (DutyRequest request : dutyRequests) {
+            if (request.getRequestId() > maxId) {
+                maxId = request.getRequestId();
+            }
+        }
+        return maxId + 1;
+    }
+
+
+      // ==================== Query Methods ====================
+
+    public int getLeaveRequestCount() {
+        return leaveRequests.size();
+    }
+
+    public int getDutyRequestCount() {
+        return dutyRequests.size();
+    }
+
+     /**
+     * Get all leave requests for a specific employee
+     */
+    public List<LeaveRequest> getEmployeeLeaveRequests(int employeeId) {
+        List<LeaveRequest> result = new ArrayList<>();
+        for (LeaveRequest request : leaveRequests) {
+            if (request.getEmployeeId() == employeeId) {
+                result.add(request);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get all duty requests for a specific employee
+     */
+    public List<DutyRequest> getEmployeeDutyRequests(int employeeId) {
+        List<DutyRequest> result = new ArrayList<>();
+        for (DutyRequest request : dutyRequests) {
+            if (request.getEmployeeId() == employeeId) {
+                result.add(request);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get all leave requests (returns defensive copy)
+     */
+    public List<LeaveRequest> getAllLeaveRequests() {
+        return new ArrayList<>(leaveRequests);
+    }
+
+    /**
+     * Get all duty requests (returns defensive copy)
+     */
+    public List<DutyRequest> getAllDutyRequests() {
+        return new ArrayList<>(dutyRequests);
+    }
+
+    // ==================== Helper Methods ====================
+
+    private String truncateString(String str, int maxLength) {
+        if (str == null) return "";
+        if (str.length() <= maxLength) return str;
+        return str.substring(0, maxLength - 3) + "...";
+    }
+    
+    private boolean isValidDateRange(String startDate, String endDate) {
+            java.time.LocalDate start = java.time.LocalDate.parse(startDate);
+            java.time.LocalDate end = java.time.LocalDate.parse(endDate);
+            return !end.isBefore(start);
+    }
+
+
 }
+    
+
+    

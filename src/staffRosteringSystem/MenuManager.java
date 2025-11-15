@@ -50,12 +50,11 @@ public class MenuManager {
         while (true) {
             System.out.println("\n=============== Administrator Main Menu ===============");
             System.out.println("1. Staff Management");
-            System.out.println("2. Session Management");
-            System.out.println("3. Leave Request Management");
-            System.out.println("4. Duty Request Management");
-            System.out.println("5. Roster Preparation");
-            System.out.println("6. Logout");
-            System.out.print("Please select an option(1-6): ");
+            System.out.println("2. Shift Management");
+            System.out.println("3. Duty Request Management");
+            System.out.println("4. Leave Request Management");
+            System.out.println("5. Logout");
+            System.out.print("Please select an option(1-5): ");
 
             if (!hasInput()) break;
             String input = scanner.nextLine().trim();
@@ -70,21 +69,19 @@ public class MenuManager {
     public boolean handleMainMenuChoice(String input) {
         switch (input) {
             case "1":
-                staffManagementMenu();
+            	staffManagementMenu();
                 return true;
             case "2":
-                sessionManagementMenu();
+                shiftManagementMenu();
                 return true;
             case "3":
-                leaveRequestManagementMenu();
+            	dutyRequestManagementMenu();
                 return true;
             case "4":
-                dutyRequestManagementMenu();
+            	leaveRequestManagementMenu();
                 return true;
+
             case "5":
-                rosterPreparationMenu();
-                return true;
-            case "6":
                 System.out.println("Logged out successfully.");
                 return false;
             default:
@@ -93,7 +90,7 @@ public class MenuManager {
         }
     }
 
-    // Staff management menu
+    //1. Staff management menu
     public void staffManagementMenu() {
         while (true) {
             System.out.println("\n=============== Staff Management ===============");
@@ -198,38 +195,42 @@ public class MenuManager {
         System.out.println(staffManager.viewAllStaffProfiles(null));
     }
 
-    // Leave request management menu
-    public void leaveRequestManagementMenu() {
+    //2. Shift management menu
+    public void shiftManagementMenu() {
         while (true) {
-            System.out.println("\n=============== Leave Request Management ===============");
-            System.out.println("1. View Leave Requests");
-            System.out.println("2. Approve Leave Request");
-            System.out.println("3. Reject Leave Request");
-            System.out.println("4. Back to Main Menu");
-            System.out.print("Please select an option(1-4): ");
+            System.out.println("\n=============== Shift Management ===============");
+            System.out.println("1. View Available Sessions");
+            System.out.println("2. View All Shifts");
+            System.out.println("3. Assign Shift");
+            System.out.println("4. Delete Shift");
+            System.out.println("5. Back to Main Menu");
+            System.out.print("Please select an option(1-2): ");
 
             if (!hasInput()) break;
             String input = scanner.nextLine().trim();
 
-            if (!handleLeaveRequestChoice(input)) {
+            if (!handleShiftManagementChoice(input)) {
                 return; // Back to main menu
             }
         }
     }
     
-    // Handle leave request choice - extracted for testability
-    public boolean handleLeaveRequestChoice(String input) {
+    // Handle session management choice - extracted for testability
+    public boolean handleShiftManagementChoice(String input) {
         switch (input) {
             case "1":
-                requestManager.viewLeaveRequestsWithCaseNumbers(staffManager);
+                displayAvailableSessions();
                 return true;
             case "2":
-                handleApproveLeaveRequest();
+                shiftManager.viewAllShiftSchedules();
                 return true;
             case "3":
-                handleRejectLeaveRequest();
-                return true;
-            case "4":
+            	handleAssignShift();
+				return true;
+			case "4":
+				handleDeleteShift();
+				return true;
+			case "5":
                 return false;
             default:
                 System.out.println("Invalid option! Please try again.");
@@ -237,23 +238,33 @@ public class MenuManager {
         }
     }
     
-    // Extract approve leave request logic
-    public void handleApproveLeaveRequest() {
-        int caseNum = readIntInput("Enter case number to approve: ");
-        if (caseNum != -1) {
-            requestManager.approveLeaveRequestByCaseNumber(caseNum);
-        }
+    // Extract session display logic
+    public void displayAvailableSessions() {
+        System.out.println("\nAvailable Sessions:");
+        System.out.println("  MORNING: 06:00 - 14:00");
+        System.out.println("  AFTERNOON: 14:00 - 22:00");
+        System.out.println("  NIGHT: 22:00 - 06:00");
     }
     
-    // Extract reject leave request logic
-    public void handleRejectLeaveRequest() {
-        int caseNum = readIntInput("Enter case number to reject: ");
-        if (caseNum != -1) {
-            requestManager.rejectLeaveRequestByCaseNumber(caseNum);
+    public void handleDeleteShift() {
+        int shiftId = readIntInput("Enter Shift ID to delete: ");
+        if (shiftId != -1) {
+            shiftManager.deleteShift(shiftId);
         }
     }
 
-    // Duty request management menu
+    // Assign shift helper menu
+    public void handleAssignShift() {
+        int employeeId = readIntInput("Enter Employee ID: ");
+        if (employeeId == -1) return;
+        
+        String date = readStringInput("Enter Date (YYYY-MM-DD): ");
+        String session = readStringInput("Enter Session (MORNING/AFTERNOON/NIGHT): ");
+        String notes = readStringInput("Enter Notes (optional): ");
+        
+        shiftManager.assignShift(employeeId, date, session, notes);
+    }
+    //3. Duty request management menu
     public void dutyRequestManagementMenu() {
         while (true) {
             System.out.println("\n=============== Duty Request Management ===============");
@@ -276,7 +287,7 @@ public class MenuManager {
     public boolean handleDutyRequestChoice(String input) {
         switch (input) {
             case "1":
-                requestManager.viewDutyRequestsWithCaseNumbers(staffManager);
+                requestManager.viewDutyRequestsWithCaseNumbers();
                 return true;
             case "2":
                 handleApproveDutyRequest();
@@ -307,31 +318,39 @@ public class MenuManager {
             requestManager.rejectDutyRequestByCaseNumber(caseNum);
         }
     }
-
-    // Session management menu
-    public void sessionManagementMenu() {
+    
+    //4. Leave request management menu
+    public void leaveRequestManagementMenu() {
         while (true) {
-            System.out.println("\n=============== Session Management ===============");
-            System.out.println("1. View Available Sessions");
-            System.out.println("2. Back to Main Menu");
-            System.out.print("Please select an option(1-2): ");
+            System.out.println("\n=============== Leave Request Management ===============");
+            System.out.println("1. View Leave Requests");
+            System.out.println("2. Approve Leave Request");
+            System.out.println("3. Reject Leave Request");
+            System.out.println("4. Back to Main Menu");
+            System.out.print("Please select an option(1-4): ");
 
             if (!hasInput()) break;
             String input = scanner.nextLine().trim();
 
-            if (!handleSessionManagementChoice(input)) {
+            if (!handleLeaveRequestChoice(input)) {
                 return; // Back to main menu
             }
         }
     }
     
-    // Handle session management choice - extracted for testability
-    public boolean handleSessionManagementChoice(String input) {
+    // Handle leave request choice - extracted for testability
+    public boolean handleLeaveRequestChoice(String input) {
         switch (input) {
             case "1":
-                displayAvailableSessions();
+                requestManager.viewLeaveRequestsWithCaseNumbers();
                 return true;
             case "2":
+                handleApproveLeaveRequest();
+                return true;
+            case "3":
+                handleRejectLeaveRequest();
+                return true;
+            case "4":
                 return false;
             default:
                 System.out.println("Invalid option! Please try again.");
@@ -339,16 +358,25 @@ public class MenuManager {
         }
     }
     
-    // Extract session display logic
-    public void displayAvailableSessions() {
-        System.out.println("\nAvailable Sessions:");
-        System.out.println("  MORNING: 06:00 - 14:00");
-        System.out.println("  AFTERNOON: 14:00 - 22:00");
-        System.out.println("  NIGHT: 22:00 - 06:00");
+    // Extract approve leave request logic
+    public void handleApproveLeaveRequest() {
+        int caseNum = readIntInput("Enter case number to approve: ");
+        if (caseNum != -1) {
+            requestManager.approveLeaveRequestByCaseNumber(caseNum);
+        }
     }
+    
+    // Extract reject leave request logic
+    public void handleRejectLeaveRequest() {
+        int caseNum = readIntInput("Enter case number to reject: ");
+        if (caseNum != -1) {
+            requestManager.rejectLeaveRequestByCaseNumber(caseNum);
+        }
+    }
+ 
 
     // Roster preparation menu
-    public void rosterPreparationMenu() {
+    /*public void rosterPreparationMenu() {
         while (true) {
             System.out.println("\n=============== Roster Preparation ===============");
             System.out.println("1. Approve Leave Request");
@@ -388,16 +416,16 @@ public class MenuManager {
                 handleRosterRejectDutyRequest();
                 return true;
             case "5":
-                requestManager.viewLeaveRequestsWithCaseNumbers(staffManager);
+                requestManager.viewLeaveRequestsWithCaseNumbers();
                 return true;
             case "6":
-                requestManager.viewDutyRequestsWithCaseNumbers(staffManager);
+                requestManager.viewDutyRequestsWithCaseNumbers();
                 return true;
             case "7":
                 shiftManager.viewAllShiftSchedules();
                 return true;
             case "8":
-                assignShiftMenu();
+            	handleAssignShift();
                 return true;
             case "9":
                 handleDeleteShift();
@@ -410,9 +438,9 @@ public class MenuManager {
         }
     }
     
-    // Extract roster approve leave request logic
+//    // Extract roster approve leave request logic
     public void handleRosterApproveLeaveRequest() {
-        requestManager.viewLeaveRequestsWithCaseNumbers(staffManager);
+        requestManager.viewLeaveRequestsWithCaseNumbers();
         int caseNum = readIntInput("Enter case number to approve: ");
         if (caseNum != -1) {
             requestManager.approveLeaveRequestByCaseNumber(caseNum);
@@ -421,7 +449,7 @@ public class MenuManager {
     
     // Extract roster reject leave request logic
     public void handleRosterRejectLeaveRequest() {
-        requestManager.viewLeaveRequestsWithCaseNumbers(staffManager);
+        requestManager.viewLeaveRequestsWithCaseNumbers();
         int caseNum = readIntInput("Enter case number to reject: ");
         if (caseNum != -1) {
             requestManager.rejectLeaveRequestByCaseNumber(caseNum);
@@ -430,7 +458,7 @@ public class MenuManager {
     
     // Extract roster approve duty request logic
     public void handleRosterApproveDutyRequest() {
-        requestManager.viewDutyRequestsWithCaseNumbers(staffManager);
+        requestManager.viewDutyRequestsWithCaseNumbers();
         int caseNum = readIntInput("Enter case number to approve: ");
         if (caseNum != -1) {
             requestManager.approveDutyRequestByCaseNumber(caseNum);
@@ -439,30 +467,11 @@ public class MenuManager {
     
     // Extract roster reject duty request logic
     public void handleRosterRejectDutyRequest() {
-        requestManager.viewDutyRequestsWithCaseNumbers(staffManager);
+        requestManager.viewDutyRequestsWithCaseNumbers();
         int caseNum = readIntInput("Enter case number to reject: ");
         if (caseNum != -1) {
             requestManager.rejectDutyRequestByCaseNumber(caseNum);
         }
     }
-    
-    // Extract delete shift logic
-    public void handleDeleteShift() {
-        int shiftId = readIntInput("Enter Shift ID to delete: ");
-        if (shiftId != -1) {
-            shiftManager.deleteShift(shiftId, staffManager);
-        }
-    }
-
-    // Assign shift helper menu
-    public void assignShiftMenu() {
-        int employeeId = readIntInput("Enter Employee ID: ");
-        if (employeeId == -1) return;
-        
-        String date = readStringInput("Enter Date (YYYY-MM-DD): ");
-        String session = readStringInput("Enter Session (MORNING/AFTERNOON/NIGHT): ");
-        String notes = readStringInput("Enter Notes (optional): ");
-        
-        shiftManager.assignShift(employeeId, date, session, notes, staffManager);
-    }
+  */      
 }

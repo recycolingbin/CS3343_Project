@@ -8,43 +8,30 @@ import java.util.*;
  * - Initialize and coordinate manager classes
  * - Delegate to appropriate manager for operations
  * - Serve as the main entry point for administrative functions
- * 
- * This class demonstrates Single Responsibility Principle (SRP) compliance
- * by delegating actual operations to specialized manager classes:
- * - StaffManager: handles staff profile operations
- * - RequestManager: handles leave and duty request operations
- * - ShiftManager: handles shift scheduling operations
- * - MenuManager: handles menu display and user interaction
  */
 public class AdminFunction extends BaseFunction {
-    private StaffManager staffManager;
+    //private StaffManager staffManager;
     private RequestManager requestManager;
-    private ShiftManager shiftManager;
+    //private ShiftManager shiftManager;
     private MenuManager menuManager;
     private Scanner scanner;
 
-    public AdminFunction(int userId, String username, String password) {
+	public AdminFunction(int userId, String username, String password) {
         super(userId, username, password);
         this.scanner = new Scanner(System.in);
-        
-        // Initialize all manager classes
-        initializeManagers();
-    }
-
-    /**
-     * Initialize all manager classes
-     */
-    private void initializeManagers() {
-        this.staffManager = new StaffManager();
         this.requestManager = new RequestManager();
-        this.shiftManager = new ShiftManager();
-        
-        // Initialize request files if they don't exist
-        this.requestManager.initializeRequestFiles(null);
-        
-        this.menuManager = new MenuManager(staffManager, requestManager, shiftManager, scanner);
+        this.menuManager = new MenuManager(super.staffManager, requestManager, super.shiftManager, scanner);
     }
-
+	
+	public AdminFunction(int userId, String username, String password,
+            StaffManager staffManager, RequestManager requestManager,
+            ShiftManager shiftManager, Scanner scanner) {
+		super(userId, username, password, shiftManager, staffManager);
+		this.requestManager = requestManager;
+		this.scanner = scanner;
+		this.menuManager = new MenuManager(staffManager, requestManager, shiftManager, scanner);
+	}
+	
     /**
      * Main entry point for administrator login
      */
@@ -68,23 +55,23 @@ public class AdminFunction extends BaseFunction {
         return staffManager.deleteStaffProfile(staffId);
     }
 
-    public void viewStaffProfile(int staffId) {
-        System.out.println(staffManager.viewStaffProfile(staffId));
-    	//staffManager.viewStaffProfile(staffId);
+    public String viewStaffProfile(int staffId) {
+        //System.out.println(staffManager.viewStaffProfile(staffId));
+    	return staffManager.viewStaffProfile(staffId);
     }
 
-    public void viewAllStaffProfiles() {
-    	System.out.println( staffManager.viewAllStaffProfiles(null));
-    	//staffManager.viewAllStaffProfiles(staffId);
+    public String viewAllStaffProfiles() {
+    	//System.out.println( staffManager.viewAllStaffProfiles(null));
+    	return staffManager.viewAllStaffProfiles(null);
     }
 
     // Request Management delegations
     public void viewLeaveRequests() {
-        requestManager.viewLeaveRequestsWithCaseNumbers(staffManager);
+        requestManager.viewLeaveRequestsWithCaseNumbers();
     }
 
     public void viewDutyRequests() {
-        requestManager.viewDutyRequestsWithCaseNumbers(staffManager);
+        requestManager.viewDutyRequestsWithCaseNumbers();
     }
 
     public boolean approveLeaveRequest(int caseNumber) {
@@ -103,44 +90,45 @@ public class AdminFunction extends BaseFunction {
         return requestManager.rejectDutyRequestByCaseNumber(caseNumber);
     }
 
+
     // Shift Management delegations
     public boolean assignShift(int employeeId, String date, String session, String notes) {
-        return shiftManager.assignShift(employeeId, date, session, notes, staffManager);
+        return shiftManager.assignShift(employeeId, date, session, notes);
     }
 
     public boolean deleteShift(int shiftId) {
-        return shiftManager.deleteShift(shiftId, staffManager);
+        return shiftManager.deleteShift(shiftId);
     }
 
     public void viewAllShiftSchedules() {
         shiftManager.viewAllShiftSchedules();
     }
 
-    /**
-     * Get the menu manager for direct menu operations if needed
-     */
-    public MenuManager getMenuManager() {
-        return menuManager;
-    }
-
-    /**
-     * Get the staff manager for direct staff operations if needed
-     */
-    public StaffManager getStaffManager() {
-        return staffManager;
-    }
-
-    /**
-     * Get the request manager for direct request operations if needed
-     */
-    public RequestManager getRequestManager() {
-        return requestManager;
-    }
-
-    /**
-     * Get the shift manager for direct shift operations if needed
-     */
-    public ShiftManager getShiftManager() {
-        return shiftManager;
-    }
+//    /**
+//     * Get the menu manager for direct menu operations if needed
+//     */
+//    public MenuManager getMenuManager() {
+//        return menuManager;
+//    }
+//
+//    /**
+//     * Get the staff manager for direct staff operations if needed
+//     */
+//    public StaffManager getStaffManager() {
+//        return staffManager;
+//    }
+//
+//    /**
+//     * Get the request manager for direct request operations if needed
+//     */
+//    public RequestManager getRequestManager() {
+//        return requestManager;
+//    }
+//
+//    /**
+//     * Get the shift manager for direct shift operations if needed
+//     */
+//    public ShiftManager getShiftManager() {
+//        return shiftManager;
+//    }
 }
