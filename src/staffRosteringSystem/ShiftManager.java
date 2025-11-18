@@ -132,8 +132,8 @@ public class ShiftManager {
         }
         System.out.println("================================================================");
     }
-
-    private int generateShiftId(List<Shift> shifts) {return shifts.stream()
+    //update
+    int generateShiftId(List<Shift> shifts) {return shifts.stream()
                 .mapToInt(Shift::getShiftId)
                 .max()
                 .orElse(INITIAL_SHIFT_ID - 1) + 1;

@@ -204,7 +204,7 @@ public class MenuManager {
             System.out.println("3. Assign Shift");
             System.out.println("4. Delete Shift");
             System.out.println("5. Back to Main Menu");
-            System.out.print("Please select an option(1-2): ");
+            System.out.print("Please select an option(1-5): ");
 
             if (!hasInput()) break;
             String input = scanner.nextLine().trim();

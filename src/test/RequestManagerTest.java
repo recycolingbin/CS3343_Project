@@ -4,6 +4,8 @@ import org.junit.jupiter.api.io.TempDir;
 import staffRosteringSystem.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.*;
 import java.util.*;
@@ -16,22 +18,29 @@ class RequestManagerTest {
     private StaffManager staffManager;
     private FileOperations fileOps;
     private RequestManager requestManager;
-
+    private AdminFunction adminFunction;
+    
     private String leaveFilePath;
     private String dutyFilePath;
+    private String shiftFilePath;
+    private ShiftManager shiftManager;
 
     @BeforeEach
     void setUp(@TempDir Path tempDir) {
         // Create isolated file paths
         leaveFilePath = tempDir.resolve("Leave_Request.txt").toString();
         dutyFilePath  = tempDir.resolve("Duty_Request.txt").toString();
-
+        shiftFilePath = tempDir.resolve("Shift.txt").toString();
+        
         staffManager = new StaffManager();
         fileOps = new FileOperations();
-
+        shiftManager = new ShiftManager(shiftFilePath, staffManager, fileOps);
         // Inject dependencies
         requestManager = new RequestManager(leaveFilePath, dutyFilePath, staffManager, fileOps);
 
+		adminFunction = new AdminFunction(2001, "admin", "admin123",
+                staffManager, requestManager, shiftManager, new Scanner(System.in));
+        
         // Add test staff
         staffManager.addStaffProfile(101, "John Doe", "Engineer");
         staffManager.addStaffProfile(102, "Jane Smith", "Nurse");
@@ -219,12 +228,9 @@ class RequestManagerTest {
        8. approveDutyRequestByCaseNumber()
        ============================================================== */
     @Test
-    void testApproveDutyRequest_Success() {
-        requestManager.submitDutyRequest(101, "Audit", "2025-03-01");
-        AdminFunction adminFunction = new AdminFunction(2001, "admin", "admin123", staffManager, requestManager,
-    			new ShiftManager(), new Scanner(System.in));
+    void testApproveDutyRequest_Success() throws IOException {
+    	requestManager.submitDutyRequest(101, "Morning", "2025-03-01");
         boolean result = adminFunction.approveDutyRequest(1);
-
         assertTrue(result);
         assertEquals(0, requestManager.getDutyRequestCount());
     }

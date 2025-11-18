@@ -125,14 +125,14 @@ public class RequestManager {
 		leaveRequests.add(request);
 		saveLeaveRequests();
 		
-		System.out.println("\n✓ Leave request submitted successfully!");
+		System.out.println("\n Leave request submitted successfully!");
 		System.out.println("  Request ID: " + request.getRequestId());
 		System.out.println("  Period: " + request.getStartDate() + " to " + request.getEndDate());
 		System.out.println("  Duration: " + request.getLeaveDuration() + " day(s)");
 		return true;
 		
 		} catch (IllegalArgumentException e) {
-		System.out.println("\n✗ Error: " + e.getMessage());
+		System.out.println("\n Error: " + e.getMessage());
 		return false;
 		}
 	}
@@ -200,16 +200,15 @@ public class RequestManager {
 	
 	public boolean approveLeaveRequestByCaseNumber(int caseNumber) {
         if (caseNumber < 1 || caseNumber > leaveRequests.size()) {
-            System.out.println("\n✗ Error: Invalid case number!");
+            System.out.println("\n Error: Invalid case number!");
             return false;
         }
-        LeaveRequest request = leaveRequests.get(caseNumber - 1);
-        
+        LeaveRequest request = leaveRequests.get(caseNumber - 1);        
         // Remove from pending requests
         leaveRequests.remove(caseNumber - 1);
         saveLeaveRequests();
         
-        System.out.println("\n✓ Leave request approved successfully!");
+        System.out.println("\n Leave request approved successfully!");
         System.out.println("  Request ID: " + request.getRequestId());
         System.out.println("  Employee ID: " + request.getEmployeeId());
         System.out.println("  Date: " + request.getRequestDate());
@@ -228,7 +227,7 @@ public class RequestManager {
         leaveRequests.remove(caseNumber - 1);
         saveLeaveRequests();
         
-        System.out.println("\n✓ Leave request rejected successfully!");
+        System.out.println("\n Leave request rejected successfully!");
         System.out.println("  Request ID: " + request.getRequestId());
         System.out.println("  Employee ID: " + request.getEmployeeId());
         
@@ -277,13 +276,13 @@ public class RequestManager {
             dutyRequests.add(request);
             saveDutyRequests();
             
-            System.out.println("\n✓ Duty request submitted successfully!");
+            System.out.println("\n Duty request submitted successfully!");
             System.out.println("  Request ID: " + request.getRequestId());
             System.out.println("  Date: " + request.getRequestDate());
             return true;
             
         } catch (IllegalArgumentException e) {
-            System.out.println("\n✗ Error: " + e.getMessage());
+            System.out.println("\n Error: " + e.getMessage());
             return false;
         }
     }
@@ -315,7 +314,7 @@ public class RequestManager {
      */
     public boolean approveDutyRequestByCaseNumber(int caseNumber) {
         if (caseNumber < 1 || caseNumber > dutyRequests.size()) {
-            System.out.println("\n✗ Error: Invalid case number!");
+            System.out.println("\n Error: Invalid case number!");
             return false;
         }
         DutyRequest request = dutyRequests.get(caseNumber - 1);
@@ -324,7 +323,16 @@ public class RequestManager {
         dutyRequests.remove(caseNumber - 1);
         saveDutyRequests();
         
-        System.out.println("\n✓ Duty request approved successfully!");
+        //update approved duty will be automatically added to roster
+        ShiftManager sm = new ShiftManager("Data/Shift.txt",staffManager,fileOps);
+        List<Shift> shifts = sm.loadShifts();
+        int newShiftId = sm.generateShiftId(shifts);
+        Shift newShift = Shift.create(newShiftId, request.getEmployeeId(), 
+        		request.getRequestDate(), ShiftSession.fromString(request.getSection()),"");
+        shifts.add(newShift);
+        sm.saveShifts(shifts);
+        
+        System.out.println("\n Duty request approved successfully!");
         System.out.println("  Request ID: " + request.getRequestId());
         System.out.println("  Employee ID: " + request.getEmployeeId());
         System.out.println("  Date: " + request.getRequestDate());
@@ -336,7 +344,7 @@ public class RequestManager {
      */
     public boolean rejectDutyRequestByCaseNumber(int caseNumber) {
         if (caseNumber < 1 || caseNumber > dutyRequests.size()) {
-            System.out.println("\n✗ Error: Invalid case number!");
+            System.out.println("\n Error: Invalid case number!");
             return false;
         }
         DutyRequest request = dutyRequests.get(caseNumber - 1);
@@ -345,7 +353,7 @@ public class RequestManager {
         dutyRequests.remove(caseNumber - 1);
         saveDutyRequests();
         
-        System.out.println("\n✓ Duty request rejected successfully!");
+        System.out.println("\n Duty request rejected successfully!");
         System.out.println("  Request ID: " + request.getRequestId());
         System.out.println("  Employee ID: " + request.getEmployeeId());
      return true;
