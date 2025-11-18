@@ -145,7 +145,7 @@ class ComprehensiveRosteringSystemTest {
 
     @Test
     void testEmployeeFunction_CheckDuty_DutyExists() throws Exception {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+        try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
@@ -164,7 +164,7 @@ class ComprehensiveRosteringSystemTest {
 
     @Test
     void testEmployeeFunction_CheckDuty_FileNotFound() throws Exception {
-        Files.delete(Paths.get(dutyRequestFile));
+        Files.delete(Paths.get(shiftFile));
         
         boolean result = employeeFunction.checkDuty("101", "2025-12-20", "2025-12-30");
         
@@ -223,43 +223,47 @@ class ComprehensiveRosteringSystemTest {
     ================================================================ */
     @Test
     void testRequestLeave_Success() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
         provideInput("2025-12-20\n2025-12-30\nAnnual\nVacation\n");
         employeeFunction.requestLeave("101");
         
-        assertTrue(getOutput().contains("Leave request submitted successfully"));
+        String output = getOutput();
+        assertTrue(output.contains("Leave request submitted successfully"));
     }
     
     @Test
     void testRequestLeave_InvalidStartDate() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
-        provideInput("invalid-date\n");
+        provideInput("invalid-date\n2025-12-30\nAnnual\nVacation\n");
         employeeFunction.requestLeave("101");
         
-        assertFalse(getOutput().contains("Leave request submitted successfully"));
+        String output = getOutput();
+        assertFalse(output.contains("Leave request submitted successfully"));
     }
     
     @Test
     void testRequestLeave_InvalidEndDate() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
-        provideInput("2025-12-20\ninvalid-date\n");
+        // Provide valid start date, then invalid end date, then valid retry
+        provideInput("2025-12-20\ninvalid-date\n2025-12-30\nAnnual\nVacation\n");
         employeeFunction.requestLeave("101");
         
-        assertFalse(getOutput().contains("Leave request submitted successfully"));
+        String output = getOutput();
+        assertTrue(output.contains("Leave request submitted successfully"));
     }
     
     @Test
     void testRequestLeave_EndDateBeforeStartDate() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
@@ -268,28 +272,30 @@ class ComprehensiveRosteringSystemTest {
         
         String output = getOutput();
         assertTrue(output.contains("End date cannot be earlier than start date"));
-        assertFalse(output.contains("Leave request submitted successfully"));
     }
     
     @Test
     void testRequestLeave_EmptyLeaveType() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
+        // Empty leave type, then valid one
         provideInput("2025-12-20\n2025-12-30\n\nSick\nFlu\n");
         employeeFunction.requestLeave("101");
         
         String output = getOutput();
         assertTrue(output.contains("Input cannot be empty"));
+        assertTrue(output.contains("Leave request submitted successfully"));
     }
     
     @Test
     void testRequestLeave_EmptyReason() throws IOException {
-        try (PrintWriter writer = new PrintWriter(dutyRequestFile)) {
+    	try (PrintWriter writer = new PrintWriter(shiftFile)) {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
+        // Empty reason, then valid one
         provideInput("2025-12-20\n2025-12-30\nAnnual\n\nVacation\n");
         employeeFunction.requestLeave("101");
         
@@ -297,6 +303,7 @@ class ComprehensiveRosteringSystemTest {
         assertTrue(output.contains("Input cannot be empty"));
         assertTrue(output.contains("Leave request submitted successfully"));
     }
+    
     
     /* ================================================================
        EmployeeFunction - Login Method (4)

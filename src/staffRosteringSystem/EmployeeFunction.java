@@ -255,8 +255,8 @@ public class EmployeeFunction extends BaseFunction {
         
         Date sd = dateFormat.parse(startDate);
         Date ed = dateFormat.parse(endDate);
-        
-        try (Scanner fileScanner = new Scanner(new File(DUTY_REQUEST_FILE))) {
+        //“Data/Shift.txt”
+        try (Scanner fileScanner = new Scanner(new File("Data/Shift.txt"))) {
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] info = line.split(",");
