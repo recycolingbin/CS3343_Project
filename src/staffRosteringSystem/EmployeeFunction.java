@@ -60,7 +60,12 @@ public class EmployeeFunction extends BaseFunction {
         
         while (true) {
             try {
-                displayMenu();
+            	System.out.println("\n=============== Employee Menu ===============");
+                System.out.println("1. View Shift Schedule");
+                System.out.println("2. Request Duty");
+                System.out.println("3. Request Leave");
+                System.out.println("4. Logout");
+                System.out.print("Please select an option (1-4): ");
                 int action = scanner.nextInt();
                 scanner.nextLine();
 
@@ -75,14 +80,7 @@ public class EmployeeFunction extends BaseFunction {
         }
     }
 
-    private void displayMenu() {
-        System.out.println("\n=============== Employee Menu ===============");
-        System.out.println("1. View Shift Schedule");
-        System.out.println("2. Request Duty");
-        System.out.println("3. Request Leave");
-        System.out.println("4. Logout");
-        System.out.print("Please select an option (1-4): ");
-    }
+
 
     private boolean handleMenuAction(int action, String userid) {
         switch (action) {
@@ -113,11 +111,11 @@ public class EmployeeFunction extends BaseFunction {
             String date = getValidDateInput(scanner, 
                 "Please enter the date you want to request a duty (YYYY-MM-DD): ");
             if (date == null) return;
-
+            
             String session = getValidSession(scanner);
             if (session == null) return;
             
-            if (addDuty(userid, date, session)) {
+            if (addDutyRequest(userid, date, session)) {
                 System.out.println("Duty request submitted successfully.");
             }
             
@@ -137,14 +135,14 @@ public class EmployeeFunction extends BaseFunction {
         return session;
     }
 
-    public boolean addDuty(String userid, String date, String session) throws FileNotFoundException {
+    public boolean addDutyRequest(String userid, String date, String session) throws FileNotFoundException {
         if (hasDuplicateDuty(userid, date, session)) {
             System.out.println("You already have duty on " + date + " at section " + session + 
                              ". Cannot request another duty.");
             return false;
         }
         
-        return writeDutyToFile(userid, date, session);
+        return saveDutyRequest(userid, date, session);
     }
 
     private boolean hasDuplicateDuty(String userid, String date, String session) 
@@ -155,7 +153,10 @@ public class EmployeeFunction extends BaseFunction {
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine();
                 String[] info = line.split(",");
-                if (isDuplicateDutyEntry(info, userid, date, session)) {
+                if (info.length >= 4 && 
+                        info[1].trim().equals(userid) && 
+                        info[2].trim().equals(date) && 
+                        info[3].trim().equals(session)) {
                     return true;
                 }
             }
@@ -163,14 +164,14 @@ public class EmployeeFunction extends BaseFunction {
         return false;
     }
 
-    private boolean isDuplicateDutyEntry(String[] info, String userid, String date, String session) {
-        return info.length >= 4 && 
-               info[1].trim().equals(userid) && 
-               info[2].trim().equals(date) && 
-               info[3].trim().equals(session);
-    }
+//    private boolean isDuplicateDutyEntry(String[] info, String userid, String date, String session) {
+//        return info.length >= 4 && 
+//               info[1].trim().equals(userid) && 
+//               info[2].trim().equals(date) && 
+//               info[3].trim().equals(session);
+//    }
 
-    private boolean writeDutyToFile(String userid, String date, String session) {
+    private boolean saveDutyRequest(String userid, String date, String session) {
         int newRequestId = generateDutyRequestId();
         
         try (FileWriter writer = new FileWriter(DUTY_REQUEST_FILE, true)) {
@@ -255,6 +256,7 @@ public class EmployeeFunction extends BaseFunction {
         
         Date sd = dateFormat.parse(startDate);
         Date ed = dateFormat.parse(endDate);
+        
         //“Data/Shift.txt”
         try (Scanner fileScanner = new Scanner(new File("Data/Shift.txt"))) {
             while (fileScanner.hasNextLine()) {
@@ -327,7 +329,8 @@ public class EmployeeFunction extends BaseFunction {
             return false;
         }
     }
-}
+} 
+
 //package staffRosteringSystem;
 //
 //import java.io.*;

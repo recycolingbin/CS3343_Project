@@ -194,87 +194,87 @@ public class BaseFunctionTest {
     
     
     // ========== VIEW SHIFTS BY SESSION TESTS ==========
-    
-    @Test
-    public void testViewShiftsBySession_ValidSession() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        baseFunction.viewShiftsBySession("MORNING", "2025-11-15");
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("MORNING SHIFTS"));
-        
-        System.setOut(System.out);
-    }
-    
-    @Test
-    public void testViewShiftsBySession_InvalidSession() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        baseFunction.viewShiftsBySession("INVALID", "2025-11-15");
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("Invalid session"));
-        
-        System.setOut(System.out);
-    }
-    
-    @Test
-    public void testViewShiftsBySession_NoDate() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        baseFunction.viewShiftsBySession("AFTERNOON", null);
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("AFTERNOON SHIFTS"));
-        
-        System.setOut(System.out);
-    }
-    
-    @Test
-    public void testViewShiftsBySession_NoShiftsFound() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        baseFunction.viewShiftsBySession("NIGHT", "2025-12-25");
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("No NIGHT shifts found"));
-        
-        System.setOut(System.out);
-    }
+//    
+//    @Test
+//    public void testViewShiftsBySession_ValidSession() {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        baseFunction.viewShiftsBySession("MORNING", "2025-11-15");
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("MORNING SHIFTS"));
+//        
+//        System.setOut(System.out);
+//    }
+//    
+//    @Test
+//    public void testViewShiftsBySession_InvalidSession() {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        baseFunction.viewShiftsBySession("INVALID", "2025-11-15");
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("Invalid session"));
+//        
+//        System.setOut(System.out);
+//    }
+//    
+//    @Test
+//    public void testViewShiftsBySession_NoDate() {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        baseFunction.viewShiftsBySession("AFTERNOON", null);
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("AFTERNOON SHIFTS"));
+//        
+//        System.setOut(System.out);
+//    }
+//    
+//    @Test
+//    public void testViewShiftsBySession_NoShiftsFound() {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        baseFunction.viewShiftsBySession("NIGHT", "2025-12-25");
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("No NIGHT shifts found"));
+//        
+//        System.setOut(System.out);
+//    }
     
     // ========== VIEW MY ROSTER TESTS ==========
     
-    @Test
-    public void testViewMyRoster_WithShifts() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        baseFunction.viewMyRoster();
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("MY SHIFT SCHEDULE"));
-        
-        System.setOut(System.out);
-    }
-    
-    @Test
-    public void testViewMyRoster_NoShifts() {
-        TestableBaseFunction emptyUser = new TestableBaseFunction(9999, "emptyuser", "pass", shiftManager, staffManager);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
-        
-        emptyUser.viewMyRoster();
-        
-        String output = outputStream.toString();
-        assertTrue(output.contains("No shifts assigned to you yet"));
-        
-        System.setOut(System.out);
-    }
+//    @Test
+//    public void testViewMyRoster_WithShifts() {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        baseFunction.viewMyRoster();
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("MY SHIFT SCHEDULE"));
+//        
+//        System.setOut(System.out);
+//    }
+//    
+//    @Test
+//    public void testViewMyRoster_NoShifts() {
+//        TestableBaseFunction emptyUser = new TestableBaseFunction(9999, "emptyuser", "pass", shiftManager, staffManager);
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outputStream));
+//        
+//        emptyUser.viewMyRoster();
+//        
+//        String output = outputStream.toString();
+//        assertTrue(output.contains("No shifts assigned to you yet"));
+//        
+//        System.setOut(System.out);
+//    }
     
     // ========== HELPER METHODS ==========
     

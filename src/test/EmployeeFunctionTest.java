@@ -110,13 +110,13 @@ class ComprehensiveRosteringSystemTest {
 
     @Test
     void testAddDuty_Success() throws IOException, FileNotFoundException {
-        boolean result = employeeFunction.addDuty("101", "2025-12-25", "MORNING");
+        boolean result = employeeFunction.addDutyRequest("101", "2025-12-25", "MORNING");
         assertTrue(result);
     }
 
     @Test
     void testAddDuty_VerifyFileContent() throws IOException,FileNotFoundException {
-        employeeFunction.addDuty("101", "2025-12-25", "MORNING");
+        employeeFunction.addDutyRequest("101", "2025-12-25", "MORNING");
         
         List<String> lines = Files.readAllLines(Paths.get(dutyRequestFile));
         assertEquals(1, lines.size());
@@ -131,7 +131,7 @@ class ComprehensiveRosteringSystemTest {
             writer.println("1,101,2025-12-25,MORNING");
         }
         
-        boolean result = employeeFunction.addDuty("101", "2025-12-25", "MORNING");
+        boolean result = employeeFunction.addDutyRequest("101", "2025-12-25", "MORNING");
         
         assertFalse(result);
         String output = getOutput();

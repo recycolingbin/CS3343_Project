@@ -131,7 +131,7 @@ public abstract class BaseFunction {
     }
 
     // View shifts by session
-    public void viewShiftsBySession(String session, String date) {
+    /*public void viewShiftsBySession(String session, String date) {
         if (!isValidSession(session)) {
             System.out.println("Error: Invalid session! Valid sessions: MORNING, AFTERNOON, NIGHT");
             return;
@@ -170,8 +170,9 @@ public abstract class BaseFunction {
         }
         System.out.println("============================================================");
     }
-
+    */
     // View personal roster for employees
+    /*
     public void viewMyRoster() {
         List<Shift> shifts = shiftManager.loadShifts();
         List<Shift> myShifts = new ArrayList<>();
@@ -206,7 +207,7 @@ public abstract class BaseFunction {
                     timeRange);
         }
         System.out.println("========================================");
-    }
+    }*/
 
     public boolean isValidSession(String session) {
         return ShiftSession.fromString(session) != null;

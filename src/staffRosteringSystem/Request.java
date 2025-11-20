@@ -4,9 +4,9 @@ package staffRosteringSystem;
  * Base class for all requests with encapsulated business logic
  */
 public abstract class Request {
-    private final int employeeId;
-    private final int requestId;
-    private final String requestDate;
+    private  int employeeId;
+    private  int requestId;
+    private  String requestDate;
 
     protected Request(int employeeId, int requestId, String requestDate) {
         this.employeeId = employeeId;

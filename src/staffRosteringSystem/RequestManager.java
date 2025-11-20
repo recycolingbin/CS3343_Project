@@ -38,7 +38,7 @@ public class RequestManager {
      * Constructor with dependency injection
      */
     public RequestManager(StaffManager staffManager) {
-        this("Data/Leave_Request.txt", "Data/Duty_Request.txt", 
+        this(LEAVE_REQUEST_FILE, DUTY_REQUEST_FILE, 
              staffManager, new FileOperations());
     }
 
@@ -56,7 +56,9 @@ public class RequestManager {
         this.dutyRequests = new ArrayList<>();
         
         initializeFiles();
-        loadAllRequests();
+        //loadAllRequests();
+        loadLeaveRequests();
+        loadDutyRequests();
     }
 
     // ==================== Initialization ====================
@@ -66,10 +68,10 @@ public class RequestManager {
         fileOps.initializeFile(dutyFilePath);
     }
 
-    private void loadAllRequests() {
-        loadLeaveRequests();
-        loadDutyRequests();
-    }
+//    private void loadAllRequests() {
+//        loadLeaveRequests();
+//        loadDutyRequests();
+//    }
 
     private void loadLeaveRequests() {
         List<LeaveRequest> requests = fileOps.loadData(leaveFilePath, LeaveRequest::fromFileFormat);
@@ -147,28 +149,6 @@ public class RequestManager {
          /**
      * View all pending leave requests with case numbers
      */
-	/*
-    public void viewLeaveRequestsWithCaseNumbers() {
-        if (leaveRequests.isEmpty()) {
-            System.out.println("\nNo pending leave requests found.");
-            return;
-        }
-        System.out.println("\n=============== LEAVE REQUESTS ===============");
-        System.out.println(String.format("%-5s %-8s %-8s %-15s %-12s %-20s", 
-                  "Case", "Req ID", "Staff ID", "Type", "Date", "Reason"));
-        System.out.println("=======================================================================");
-
-        for (int i = 0; i < leaveRequests.size(); i++) {
-            LeaveRequest req = leaveRequests.get(i);
-            String truncatedReason = truncateString(req.getReason(), 20);
-
-            System.out.println(String.format("%-5d %-8d %-8d %-15s %-12s %-20s",
-                    i + 1, req.getRequestId(), req.getEmployeeId(),
-                    req.getLeaveType(), req.getRequestDate(), truncatedReason));
-            System.out.println("=======================================================================\n");
-        }
-        }
-    */
     
 	public void viewLeaveRequestsWithCaseNumbers() {
         if (leaveRequests.isEmpty()) {
@@ -444,11 +424,11 @@ public class RequestManager {
         return str.substring(0, maxLength - 3) + "...";
     }
     
-    private boolean isValidDateRange(String startDate, String endDate) {
-            java.time.LocalDate start = java.time.LocalDate.parse(startDate);
-            java.time.LocalDate end = java.time.LocalDate.parse(endDate);
-            return !end.isBefore(start);
-    }
+//    private boolean isValidDateRange(String startDate, String endDate) {
+//            java.time.LocalDate start = java.time.LocalDate.parse(startDate);
+//            java.time.LocalDate end = java.time.LocalDate.parse(endDate);
+//            return !end.isBefore(start);
+//    }
 
 
 }

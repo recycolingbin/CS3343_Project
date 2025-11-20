@@ -1,13 +1,13 @@
 package staffRosteringSystem;
 
 public class Shift {
-    private final int shiftId;
-    private final int employeeId;
-    private final String date;
-    private final ShiftSession session;   // <-- enum
-    private final String startTime;
-    private final String endTime;
-    private final String notes;
+    private  int shiftId;
+    private  int employeeId;
+    private  String date;
+    private  ShiftSession session;   // <-- enum
+    private  String startTime;
+    private  String endTime;
+    private  String notes;
 
     private Shift(int shiftId, int employeeId, String date, ShiftSession session,
                   String startTime, String endTime, String notes) {
