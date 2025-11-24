@@ -17,7 +17,6 @@ import java.util.*;
 public class RequestManager {
     private static final String LEAVE_REQUEST_FILE = "Data/Leave_Request.txt";
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
-    private static final int INITIAL_REQUEST_ID = 1000;
 
     private final FileOperations fileOps;
     private final StaffManager staffManager;

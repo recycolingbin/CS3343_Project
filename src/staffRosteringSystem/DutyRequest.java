@@ -43,11 +43,7 @@ public class DutyRequest extends Request {
   
     }
 
-//    @Override
-//    public String toString() {
-//        return String.format("DutyRequest[ID=%d, Employee=%d, Section=%s, Date=%s]",
-//            getRequestId(), getEmployeeId(), section, getRequestDate());
-//    }
+
 
 
 }

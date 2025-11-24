@@ -45,20 +45,7 @@ public class LeaveRequest extends Request {
 
         String[] parts = line.split("\\|");
         
-        // Handle old format (5 fields): employeeId|requestId|requestDate|leaveType|reason
-//        if (parts.length == 5) {
-//
-//                int employeeId = Integer.parseInt(parts[0].trim());
-//                int requestId = Integer.parseInt(parts[1].trim());
-//                String requestDate = parts[2].trim();
-//                String leaveType = parts[3].trim();
-//                String reason = parts[4].trim();
-//                
-//                // Single day leave (start = end)
-//                return new LeaveRequest(employeeId, requestId, requestDate, requestDate, 
-//                                       leaveType, reason);
-//          
-//        }
+
         
         // Handle new format (6 fields): employeeId|requestId|startDate|endDate|leaveType|reason
         if (parts.length >= 6) {
