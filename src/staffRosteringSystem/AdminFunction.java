@@ -103,32 +103,4 @@ public class AdminFunction extends BaseFunction {
     public void viewAllShiftSchedules() {
         shiftManager.viewAllShiftSchedules();
     }
-
-//    /**
-//     * Get the menu manager for direct menu operations if needed
-//     */
-//    public MenuManager getMenuManager() {
-//        return menuManager;
-//    }
-//
-//    /**
-//     * Get the staff manager for direct staff operations if needed
-//     */
-//    public StaffManager getStaffManager() {
-//        return staffManager;
-//    }
-//
-//    /**
-//     * Get the request manager for direct request operations if needed
-//     */
-//    public RequestManager getRequestManager() {
-//        return requestManager;
-//    }
-//
-//    /**
-//     * Get the shift manager for direct shift operations if needed
-//     */
-//    public ShiftManager getShiftManager() {
-//        return shiftManager;
-//    }
 }

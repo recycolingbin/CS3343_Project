@@ -65,10 +65,4 @@ public class LeaveRequest extends Request {
         System.out.println("Warning: Invalid leave request format, skipping line");
         return null;
     }
-
-//    @Override
-//    public String toString() {
-//        return String.format("LeaveRequest[ID=%d, Employee=%d, Type=%s, Date=%s, Reason=%s]",
-//            getRequestId(), getEmployeeId(), leaveType, getRequestDate(), reason);
-//    }
 }

@@ -92,15 +92,11 @@ public class ShiftManager {
         StaffProfile staff = staffManager.getStaffInfo(target.getEmployeeId());
         String name = staff != null ? staff.getName() : "ID:" + target.getEmployeeId();
 
-//        if (saved) {
-            System.out.println("Shift deleted successfully:");
-            System.out.println("  Shift ID : " + shiftId);
-            System.out.println("  Employee : " + name);
-            System.out.println("  Date     : " + target.getDate());
-            System.out.println("  Session  : " + target.getSession());
-//        } else {
-//            System.out.println("Failed to delete shift.");
-//        }
+        System.out.println("Shift deleted successfully:");
+        System.out.println("  Shift ID : " + shiftId);
+        System.out.println("  Employee : " + name);
+        System.out.println("  Date     : " + target.getDate());
+        System.out.println("  Session  : " + target.getSession());
         return saved;
     }
 

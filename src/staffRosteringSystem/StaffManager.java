@@ -56,17 +56,6 @@ public class StaffManager {
             profile.getStaffId() + "," + profile.getName() + "," + profile.getRole();
         return fOps.saveData(staffFilePath, profiles, formatter);
     }
-
-    /*
-    public void saveStaffProfiles(List<StaffProfile> profiles) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(STAFF_PROFILE_FILE))) {
-            for (StaffProfile profile : profiles) {
-                writer.println(profile.getStaffId() + "," + profile.getName() + "," + profile.getRole());
-            }
-        } catch (IOException e) {
-            System.out.println("Error saving staff profiles: " + e.getMessage());
-        }
-    } */
     
     // Add staff profile with validation
     public boolean addStaffProfile(int staffId, String staffName, String role) {
@@ -156,20 +145,7 @@ public class StaffManager {
         sb.append("======================================================");
         
         return sb.toString();
-//        System.out.println("==================== STAFF PROFILE ====================");
-//        System.out.println("Staff ID: " + staff.getStaffId());
-//        System.out.println("Name: " + staff.getName());
-//        System.out.println("Role: " + staff.getRole());
-//        System.out.println("======================================================");
     }
-
-    //View all staff profiles
-    /*public void viewAllStaffProfiles() {
-        List<StaffProfile> profiles = loadStaffProfiles();
-        if (profiles.isEmpty()) {
-            System.out.println("No staff profiles found.");
-            return;
-        } */
     
 	public String viewAllStaffProfiles(List<StaffProfile> profiles) { //return String for testability
 		if (profiles == null) {
@@ -248,17 +224,4 @@ public class StaffManager {
     public int getStaffCount() {
         return loadStaffProfiles().size();
     }
-
-    // Initialize staff file if it doesn't exist
-    /*public void initializeStaffFile() {
-        File file = new File(STAFF_PROFILE_FILE);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                System.out.println("Staff profile file created: " + STAFF_PROFILE_FILE);
-            } catch (IOException e) {
-                System.out.println("Error creating staff profile file: " + e.getMessage());
-            }
-        }
-    }*/
 }

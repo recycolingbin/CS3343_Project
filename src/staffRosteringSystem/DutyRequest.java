@@ -42,8 +42,4 @@ public class DutyRequest extends Request {
             return new DutyRequest(employeeId, requestId, requestDate, section);
   
     }
-
-
-
-
 }

@@ -67,11 +67,6 @@ public class RequestManager {
         fileOps.initializeFile(dutyFilePath);
     }
 
-//    private void loadAllRequests() {
-//        loadLeaveRequests();
-//        loadDutyRequests();
-//    }
-
     private void loadLeaveRequests() {
         List<LeaveRequest> requests = fileOps.loadData(leaveFilePath, LeaveRequest::fromFileFormat);
         leaveRequests.clear();
@@ -85,33 +80,6 @@ public class RequestManager {
     }
 
     // ==================== Leave Request Operations ====================
-
-    /**
-     * Submit a new leave request
-     */
-    /*
-    public boolean submitLeaveRequest(int employeeId, String leaveType, String reason, String requestDate) {
-        try {
-            // Validate employee exists
-            if (!staffManager.staffExists(employeeId)) {
-                throw new IllegalArgumentException("Employee ID " + employeeId + " not found");
-            }
-
-            int newRequestId = getNextLeaveRequestId();
-            LeaveRequest request = new LeaveRequest(employeeId, newRequestId,requestDate, leaveType, reason);
-            leaveRequests.add(request);
-            saveLeaveRequests();
-            
-            System.out.println("\n✓ Leave request submitted successfully!");
-            System.out.println("  Request ID: " + request.getRequestId());
-            System.out.println("  Date: " + request.getRequestDate());
-            return true;
-            
-        } catch (IllegalArgumentException e) {
-            System.out.println("\n✗ Error: " + e.getMessage());
-            return false;
-        }
-    }*/
 
     public boolean submitLeaveRequest(int employeeId, String startDate, String endDate, String leaveType, String reason) {
 		try {
@@ -422,15 +390,4 @@ public class RequestManager {
         if (str.length() <= maxLength) return str;
         return str.substring(0, maxLength - 3) + "...";
     }
-    
-//    private boolean isValidDateRange(String startDate, String endDate) {
-//            java.time.LocalDate start = java.time.LocalDate.parse(startDate);
-//            java.time.LocalDate end = java.time.LocalDate.parse(endDate);
-//            return !end.isBefore(start);
-//    }
-
-
 }
-    
-
-    

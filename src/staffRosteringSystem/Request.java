@@ -24,15 +24,3 @@ public abstract class Request {
 
 
 }
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) return true;
-//        if (!(obj instanceof Request)) return false;
-//        Request other = (Request) obj;
-//        return this.requestId == other.requestId;
-//    }
-
-//    @Override
-//    public int hashCode() {
-//        return Integer.hashCode(requestId);
-//    }
