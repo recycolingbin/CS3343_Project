@@ -12,7 +12,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("=============== Welcome to the Roster Management System ===============");
+            System.out.println("=============== Welcome to the Staff Rostering System ===============");
             System.out.println("1. Login: Employee");
             System.out.println("2. Login: Administrator");
             System.out.println("3. Exit");

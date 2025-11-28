@@ -50,7 +50,7 @@ public class MainTest {
         Main.main(new String[] {});
         
         String output = outputStream.toString();
-        assertTrue(output.contains("Welcome to the Roster Management System"));
+        assertTrue(output.contains("Welcome to the Staff Rostering System"));
         assertTrue(output.contains("See you next time :)"));
     }
     
