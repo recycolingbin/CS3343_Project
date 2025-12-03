@@ -14,6 +14,8 @@ public class EmployeeFunction extends BaseFunction {
     private static final String STAFF_PROFILE_FILE = "Data/Staff_Profile.txt";
     private static final String DUTY_REQUEST_FILE = "Data/Duty_Request.txt";
 
+    private final RequestManager requestManager;
+
     public EmployeeFunction(int userId, String username, String password, 
                           ShiftManager shiftManager, StaffManager staffManager) {
         super(userId, username, password, shiftManager, staffManager);
@@ -322,3 +324,4 @@ public class EmployeeFunction extends BaseFunction {
     }
 
 }
+
