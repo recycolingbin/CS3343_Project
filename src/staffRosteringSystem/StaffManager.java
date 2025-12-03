@@ -26,7 +26,7 @@ public class StaffManager {
     }
     
     public boolean initializeStaffProfileFile(String filePath) {
-        FileOperations fOps = new FileOperations();
+        //FileOperations fOps = new FileOperations();
         //return fOps.initializeFile(filePath);    
         return this.fileOps.initializeFile(filePath); 
     }
